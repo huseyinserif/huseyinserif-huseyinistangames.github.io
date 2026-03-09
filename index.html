@@ -15,12 +15,14 @@
     --card-bg: #0a0a1f;
     --card-border: #1a1a3e;
   }
+  html { scroll-behavior: smooth; }
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body {
     font-family: 'Rajdhani', sans-serif;
     background: var(--dark-bg);
     color: #fff;
     overflow-x: hidden;
+    overflow-y: auto;
     cursor: none;
   }
   .cursor {
@@ -263,14 +265,14 @@
   --text:#e8e8ff;--muted:#4a4a6a;
   --grid-bg:#1a1a28;--cell-bg:#1e1e2e;
 }
-body{
+.embedded-game-wrap{
   background:var(--bg);color:var(--text);
   font-family:'Exo 2',sans-serif;
   min-height:100vh;display:flex;flex-direction:column;
   align-items:center;justify-content:center;
   padding:16px;gap:14px;user-select:none;overflow:hidden;
 }
-body::before{
+.embedded-game-wrap::before{
   content:'';position:fixed;inset:0;
   background:
     radial-gradient(ellipse 60% 50% at 30% 20%,rgba(255,180,0,.05),transparent 55%),
@@ -722,7 +724,7 @@ h1{
   --key-border:#2d472d;
 }
 
-body{
+.embedded-game-wrap{
   background:var(--bg);
   color:var(--text);
   font-family:'IBM Plex Mono',monospace;
@@ -735,7 +737,7 @@ body{
 }
 
 /* scanline effect */
-body::after{
+.embedded-game-wrap::after{
   content:'';position:fixed;inset:0;
   background:repeating-linear-gradient(
     0deg,
@@ -747,7 +749,7 @@ body::after{
   pointer-events:none;z-index:999;
 }
 
-body::before{
+.embedded-game-wrap::before{
   content:'';position:fixed;inset:0;
   background:radial-gradient(ellipse 70% 60% at 50% 40%, rgba(61,220,104,.06), transparent 70%);
   pointer-events:none;
@@ -1001,7 +1003,7 @@ h1{
   --near:#4a90d9;
 }
 
-body{
+.embedded-game-wrap{
   background:var(--bg);
   color:var(--text);
   font-family:'Share Tech Mono',monospace;
@@ -1012,7 +1014,7 @@ body{
   overflow-x:hidden;
 }
 
-body::before{
+.embedded-game-wrap::before{
   content:'';position:fixed;inset:0;
   background:
     radial-gradient(ellipse 60% 50% at 50% 0%,rgba(41,121,255,.1),transparent 60%),
@@ -1021,7 +1023,7 @@ body::before{
 }
 
 /* grid lines */
-body::after{
+.embedded-game-wrap::after{
   content:'';position:fixed;inset:0;
   background-image:
     linear-gradient(rgba(41,121,255,.03) 1px,transparent 1px),
@@ -1300,7 +1302,7 @@ header{
   --crossed:#3d2d5a;
 }
 
-body{
+.embedded-game-wrap{
   background:var(--bg);
   color:var(--text);
   font-family:'Raleway',sans-serif;
@@ -1310,7 +1312,7 @@ body{
   padding:16px;gap:16px;
 }
 
-body::before{
+.embedded-game-wrap::before{
   content:'';position:fixed;inset:0;
   background:
     radial-gradient(ellipse 50% 60% at 80% 10%,rgba(123,47,255,.12),transparent 55%),
@@ -2036,6 +2038,7 @@ h1{
     document.getElementById('gameFrame').src = file;
     document.getElementById('gameModal').classList.add('open');
     document.body.style.overflow = 'hidden';
+    if (typeof MUSIC !== 'undefined' && MUSIC.stop) MUSIC.stop();
   }
   function closeGame() {
     document.getElementById('gameModal').classList.remove('open');
@@ -2100,7 +2103,7 @@ const MUSIC = (() => {
     if (!ctx) {
       ctx = new (window.AudioContext || window.webkitAudioContext)();
       masterGain = ctx.createGain();
-      masterGain.gain.value = 0.18;
+      masterGain.gain.value = 0.06;
       masterGain.connect(ctx.destination);
     }
     if (ctx.state === 'suspended') ctx.resume();
@@ -2525,7 +2528,7 @@ const MUSIC = (() => {
     if (!ctx) {
       ctx = new (window.AudioContext || window.webkitAudioContext)();
       masterGain = ctx.createGain();
-      masterGain.gain.value = 0.18;
+      masterGain.gain.value = 0.06;
       masterGain.connect(ctx.destination);
     }
     if (ctx.state === 'suspended') ctx.resume();
@@ -2948,7 +2951,7 @@ const MUSIC = (() => {
     if (!ctx) {
       ctx = new (window.AudioContext || window.webkitAudioContext)();
       masterGain = ctx.createGain();
-      masterGain.gain.value = 0.18;
+      masterGain.gain.value = 0.06;
       masterGain.connect(ctx.destination);
     }
     if (ctx.state === 'suspended') ctx.resume();
@@ -3547,7 +3550,7 @@ const MUSIC = (() => {
     if (!ctx) {
       ctx = new (window.AudioContext || window.webkitAudioContext)();
       masterGain = ctx.createGain();
-      masterGain.gain.value = 0.18;
+      masterGain.gain.value = 0.06;
       masterGain.connect(ctx.destination);
     }
     if (ctx.state === 'suspended') ctx.resume();
@@ -4080,7 +4083,7 @@ const MUSIC = (() => {
     if (!ctx) {
       ctx = new (window.AudioContext || window.webkitAudioContext)();
       masterGain = ctx.createGain();
-      masterGain.gain.value = 0.18;
+      masterGain.gain.value = 0.06;
       masterGain.connect(ctx.destination);
     }
     if (ctx.state === 'suspended') ctx.resume();
