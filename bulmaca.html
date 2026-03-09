@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kayar Bulmaca</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0a0a0f;
+    --panel: #12121a;
+    --accent: #e8ff47;
+    --accent2: #ff4fd8;
+    --tile: #1c1c2e;
+    --tile-border: #2e2e4a;
+    --text: #f0f0ff;
+    --muted: #55556a;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    overflow: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 60% 50% at 20% 20%, rgba(232,255,71,0.06) 0%, transparent 60%),
+      radial-gradient(ellipse 50% 60% at 80% 80%, rgba(255,79,216,0.07) 0%, transparent 60%);
+    pointer-events: none;
+  }
+
+  .container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 28px;
+    position: relative;
+    z-index: 1;
+  }
+
+  header {
+    text-align: center;
+  }
+
+  header h1 {
+    font-size: clamp(2rem, 5vw, 3.2rem);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 1;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  header p {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--muted);
+    margin-top: 6px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .stats {
+    display: flex;
+    gap: 24px;
+    font-family: 'Space Mono', monospace;
+  }
+
+  .stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .stat-value {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--accent);
+    line-height: 1;
+    min-width: 60px;
+    text-align: center;
+  }
+
+  .stat-label {
+    font-size: 0.65rem;
+    color: var(--muted);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .stat-divider {
+    width: 1px;
+    background: var(--tile-border);
+    align-self: stretch;
+  }
+
+  .board-wrap {
+    position: relative;
+  }
+
+  .board-wrap::before {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    border-radius: 18px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    z-index: -1;
+    opacity: 0.5;
+  }
+
+  #board {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
+    background: var(--panel);
+    padding: 12px;
+    border-radius: 16px;
+    width: min(400px, 92vw);
+    height: min(400px, 92vw);
+  }
+
+  .tile {
+    background: var(--tile);
+    border: 1px solid var(--tile-border);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Space Mono', monospace;
+    font-size: clamp(1.1rem, 4vw, 1.6rem);
+    font-weight: 700;
+    color: var(--text);
+    cursor: pointer;
+    transition: background 0.15s, transform 0.12s, box-shadow 0.15s;
+    user-select: none;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .tile::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 10px;
+    background: linear-gradient(135deg, rgba(255,255,255,0.06), transparent);
+    pointer-events: none;
+  }
+
+  .tile:not(.empty):hover {
+    background: #252540;
+    transform: scale(0.96);
+    box-shadow: 0 0 0 1px var(--accent2);
+  }
+
+  .tile:not(.empty):active {
+    transform: scale(0.91);
+  }
+
+  .tile.empty {
+    background: transparent;
+    border-color: transparent;
+    cursor: default;
+  }
+
+  .tile.correct {
+    background: linear-gradient(135deg, #1a2e14, #1c3a1c);
+    border-color: #3aff5c;
+    color: #3aff5c;
+  }
+
+  .tile.move-anim {
+    animation: pop 0.18s ease;
+  }
+
+  @keyframes pop {
+    0%   { transform: scale(0.88); }
+    60%  { transform: scale(1.05); }
+    100% { transform: scale(1); }
+  }
+
+  .controls {
+    display: flex;
+    gap: 12px;
+  }
+
+  button {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 0.85rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    border: none;
+    border-radius: 10px;
+    padding: 12px 24px;
+    cursor: pointer;
+    transition: transform 0.12s, box-shadow 0.15s;
+  }
+
+  button:active { transform: scale(0.95); }
+
+  #btnShuffle {
+    background: linear-gradient(135deg, var(--accent), #c8e000);
+    color: #0a0a0f;
+  }
+
+  #btnShuffle:hover {
+    box-shadow: 0 0 20px rgba(232,255,71,0.4);
+  }
+
+  #btnSize {
+    background: var(--tile);
+    color: var(--text);
+    border: 1px solid var(--tile-border);
+  }
+
+  #btnSize:hover {
+    border-color: var(--accent2);
+    box-shadow: 0 0 15px rgba(255,79,216,0.25);
+  }
+
+  .win-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(10,10,15,0.88);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    z-index: 100;
+    backdrop-filter: blur(8px);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.4s;
+  }
+
+  .win-overlay.show {
+    opacity: 1;
+    pointer-events: all;
+  }
+
+  .win-title {
+    font-size: clamp(2.5rem, 8vw, 4rem);
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-align: center;
+    animation: float 2s ease-in-out infinite;
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+  }
+
+  .win-stats {
+    font-family: 'Space Mono', monospace;
+    font-size: 1rem;
+    color: var(--muted);
+    text-align: center;
+    line-height: 2;
+  }
+
+  .win-stats span {
+    color: var(--accent);
+  }
+
+  
+/* ── MUTE BUTTON ── */
+#muteBtn{
+  position:fixed;top:12px;right:12px;z-index:200;
+  font-size:1.2rem;width:36px;height:36px;
+  border-radius:50%;border:1px solid var(--border);
+  background:var(--surface);cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:all .15s;line-height:1;
+}
+#muteBtn:hover{transform:scale(1.1);}
+
+  #btnPlay {
+    background: linear-gradient(135deg, var(--accent), #c8e000);
+    color: #0a0a0f;
+    font-size: 1rem;
+    padding: 14px 36px;
+    border-radius: 12px;
+  }
+
+  .size-hint {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+  }
+
+/* ── MUSIC BUTTON ── */
+#musicBtn{
+  position:fixed;top:12px;right:54px;z-index:200;
+  font-size:1.1rem;width:36px;height:36px;
+  border-radius:50%;border:1px solid var(--border);
+  background:var(--surface);cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:all .15s;line-height:1;
+}
+#musicBtn:hover{transform:scale(1.1);}
+#musicBtn.on{border-color:#ffb800;box-shadow:0 0 10px rgba(255,184,0,.3);}
+
+</style>
+</head>
+<body>
+
+<button id="muteBtn" title="Ses aç/kapat">🔊</button>
+<div class="container">
+  <header>
+    <h1>KAYAR BULMACA</h1>
+    <p>Sayıları sıralaya bilir misin?</p>
+  </header>
+
+  <div class="stats">
+    <div class="stat">
+      <div class="stat-value" id="moveCount">0</div>
+      <div class="stat-label">Hamle</div>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="stat">
+      <div class="stat-value" id="timer">0:00</div>
+      <div class="stat-label">Süre</div>
+    </div>
+  </div>
+
+  <div class="board-wrap">
+    <div id="board"></div>
+  </div>
+
+  <div class="controls">
+    <button id="btnShuffle">🔀 Karıştır</button>
+    <button id="btnSize">4×4 ▾</button>
+  </div>
+  <div class="size-hint" id="sizeHint">Boyutu değiştirmek için tıkla</div>
+</div>
+
+<div class="win-overlay" id="winOverlay">
+  <div class="win-title">🎉 TEBRIKLER!</div>
+  <div class="win-stats" id="winStats"></div>
+  <button id="btnPlay" onclick="newGame()">Tekrar Oyna</button>
+</div>
+
+<script>
+
+// ── MUSIC ENGINE ─────────────────────────────────────────────────────────────
+const MUSIC = (() => {
+  let ctx = null, playing = false, nodes = [], beatTimer = null;
+  let masterGain = null, theme = 'default';
+
+  const THEMES = {
+    puzzle: { // Kayar Bulmaca - calm, methodical
+      bpm: 90, scale: [261.63,293.66,329.63,349.23,392,440,493.88,523.25],
+      bass: [65.41,73.42,82.41,87.31], bassPattern:[0,0,2,2,1,1,3,3],
+      melody: [[0,2,4,5,4,2],[2,4,5,7,5,4],[0,2,4,7,5,4,2,0]],
+      pad: true, arp: false, colors: 'blue'
+    },
+    chain: { // Zincir - mysterious, flowing
+      bpm: 80, scale: [277.18,311.13,349.23,369.99,415.3,466.16,523.25,554.37],
+      bass: [69.3,77.78,87.31,92.5], bassPattern:[0,2,1,3,0,2,3,1],
+      melody: [[0,3,5,6,5,3],[2,5,6,7,6,5,3],[0,2,5,7,6,5,2]],
+      pad: true, arp: true, colors: 'purple'
+    },
+    nonogram: { // Nonogram - pixelated, retro game
+      bpm: 120, scale: [261.63,293.66,329.63,392,440,523.25,587.33,659.25],
+      bass: [65.41,82.41,98,110], bassPattern:[0,0,1,0,2,0,1,3],
+      melody: [[0,2,3,5,3,2],[2,3,5,7,5,3],[0,5,3,2,0,2,3,5]],
+      pad: false, arp: true, colors: 'green'
+    },
+    wordle: { // Wordle - tense, thinking
+      bpm: 75, scale: [246.94,277.18,311.13,329.63,369.99,415.3,466.16,493.88],
+      bass: [61.74,69.3,77.78,82.41], bassPattern:[0,1,0,2,0,1,3,0],
+      melody: [[0,1,3,4,3,1],[1,3,4,5,4,3,1],[0,3,4,6,4,3,1,0]],
+      pad: true, arp: false, colors: 'green2'
+    },
+    mastermind: { // Mastermind - spy thriller, intense
+      bpm: 100, scale: [233.08,261.63,277.18,311.13,369.99,415.3,466.16,493.88],
+      bass: [58.27,65.41,73.42,77.78], bassPattern:[0,0,0,1,0,0,2,3],
+      melody: [[0,2,1,3,2,0],[2,1,3,4,3,1],[0,3,2,5,4,2,1,0]],
+      pad: true, arp: true, colors: 'blue2'
+    },
+    game2048: { // 2048 - driving, escalating
+      bpm: 110, scale: [261.63,293.66,329.63,369.99,415.3,466.16,523.25,587.33],
+      bass: [65.41,73.42,82.41,92.5], bassPattern:[0,2,0,3,1,2,0,3],
+      melody: [[0,2,4,6,4,2],[2,4,6,7,6,4],[0,4,6,7,5,3,1,0]],
+      pad: false, arp: true, colors: 'orange'
+    }
+  };
+
+  let melodyIdx = 0, beatCount = 0, barCount = 0;
+
+  function getCtx() {
+    if (!ctx) {
+      ctx = new (window.AudioContext || window.webkitAudioContext)();
+      masterGain = ctx.createGain();
+      masterGain.gain.value = 0.18;
+      masterGain.connect(ctx.destination);
+    }
+    if (ctx.state === 'suspended') ctx.resume();
+    return ctx;
+  }
+
+  function osc(freq, type, vol, start, dur, targetFreq) {
+    const c = getCtx();
+    const o = c.createOscillator();
+    const g = c.createGain();
+    o.connect(g); g.connect(masterGain);
+    o.type = type;
+    o.frequency.setValueAtTime(freq, start);
+    if (targetFreq) o.frequency.linearRampToValueAtTime(targetFreq, start + dur * 0.8);
+    g.gain.setValueAtTime(0, start);
+    g.gain.linearRampToValueAtTime(vol, start + 0.015);
+    g.gain.setValueAtTime(vol, start + dur * 0.6);
+    g.gain.exponentialRampToValueAtTime(0.001, start + dur);
+    o.start(start); o.stop(start + dur + 0.05);
+    return o;
+  }
+
+  function playBeat() {
+    if (!playing) return;
+    const c = getCtx();
+    const t = c.currentTime;
+    const cfg = THEMES[theme];
+    const spb = 60 / cfg.bpm; // seconds per beat
+    const beat = beatCount % 8;
+    const bar  = Math.floor(beatCount / 8);
+
+    // ── BASS ──
+    const bassNote = cfg.bass[cfg.bassPattern[beat % cfg.bassPattern.length]];
+    if (beat % 2 === 0) {
+      osc(bassNote, 'triangle', 0.5, t, spb * 1.8);
+      osc(bassNote * 2, 'sine', 0.15, t, spb * 0.9);
+    }
+
+    // ── DRUMS / RHYTHM ──
+    if (beat === 0 || beat === 4) { // kick
+      const ko = c.createOscillator(), kg = c.createGain();
+      ko.connect(kg); kg.connect(masterGain);
+      ko.frequency.setValueAtTime(150, t);
+      ko.frequency.exponentialRampToValueAtTime(40, t + 0.15);
+      kg.gain.setValueAtTime(0.7, t);
+      kg.gain.exponentialRampToValueAtTime(0.001, t + 0.18);
+      ko.start(t); ko.stop(t + 0.2);
+    }
+    if (beat === 2 || beat === 6) { // snare
+      const buf = c.createBuffer(1, c.sampleRate * 0.12, c.sampleRate);
+      const d = buf.getChannelData(0);
+      for(let i=0;i<d.length;i++) d[i]=(Math.random()*2-1)*Math.exp(-i/d.length*20);
+      const sn = c.createBufferSource(), sg = c.createGain();
+      const sf = c.createBiquadFilter(); sf.type='bandpass'; sf.frequency.value=2000;
+      sn.buffer=buf; sn.connect(sf); sf.connect(sg); sg.connect(masterGain);
+      sg.gain.setValueAtTime(0.35, t);
+      sg.gain.exponentialRampToValueAtTime(0.001, t+0.12);
+      sn.start(t); sn.stop(t+0.13);
+    }
+    // hihat
+    {
+      const buf = c.createBuffer(1, c.sampleRate * 0.06, c.sampleRate);
+      const d = buf.getChannelData(0);
+      for(let i=0;i<d.length;i++) d[i]=(Math.random()*2-1)*Math.exp(-i/d.length*30);
+      const hn = c.createBufferSource(), hg = c.createGain();
+      const hf = c.createBiquadFilter(); hf.type='highpass'; hf.frequency.value=7000;
+      hn.buffer=buf; hn.connect(hf); hf.connect(hg); hg.connect(masterGain);
+      hg.gain.setValueAtTime(beat%2===0?0.2:0.1, t);
+      hg.gain.exponentialRampToValueAtTime(0.001, t+0.06);
+      hn.start(t); hn.stop(t+0.07);
+    }
+
+    // ── MELODY ──
+    if (beat % 2 === 0) {
+      const mel = cfg.melody[barCount % cfg.melody.length];
+      const ni = Math.floor((beat/2)) % mel.length;
+      const freq = cfg.scale[mel[ni] % cfg.scale.length];
+      osc(freq, 'triangle', 0.22, t + 0.01, spb * 1.6);
+      // harmony 3rd above
+      if (beat === 0 && barCount % 2 === 0) {
+        const hi = (mel[ni] + 2) % cfg.scale.length;
+        osc(cfg.scale[hi], 'sine', 0.08, t + 0.02, spb * 3);
+      }
+    }
+
+    // ── ARP ──
+    if (cfg.arp && beat % 1 === 0) {
+      const arpScale = cfg.scale;
+      const ai = (beatCount * 3) % arpScale.length;
+      osc(arpScale[ai] * 2, 'square', 0.04, t + spb*0.5, spb * 0.45);
+    }
+
+    // ── PAD ──
+    if (cfg.pad && beat === 0) {
+      const padFreqs = [cfg.scale[0], cfg.scale[2], cfg.scale[4]];
+      padFreqs.forEach((f, i) => {
+        osc(f, 'sine', 0.06, t + i*0.05, spb * 7.5);
+      });
+    }
+
+    beatCount++;
+    if (beatCount % 8 === 0) barCount++;
+
+    beatTimer = setTimeout(playBeat, spb * 1000 - 5);
+  }
+
+  function fadeIn() {
+    if (!masterGain) return;
+    masterGain.gain.setValueAtTime(0, getCtx().currentTime);
+    masterGain.gain.linearRampToValueAtTime(0.18, getCtx().currentTime + 2);
+  }
+
+  function fadeOut(cb) {
+    if (!masterGain) { if(cb) cb(); return; }
+    masterGain.gain.setValueAtTime(masterGain.gain.value, getCtx().currentTime);
+    masterGain.gain.linearRampToValueAtTime(0, getCtx().currentTime + 1.5);
+    setTimeout(() => { playing = false; clearTimeout(beatTimer); if(cb)cb(); }, 1600);
+  }
+
+  return {
+    start(t = 'default') {
+      if (playing) return;
+      theme = THEMES[t] ? t : 'puzzle';
+      playing = true; beatCount = 0; barCount = 0; melodyIdx = 0;
+      getCtx();
+      fadeIn();
+      playBeat();
+    },
+    stop(cb) { fadeOut(cb); },
+    setTheme(t) {
+      if (theme === t) return;
+      fadeOut(() => { if(playing || true){ theme=t; playing=true; beatCount=0; barCount=0; fadeIn(); playBeat(); } });
+    },
+    isPlaying() { return playing; },
+    setVol(v) { if(masterGain) masterGain.gain.value = v; },
+    toggle(t) {
+      if (playing) { fadeOut(); playing = false; return false; }
+      else { this.start(t); return true; }
+    }
+  };
+})();
+
+
+// ── AUDIO ENGINE ─────────────────────────────────────────────────────────────
+const SFX = (() => {
+  let ctx = null;
+  let muted = false;
+  function ac() {
+    if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)();
+    if (ctx.state === 'suspended') ctx.resume();
+    return ctx;
+  }
+  function tone(freq, type, vol, attack, decay, dur) {
+    if (muted) return;
+    try {
+      const c = ac();
+      const o = c.createOscillator();
+      const g = c.createGain();
+      o.connect(g); g.connect(c.destination);
+      o.type = type; o.frequency.setValueAtTime(freq, c.currentTime);
+      g.gain.setValueAtTime(0, c.currentTime);
+      g.gain.linearRampToValueAtTime(vol, c.currentTime + attack);
+      g.gain.exponentialRampToValueAtTime(0.001, c.currentTime + attack + decay);
+      o.start(c.currentTime); o.stop(c.currentTime + dur);
+    } catch(e){}
+  }
+  function chord(freqs, type, vol, dur) {
+    freqs.forEach((f,i) => setTimeout(() => tone(f, type, vol, 0.01, dur, dur+0.05), i*70));
+  }
+  function noise(vol, dur) {
+    if (muted) return;
+    try {
+      const c = ac();
+      const buf = c.createBuffer(1, c.sampleRate * dur, c.sampleRate);
+      const d = buf.getChannelData(0);
+      for (let i = 0; i < d.length; i++) d[i] = (Math.random() * 2 - 1);
+      const src = c.createBufferSource();
+      src.buffer = buf;
+      const g = c.createGain();
+      const f = c.createBiquadFilter();
+      f.type = 'bandpass'; f.frequency.value = 800;
+      src.connect(f); f.connect(g); g.connect(c.destination);
+      g.gain.setValueAtTime(vol, c.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.001, c.currentTime + dur);
+      src.start(); src.stop(c.currentTime + dur);
+    } catch(e){}
+  }
+  return {
+    toggleMute: () => { muted = !muted; return muted; },
+    isMuted: () => muted,
+    click:   () => tone(420, 'sine', 0.14, 0.005, 0.08, 0.09),
+    tile:    () => tone(520 + Math.random()*80, 'triangle', 0.12, 0.005, 0.1, 0.11),
+    merge:   (n) => { const f = 200 + Math.log2(n||2)*45; tone(f,'triangle',0.28,0.01,0.22,0.24); setTimeout(()=>tone(f*1.5,'sine',0.16,0.02,0.18,0.2),30); },
+    win:     () => chord([523,659,784,1047],'sine',0.18,0.45),
+    lose:    () => chord([220,185,155,130],'sawtooth',0.12,0.5),
+    correct: () => chord([659,784,1047],'triangle',0.18,0.32),
+    wrong:   () => { tone(180,'sawtooth',0.16,0.01,0.28,0.3); setTimeout(()=>tone(150,'sawtooth',0.1,0.01,0.2,0.22),120); },
+    near:    () => tone(440,'triangle',0.15,0.01,0.15,0.17),
+    type:    () => tone(600+Math.random()*200,'square',0.06,0.002,0.04,0.045),
+    flip:    () => tone(300+Math.random()*150,'triangle',0.1,0.005,0.08,0.09),
+    fill:    () => tone(480,'sine',0.12,0.005,0.1,0.11),
+    erase:   () => noise(0.08, 0.07),
+    check:   () => { tone(660,'triangle',0.15,0.01,0.12,0.14); setTimeout(()=>tone(880,'triangle',0.12,0.01,0.1,0.12),90); },
+    place:   () => tone(350+Math.random()*100,'triangle',0.13,0.005,0.09,0.1),
+    confirm: () => { tone(440,'triangle',0.16,0.01,0.1,0.12); setTimeout(()=>tone(550,'sine',0.13,0.01,0.1,0.12),110); },
+    hit:     () => { tone(880,'sine',0.2,0.005,0.15,0.16); tone(1100,'triangle',0.12,0.01,0.1,0.12); },
+    near2:   () => tone(550,'triangle',0.15,0.005,0.12,0.13),
+    delete:  () => tone(300,'triangle',0.1,0.003,0.06,0.07),
+    reveal:  () => { chord([330,415,523,659],'sine',0.14,0.35); },
+  };
+})();
+
+  let size = 4;
+  let tiles = [];
+  let moves = 0;
+  let seconds = 0;
+  let timerInterval = null;
+  let started = false;
+
+  const board = document.getElementById('board');
+  const moveCount = document.getElementById('moveCount');
+  const timerEl = document.getElementById('timer');
+  const winOverlay = document.getElementById('winOverlay');
+  const winStats = document.getElementById('winStats');
+  const btnSize = document.getElementById('btnSize');
+
+  function initTiles() {
+    tiles = Array.from({length: size * size - 1}, (_, i) => i + 1);
+    tiles.push(0);
+  }
+
+  function isSolvable(arr) {
+    let inv = 0;
+    const flat = arr.filter(x => x !== 0);
+    for (let i = 0; i < flat.length; i++)
+      for (let j = i + 1; j < flat.length; j++)
+        if (flat[i] > flat[j]) inv++;
+    const blankRow = Math.floor(arr.indexOf(0) / size);
+    if (size % 2 === 1) return inv % 2 === 0;
+    return (inv + blankRow) % 2 === 1;
+  }
+
+  function shuffle() {
+    do {
+      for (let i = tiles.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [tiles[i], tiles[j]] = [tiles[j], tiles[i]];
+      }
+    } while (!isSolvable(tiles) || isWin());
+  }
+
+  function isWin() {
+    for (let i = 0; i < tiles.length - 1; i++)
+      if (tiles[i] !== i + 1) return false;
+    return tiles[tiles.length - 1] === 0;
+  }
+
+  function render() {
+    board.style.gridTemplateColumns = `repeat(${size}, 1fr)`;
+    board.innerHTML = '';
+    tiles.forEach((val, idx) => {
+      const tile = document.createElement('div');
+      tile.className = 'tile' + (val === 0 ? ' empty' : '');
+      if (val !== 0) {
+        tile.textContent = val;
+        const correct = val === idx + 1;
+        if (correct) tile.classList.add('correct');
+        tile.addEventListener('click', () => clickTile(idx));
+      }
+      board.appendChild(tile);
+    });
+  }
+
+  function clickTile(idx) {
+    const blank = tiles.indexOf(0);
+    const row = Math.floor(idx / size), col = idx % size;
+    const bRow = Math.floor(blank / size), bCol = blank % size;
+
+    const neighbors = [
+      [bRow - 1, bCol], [bRow + 1, bCol],
+      [bRow, bCol - 1], [bRow, bCol + 1]
+    ];
+
+    const isNeighbor = neighbors.some(([r, c]) => r === row && c === col);
+    if (!isNeighbor) return;
+
+    if (!started) { startTimer(); started = true; }
+
+    SFX.tile(); [tiles[blank], tiles[idx]] = [tiles[idx], tiles[blank]];
+    moves++;
+    moveCount.textContent = moves;
+    render();
+
+    // animate moved tile
+    const tileEls = board.querySelectorAll('.tile');
+    tileEls[blank].classList.add('move-anim');
+    setTimeout(() => tileEls[blank].classList.remove('move-anim'), 200);
+
+    if (isWin()) onWin();
+  }
+
+  function startTimer() {
+    clearInterval(timerInterval);
+    timerInterval = setInterval(() => {
+      seconds++;
+      const m = Math.floor(seconds / 60);
+      const s = seconds % 60;
+      timerEl.textContent = `${m}:${s.toString().padStart(2,'0')}`;
+    }, 1000);
+  }
+
+  function stopTimer() { clearInterval(timerInterval); }
+
+  function onWin() {
+    stopTimer();
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    winStats.innerHTML = `<span>${moves}</span> hamlede çözdün!<br>Süre: <span>${m}:${s.toString().padStart(2,'0')}</span>`;
+    SFX.win(); winOverlay.classList.add('show');
+  }
+
+  function newGame() {
+    winOverlay.classList.remove('show');
+    moves = 0; seconds = 0; started = false;
+    moveCount.textContent = '0';
+    timerEl.textContent = '0:00';
+    stopTimer();
+    initTiles();
+    shuffle();
+    render();
+  }
+
+  document.getElementById('btnShuffle').addEventListener('click', ()=>{SFX.click();newGame();});
+
+  const sizes = [3, 4, 5];
+  btnSize.addEventListener('click', () => {
+    size = sizes[(sizes.indexOf(size) + 1) % sizes.length];
+    btnSize.textContent = `${size}×${size} ▾`;
+    newGame();
+  });
+
+  newGame();
+
+document.getElementById('muteBtn').addEventListener('click', () => {
+  const m = SFX.toggleMute();
+  document.getElementById('muteBtn').textContent = m ? '🔇' : '🔊';
+});
+
+
+document.getElementById('musicBtn').addEventListener('click', () => {
+  const on = MUSIC.toggle('puzzle');
+  const btn = document.getElementById('musicBtn');
+  btn.classList.toggle('on', on);
+  btn.textContent = on ? '🎵' : '🔇';
+  btn.title = on ? 'Müziği kapat' : 'Müziği aç';
+});
+// Auto-start music on first interaction
+document.addEventListener('click', function startMusic() {
+  if (!MUSIC.isPlaying()) {
+    MUSIC.start('puzzle');
+    document.getElementById('musicBtn').classList.add('on');
+    document.getElementById('musicBtn').textContent = '🎵';
+  }
+  document.removeEventListener('click', startMusic);
+}, { once: false });
+
+</script>
+<button id="musicBtn" title="Müzik aç/kapat">🎵</button>
+</body>
+</html>

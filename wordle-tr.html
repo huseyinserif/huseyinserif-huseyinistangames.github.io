@@ -1,0 +1,907 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Türkçe Wordle</title>
+<link href="https://fonts.googleapis.com/css2?family=Teko:wght@400;600;700&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --bg:#0a0e0a;
+  --surface:#111711;
+  --border:#1e2e1e;
+  --correct:#3ddc68;
+  --present:#f5c842;
+  --absent:#2a352a;
+  --text:#d4f5d4;
+  --muted:#4a6b4a;
+  --key-bg:#1a2a1a;
+  --key-border:#2d472d;
+}
+
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:'IBM Plex Mono',monospace;
+  min-height:100vh;
+  display:flex;flex-direction:column;
+  align-items:center;
+  padding:0 12px 40px;
+  position:relative;
+  overflow-x:hidden;
+}
+
+/* scanline effect */
+body::after{
+  content:'';position:fixed;inset:0;
+  background:repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0,0,0,0.08) 2px,
+    rgba(0,0,0,0.08) 4px
+  );
+  pointer-events:none;z-index:999;
+}
+
+body::before{
+  content:'';position:fixed;inset:0;
+  background:radial-gradient(ellipse 70% 60% at 50% 40%, rgba(61,220,104,.06), transparent 70%);
+  pointer-events:none;
+}
+
+/* ── HEADER ── */
+header{
+  width:100%;max-width:500px;
+  padding:20px 0 12px;
+  border-bottom:1px solid var(--border);
+  margin-bottom:16px;
+  display:flex;flex-direction:column;align-items:center;gap:4px;
+  position:relative;
+}
+
+header::before{
+  content:'> KELIME_BULMACA.exe';
+  font-size:.65rem;color:var(--muted);
+  letter-spacing:.12em;position:absolute;top:8px;left:0;
+}
+
+h1{
+  font-family:'Teko',sans-serif;
+  font-size:clamp(2.8rem,8vw,4rem);
+  font-weight:700;letter-spacing:.15em;
+  color:var(--correct);
+  text-shadow:0 0 30px rgba(61,220,104,.4), 0 0 60px rgba(61,220,104,.15);
+  line-height:1;
+}
+
+.header-sub{
+  font-size:.65rem;color:var(--muted);
+  letter-spacing:.2em;text-transform:uppercase;
+}
+
+/* ── STATS BAR ── */
+.stats{
+  display:flex;gap:0;
+  border:1px solid var(--border);
+  border-radius:6px;overflow:hidden;
+  margin-bottom:16px;
+  font-size:.65rem;letter-spacing:.1em;
+}
+.stat{
+  padding:8px 16px;text-align:center;
+  border-right:1px solid var(--border);
+}
+.stat:last-child{border-right:none;}
+.stat-v{
+  font-size:1.3rem;font-weight:600;
+  color:var(--correct);display:block;line-height:1;margin-bottom:3px;
+}
+.stat-l{color:var(--muted);}
+
+/* ── MESSAGE ── */
+#message{
+  height:28px;font-size:.75rem;letter-spacing:.1em;
+  color:var(--correct);text-align:center;
+  transition:opacity .3s;
+  display:flex;align-items:center;justify-content:center;
+  margin-bottom:8px;
+}
+
+/* ── GRID ── */
+#grid{
+  display:grid;
+  grid-template-rows:repeat(6,1fr);
+  gap:6px;
+  margin-bottom:20px;
+}
+
+.row{display:flex;gap:6px;}
+
+.tile{
+  width:clamp(48px,13vw,58px);
+  height:clamp(48px,13vw,58px);
+  border:2px solid var(--border);
+  border-radius:4px;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Teko',sans-serif;
+  font-size:clamp(1.6rem,5vw,2rem);
+  font-weight:600;
+  letter-spacing:.05em;
+  color:var(--text);
+  background:var(--surface);
+  transition:border-color .1s;
+  position:relative;
+  overflow:hidden;
+}
+
+.tile[data-letter]::before{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,rgba(255,255,255,.04),transparent);
+}
+
+.tile.filled{
+  border-color:var(--muted);
+  animation:pop .1s ease;
+}
+
+@keyframes pop{
+  0%{transform:scale(1)}
+  50%{transform:scale(1.08)}
+  100%{transform:scale(1)}
+}
+
+.tile.flip{animation:flip .5s ease forwards;}
+@keyframes flip{
+  0%{transform:rotateX(0);background:var(--surface);}
+  49%{transform:rotateX(-90deg);background:var(--surface);}
+  50%{transform:rotateX(-90deg);}
+  100%{transform:rotateX(0);}
+}
+
+.tile.correct{background:var(--correct);border-color:var(--correct);color:#0a0e0a;}
+.tile.present{background:var(--present);border-color:var(--present);color:#0a0e0a;}
+.tile.absent{background:var(--absent);border-color:var(--absent);color:var(--muted);}
+
+.tile.shake{animation:shake .4s ease;}
+@keyframes shake{
+  0%,100%{transform:translateX(0)}
+  20%{transform:translateX(-6px)}
+  40%{transform:translateX(6px)}
+  60%{transform:translateX(-4px)}
+  80%{transform:translateX(4px)}
+}
+
+.tile.bounce{animation:bounce .5s ease;}
+@keyframes bounce{
+  0%,100%{transform:translateY(0)}
+  40%{transform:translateY(-12px)}
+  70%{transform:translateY(-5px)}
+}
+
+/* ── KEYBOARD ── */
+#keyboard{
+  display:flex;flex-direction:column;align-items:center;gap:6px;
+  width:100%;max-width:500px;
+}
+
+.kb-row{display:flex;gap:5px;justify-content:center;}
+
+.key{
+  font-family:'Teko',sans-serif;font-weight:600;
+  font-size:clamp(.85rem,2.5vw,1.1rem);
+  letter-spacing:.05em;
+  min-width:clamp(26px,7vw,38px);
+  height:clamp(42px,10vw,50px);
+  border-radius:4px;
+  border:1px solid var(--key-border);
+  background:var(--key-bg);
+  color:var(--text);
+  cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:all .12s;
+  padding:0 4px;
+  user-select:none;
+}
+
+.key:hover{filter:brightness(1.3);}
+.key:active{transform:scale(.93);}
+.key.wide{min-width:clamp(44px,11vw,58px);font-size:.75rem;}
+.key.correct{background:var(--correct);border-color:var(--correct);color:#0a0e0a;}
+.key.present{background:var(--present);border-color:var(--present);color:#0a0e0a;}
+.key.absent{background:var(--absent);border-color:var(--absent);color:var(--muted);}
+
+/* ── NEW GAME BTN ── */
+#btnNew{
+  margin-top:18px;
+  font-family:'IBM Plex Mono',monospace;font-size:.75rem;font-weight:600;
+  letter-spacing:.15em;text-transform:uppercase;
+  padding:11px 28px;border-radius:5px;
+  border:1px solid var(--correct);
+  background:transparent;color:var(--correct);
+  cursor:pointer;
+  transition:all .15s;
+}
+#btnNew:hover{background:var(--correct);color:#0a0e0a;box-shadow:0 0 20px rgba(61,220,104,.3);}
+
+/* ── WIN/LOSE OVERLAY ── */
+.overlay{
+  position:fixed;inset:0;
+  background:rgba(10,14,10,.93);
+  backdrop-filter:blur(10px);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:16px;z-index:100;
+  opacity:0;pointer-events:none;transition:opacity .4s;
+}
+.overlay.show{opacity:1;pointer-events:all;}
+.ov-title{
+  font-family:'Teko',sans-serif;font-size:clamp(2.5rem,8vw,4rem);
+  font-weight:700;letter-spacing:.12em;line-height:1;
+}
+.ov-title.win{color:var(--correct);text-shadow:0 0 40px rgba(61,220,104,.5);}
+.ov-title.lose{color:var(--present);text-shadow:0 0 40px rgba(245,200,66,.4);}
+.ov-word{
+  font-size:.8rem;letter-spacing:.2em;color:var(--muted);text-align:center;
+}
+.ov-word span{color:var(--text);font-weight:600;font-size:1rem;}
+.ov-stats{
+  display:flex;gap:24px;
+  font-size:.65rem;letter-spacing:.12em;color:var(--muted);
+  text-align:center;
+}
+.ov-stat-v{font-size:2rem;font-weight:600;color:var(--correct);display:block;line-height:1;}
+#btnOvNew{
+  font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:.8rem;
+  letter-spacing:.15em;text-transform:uppercase;
+  padding:12px 32px;border-radius:5px;
+  border:1px solid var(--correct);
+  background:var(--correct);color:#0a0e0a;
+  cursor:pointer;transition:transform .12s,box-shadow .15s;
+  margin-top:8px;
+}
+#btnOvNew:hover{transform:scale(1.04);box-shadow:0 0 24px rgba(61,220,104,.35);}
+
+/* ── MUSIC BUTTON ── */
+#musicBtn{
+  position:fixed;top:12px;right:54px;z-index:200;
+  font-size:1.1rem;width:36px;height:36px;
+  border-radius:50%;border:1px solid var(--border);
+  background:var(--surface);cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:all .15s;line-height:1;
+}
+#musicBtn:hover{transform:scale(1.1);}
+#musicBtn.on{border-color:#ffb800;box-shadow:0 0 10px rgba(255,184,0,.3);}
+
+</style>
+</head>
+<body>
+
+<button id="muteBtn" title="Ses aç/kapat">🔊</button>
+<header>
+  <h1>WORDLE</h1>
+  <div class="header-sub">5 harfli Türkçe kelimeyi bul · 6 hakkın var</div>
+</header>
+
+<div class="stats">
+  <div class="stat"><span class="stat-v" id="sWin">0</span><span class="stat-l">KAZANMA</span></div>
+  <div class="stat"><span class="stat-v" id="sPlay">0</span><span class="stat-l">OYNANAN</span></div>
+  <div class="stat"><span class="stat-v" id="sStreak">0</span><span class="stat-l">SERİ</span></div>
+</div>
+
+<div id="message">_</div>
+<div id="grid"></div>
+<div id="keyboard"></div>
+<button id="btnNew">[ YENİ KELİME ]</button>
+
+<div class="overlay" id="overlay">
+  <div class="ov-title" id="ovTitle"></div>
+  <div class="ov-word" id="ovWord"></div>
+  <div class="ov-stats">
+    <div><span class="ov-stat-v" id="ovGuess">-</span>TAHMİN</div>
+    <div><span class="ov-stat-v" id="ovTime">-</span>SÜRE</div>
+  </div>
+  <button id="btnOvNew" onclick="startNew()">▶ YENİ OYUN</button>
+</div>
+
+<script>
+
+// ── MUSIC ENGINE ─────────────────────────────────────────────────────────────
+const MUSIC = (() => {
+  let ctx = null, playing = false, nodes = [], beatTimer = null;
+  let masterGain = null, theme = 'default';
+
+  const THEMES = {
+    puzzle: { // Kayar Bulmaca - calm, methodical
+      bpm: 90, scale: [261.63,293.66,329.63,349.23,392,440,493.88,523.25],
+      bass: [65.41,73.42,82.41,87.31], bassPattern:[0,0,2,2,1,1,3,3],
+      melody: [[0,2,4,5,4,2],[2,4,5,7,5,4],[0,2,4,7,5,4,2,0]],
+      pad: true, arp: false, colors: 'blue'
+    },
+    chain: { // Zincir - mysterious, flowing
+      bpm: 80, scale: [277.18,311.13,349.23,369.99,415.3,466.16,523.25,554.37],
+      bass: [69.3,77.78,87.31,92.5], bassPattern:[0,2,1,3,0,2,3,1],
+      melody: [[0,3,5,6,5,3],[2,5,6,7,6,5,3],[0,2,5,7,6,5,2]],
+      pad: true, arp: true, colors: 'purple'
+    },
+    nonogram: { // Nonogram - pixelated, retro game
+      bpm: 120, scale: [261.63,293.66,329.63,392,440,523.25,587.33,659.25],
+      bass: [65.41,82.41,98,110], bassPattern:[0,0,1,0,2,0,1,3],
+      melody: [[0,2,3,5,3,2],[2,3,5,7,5,3],[0,5,3,2,0,2,3,5]],
+      pad: false, arp: true, colors: 'green'
+    },
+    wordle: { // Wordle - tense, thinking
+      bpm: 75, scale: [246.94,277.18,311.13,329.63,369.99,415.3,466.16,493.88],
+      bass: [61.74,69.3,77.78,82.41], bassPattern:[0,1,0,2,0,1,3,0],
+      melody: [[0,1,3,4,3,1],[1,3,4,5,4,3,1],[0,3,4,6,4,3,1,0]],
+      pad: true, arp: false, colors: 'green2'
+    },
+    mastermind: { // Mastermind - spy thriller, intense
+      bpm: 100, scale: [233.08,261.63,277.18,311.13,369.99,415.3,466.16,493.88],
+      bass: [58.27,65.41,73.42,77.78], bassPattern:[0,0,0,1,0,0,2,3],
+      melody: [[0,2,1,3,2,0],[2,1,3,4,3,1],[0,3,2,5,4,2,1,0]],
+      pad: true, arp: true, colors: 'blue2'
+    },
+    game2048: { // 2048 - driving, escalating
+      bpm: 110, scale: [261.63,293.66,329.63,369.99,415.3,466.16,523.25,587.33],
+      bass: [65.41,73.42,82.41,92.5], bassPattern:[0,2,0,3,1,2,0,3],
+      melody: [[0,2,4,6,4,2],[2,4,6,7,6,4],[0,4,6,7,5,3,1,0]],
+      pad: false, arp: true, colors: 'orange'
+    }
+  };
+
+  let melodyIdx = 0, beatCount = 0, barCount = 0;
+
+  function getCtx() {
+    if (!ctx) {
+      ctx = new (window.AudioContext || window.webkitAudioContext)();
+      masterGain = ctx.createGain();
+      masterGain.gain.value = 0.18;
+      masterGain.connect(ctx.destination);
+    }
+    if (ctx.state === 'suspended') ctx.resume();
+    return ctx;
+  }
+
+  function osc(freq, type, vol, start, dur, targetFreq) {
+    const c = getCtx();
+    const o = c.createOscillator();
+    const g = c.createGain();
+    o.connect(g); g.connect(masterGain);
+    o.type = type;
+    o.frequency.setValueAtTime(freq, start);
+    if (targetFreq) o.frequency.linearRampToValueAtTime(targetFreq, start + dur * 0.8);
+    g.gain.setValueAtTime(0, start);
+    g.gain.linearRampToValueAtTime(vol, start + 0.015);
+    g.gain.setValueAtTime(vol, start + dur * 0.6);
+    g.gain.exponentialRampToValueAtTime(0.001, start + dur);
+    o.start(start); o.stop(start + dur + 0.05);
+    return o;
+  }
+
+  function playBeat() {
+    if (!playing) return;
+    const c = getCtx();
+    const t = c.currentTime;
+    const cfg = THEMES[theme];
+    const spb = 60 / cfg.bpm; // seconds per beat
+    const beat = beatCount % 8;
+    const bar  = Math.floor(beatCount / 8);
+
+    // ── BASS ──
+    const bassNote = cfg.bass[cfg.bassPattern[beat % cfg.bassPattern.length]];
+    if (beat % 2 === 0) {
+      osc(bassNote, 'triangle', 0.5, t, spb * 1.8);
+      osc(bassNote * 2, 'sine', 0.15, t, spb * 0.9);
+    }
+
+    // ── DRUMS / RHYTHM ──
+    if (beat === 0 || beat === 4) { // kick
+      const ko = c.createOscillator(), kg = c.createGain();
+      ko.connect(kg); kg.connect(masterGain);
+      ko.frequency.setValueAtTime(150, t);
+      ko.frequency.exponentialRampToValueAtTime(40, t + 0.15);
+      kg.gain.setValueAtTime(0.7, t);
+      kg.gain.exponentialRampToValueAtTime(0.001, t + 0.18);
+      ko.start(t); ko.stop(t + 0.2);
+    }
+    if (beat === 2 || beat === 6) { // snare
+      const buf = c.createBuffer(1, c.sampleRate * 0.12, c.sampleRate);
+      const d = buf.getChannelData(0);
+      for(let i=0;i<d.length;i++) d[i]=(Math.random()*2-1)*Math.exp(-i/d.length*20);
+      const sn = c.createBufferSource(), sg = c.createGain();
+      const sf = c.createBiquadFilter(); sf.type='bandpass'; sf.frequency.value=2000;
+      sn.buffer=buf; sn.connect(sf); sf.connect(sg); sg.connect(masterGain);
+      sg.gain.setValueAtTime(0.35, t);
+      sg.gain.exponentialRampToValueAtTime(0.001, t+0.12);
+      sn.start(t); sn.stop(t+0.13);
+    }
+    // hihat
+    {
+      const buf = c.createBuffer(1, c.sampleRate * 0.06, c.sampleRate);
+      const d = buf.getChannelData(0);
+      for(let i=0;i<d.length;i++) d[i]=(Math.random()*2-1)*Math.exp(-i/d.length*30);
+      const hn = c.createBufferSource(), hg = c.createGain();
+      const hf = c.createBiquadFilter(); hf.type='highpass'; hf.frequency.value=7000;
+      hn.buffer=buf; hn.connect(hf); hf.connect(hg); hg.connect(masterGain);
+      hg.gain.setValueAtTime(beat%2===0?0.2:0.1, t);
+      hg.gain.exponentialRampToValueAtTime(0.001, t+0.06);
+      hn.start(t); hn.stop(t+0.07);
+    }
+
+    // ── MELODY ──
+    if (beat % 2 === 0) {
+      const mel = cfg.melody[barCount % cfg.melody.length];
+      const ni = Math.floor((beat/2)) % mel.length;
+      const freq = cfg.scale[mel[ni] % cfg.scale.length];
+      osc(freq, 'triangle', 0.22, t + 0.01, spb * 1.6);
+      // harmony 3rd above
+      if (beat === 0 && barCount % 2 === 0) {
+        const hi = (mel[ni] + 2) % cfg.scale.length;
+        osc(cfg.scale[hi], 'sine', 0.08, t + 0.02, spb * 3);
+      }
+    }
+
+    // ── ARP ──
+    if (cfg.arp && beat % 1 === 0) {
+      const arpScale = cfg.scale;
+      const ai = (beatCount * 3) % arpScale.length;
+      osc(arpScale[ai] * 2, 'square', 0.04, t + spb*0.5, spb * 0.45);
+    }
+
+    // ── PAD ──
+    if (cfg.pad && beat === 0) {
+      const padFreqs = [cfg.scale[0], cfg.scale[2], cfg.scale[4]];
+      padFreqs.forEach((f, i) => {
+        osc(f, 'sine', 0.06, t + i*0.05, spb * 7.5);
+      });
+    }
+
+    beatCount++;
+    if (beatCount % 8 === 0) barCount++;
+
+    beatTimer = setTimeout(playBeat, spb * 1000 - 5);
+  }
+
+  function fadeIn() {
+    if (!masterGain) return;
+    masterGain.gain.setValueAtTime(0, getCtx().currentTime);
+    masterGain.gain.linearRampToValueAtTime(0.18, getCtx().currentTime + 2);
+  }
+
+  function fadeOut(cb) {
+    if (!masterGain) { if(cb) cb(); return; }
+    masterGain.gain.setValueAtTime(masterGain.gain.value, getCtx().currentTime);
+    masterGain.gain.linearRampToValueAtTime(0, getCtx().currentTime + 1.5);
+    setTimeout(() => { playing = false; clearTimeout(beatTimer); if(cb)cb(); }, 1600);
+  }
+
+  return {
+    start(t = 'default') {
+      if (playing) return;
+      theme = THEMES[t] ? t : 'puzzle';
+      playing = true; beatCount = 0; barCount = 0; melodyIdx = 0;
+      getCtx();
+      fadeIn();
+      playBeat();
+    },
+    stop(cb) { fadeOut(cb); },
+    setTheme(t) {
+      if (theme === t) return;
+      fadeOut(() => { if(playing || true){ theme=t; playing=true; beatCount=0; barCount=0; fadeIn(); playBeat(); } });
+    },
+    isPlaying() { return playing; },
+    setVol(v) { if(masterGain) masterGain.gain.value = v; },
+    toggle(t) {
+      if (playing) { fadeOut(); playing = false; return false; }
+      else { this.start(t); return true; }
+    }
+  };
+})();
+
+
+// ── AUDIO ENGINE ─────────────────────────────────────────────────────────────
+const SFX = (() => {
+  let ctx = null;
+  let muted = false;
+  function ac() {
+    if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)();
+    if (ctx.state === 'suspended') ctx.resume();
+    return ctx;
+  }
+  function tone(freq, type, vol, attack, decay, dur) {
+    if (muted) return;
+    try {
+      const c = ac();
+      const o = c.createOscillator();
+      const g = c.createGain();
+      o.connect(g); g.connect(c.destination);
+      o.type = type; o.frequency.setValueAtTime(freq, c.currentTime);
+      g.gain.setValueAtTime(0, c.currentTime);
+      g.gain.linearRampToValueAtTime(vol, c.currentTime + attack);
+      g.gain.exponentialRampToValueAtTime(0.001, c.currentTime + attack + decay);
+      o.start(c.currentTime); o.stop(c.currentTime + dur);
+    } catch(e){}
+  }
+  function chord(freqs, type, vol, dur) {
+    freqs.forEach((f,i) => setTimeout(() => tone(f, type, vol, 0.01, dur, dur+0.05), i*70));
+  }
+  function noise(vol, dur) {
+    if (muted) return;
+    try {
+      const c = ac();
+      const buf = c.createBuffer(1, c.sampleRate * dur, c.sampleRate);
+      const d = buf.getChannelData(0);
+      for (let i = 0; i < d.length; i++) d[i] = (Math.random() * 2 - 1);
+      const src = c.createBufferSource();
+      src.buffer = buf;
+      const g = c.createGain();
+      const f = c.createBiquadFilter();
+      f.type = 'bandpass'; f.frequency.value = 800;
+      src.connect(f); f.connect(g); g.connect(c.destination);
+      g.gain.setValueAtTime(vol, c.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.001, c.currentTime + dur);
+      src.start(); src.stop(c.currentTime + dur);
+    } catch(e){}
+  }
+  return {
+    toggleMute: () => { muted = !muted; return muted; },
+    isMuted: () => muted,
+    click:   () => tone(420, 'sine', 0.14, 0.005, 0.08, 0.09),
+    tile:    () => tone(520 + Math.random()*80, 'triangle', 0.12, 0.005, 0.1, 0.11),
+    merge:   (n) => { const f = 200 + Math.log2(n||2)*45; tone(f,'triangle',0.28,0.01,0.22,0.24); setTimeout(()=>tone(f*1.5,'sine',0.16,0.02,0.18,0.2),30); },
+    win:     () => chord([523,659,784,1047],'sine',0.18,0.45),
+    lose:    () => chord([220,185,155,130],'sawtooth',0.12,0.5),
+    correct: () => chord([659,784,1047],'triangle',0.18,0.32),
+    wrong:   () => { tone(180,'sawtooth',0.16,0.01,0.28,0.3); setTimeout(()=>tone(150,'sawtooth',0.1,0.01,0.2,0.22),120); },
+    near:    () => tone(440,'triangle',0.15,0.01,0.15,0.17),
+    type:    () => tone(600+Math.random()*200,'square',0.06,0.002,0.04,0.045),
+    flip:    () => tone(300+Math.random()*150,'triangle',0.1,0.005,0.08,0.09),
+    fill:    () => tone(480,'sine',0.12,0.005,0.1,0.11),
+    erase:   () => noise(0.08, 0.07),
+    check:   () => { tone(660,'triangle',0.15,0.01,0.12,0.14); setTimeout(()=>tone(880,'triangle',0.12,0.01,0.1,0.12),90); },
+    place:   () => tone(350+Math.random()*100,'triangle',0.13,0.005,0.09,0.1),
+    confirm: () => { tone(440,'triangle',0.16,0.01,0.1,0.12); setTimeout(()=>tone(550,'sine',0.13,0.01,0.1,0.12),110); },
+    hit:     () => { tone(880,'sine',0.2,0.005,0.15,0.16); tone(1100,'triangle',0.12,0.01,0.1,0.12); },
+    near2:   () => tone(550,'triangle',0.15,0.005,0.12,0.13),
+    delete:  () => tone(300,'triangle',0.1,0.003,0.06,0.07),
+    reveal:  () => { chord([330,415,523,659],'sine',0.14,0.35); },
+  };
+})();
+
+// ── WORD LIST ─────────────────────────────────────────────────────────────────
+const WORDS = [
+  "araba","kalem","kitap","masa","sandalye".slice(0,5),"pencere".slice(0,5),
+  "kapı".padEnd(5,'x').slice(0,5),
+  "aşçı".padEnd(5,'x').slice(0,5),
+  // proper 5-letter Turkish words:
+  "arazi","bacak","balık","banka","bayır","bebek","böcek","burun","çanta",
+  "çarşı","çiçek","çizgi","çoban","dağlı","daire","dalga","davul","deniz",
+  "dergi","dilek","dolap","duvar","elmas","erkek","fener","fırın","fincan",
+  "gezek","giysı","güneş","gürül","haber","haklı","hayal","hızlı","horoz",
+  "içlik","ilkay","insan","irmak","islak","işçil","ışık".padEnd(5,'a').slice(0,5),
+  "kağıt","kalan","kamış","kanca","karın","kasap","kavga","kazık","keman",
+  "kepçe","kesin","kıyma","kıbrıs".slice(0,5),"kilit","kitap","kocaş".slice(0,5),
+  "kolay","konak","kovan","köpek","köprü","köylü","kulak","kurul","kuşak",
+  "lahza","liman","limon","lodos","lufer","masal","mavil".slice(0,5),"mazot",
+  "meşal".slice(0,5),"meşru","meyve","mızıka".slice(0,5),"milat","miras",
+  "motor","mutlu","mücap".slice(0,5),"müzik","nadas","nakit","nakış","namaz",
+  "namus","nehir","nimet","niyet","oblik".slice(0,5),"ocaği".slice(0,5),
+  "odası".slice(0,5),"okşar".slice(0,5),"omurga".slice(0,5),
+  "orman","osman".slice(0,5),"oynak","öfkeli".slice(0,5),"öğüt","öküz",
+  "ölüml".slice(0,5),"öneri","örgüt","örnek","özgür","paket","panel","papaz",
+  "pasta","payda","peynir".slice(0,5),"pikap","pilot","polis","portakal".slice(0,5),
+  "radyo","rakam","reçel","resim","rüzgâr".slice(0,5),"sabah","sahan".slice(0,5),
+  "salça","salon","sanat","savaş","sayım","sefer","sekiz","sesin".slice(0,5),
+  "sınav","sıfır","sigara".slice(0,5),"silah","simit","sivri","soğan",
+  "sokak","soluk","sonuç","sözlü","suçlu","şarap","şehir","şeker","şerit",
+  "şiiri".slice(0,5),"şimdi","şirim".slice(0,5),"tabla","tadım".slice(0,5),
+  "tahta","takım","tarak","tarih","taşıt","tatil","tavas".slice(0,5),"tavan",
+  "tazim".slice(0,5),"temas","tempo","tepsi","terzi","tıbbi".slice(0,5),
+  "tiyat".slice(0,5),"topçu","topuz","trafik".slice(0,5),"tulum","turan",
+  "uçurum".slice(0,5),"ulama".slice(0,5),"umursamaz".slice(0,5),"uçmak".slice(0,5),
+  "ücret","üretim".slice(0,5),"üzünt".slice(0,5),"vagon","vakit","varis",
+  "vatman".slice(0,5),"vergi","video","viraj","yağmur".slice(0,5),"yakıt",
+  "yalan","yanak","yapım","yargı","yatak","yazar","yemek","yetki","yılan",
+  "yıldız".slice(0,5),"yoksa","yorum","yumak","yumru","yüzme","zaman","zemin",
+  "zeytin".slice(0,5),"zıpkın".slice(0,5),"zirve",
+  // clean 5-letter list
+  "acemi","adres","afiş","ahbap","akıcı","alarm","alçak","alfabe".slice(0,5),
+  "algı","alışık".slice(0,5),"altta".slice(0,5),"ambar","amele","amper",
+  "antik","apart","aptal","araba","arıza","artan","asker","aslan","atlas",
+  "atmak".slice(0,5),"avuç","ayran","azami","badem","baget","bahçe","balon",
+  "baraj","barut","basık","batık","bayat","beyin","bıçak","bilek","birlik".slice(0,5),
+  "bisküvi".slice(0,5),"bitik","bölge","bölüm","boncuk","borsa","boyut",
+  "bozuk","budak","buğday".slice(0,5),"buhur".slice(0,5),"bulgu","buruk",
+  "büküm".slice(0,5),"büyük","cadde","ceket","cevap","ceviz","cılız","cimri",
+  "coşku","çadır","çağlayan".slice(0,5),"çakıl","çalım","çarpık".slice(0,5),
+  "çekim","çelik","çevre","çıkış","çınar","çığır","çorap","çorba","çözüm",
+  "dağıt".slice(0,5),"dahil","damar","damla","danış".slice(0,5),"değer",
+  "dekor","demet","depot".slice(0,5),"devim".slice(0,5),"devir","dışarı".slice(0,5),
+  "dikey","dikit".slice(0,5),"diken","dirsek".slice(0,5),"dirlik".slice(0,5),
+  "doğal","doğru","dokuz","domuз".slice(0,5),"dönüş","döşek".slice(0,5),
+  "dudak","durak","dürüm","düzey","efsun".slice(0,5),"egzoz","eleman".slice(0,5),
+  "elçik".slice(0,5),"emekl".slice(0,5),"emsal","encam".slice(0,5),"engel",
+  "enlem","erdem","erişt".slice(0,5),"etken","etraf","evrim","evsaf".slice(0,5),
+].filter(w => {
+  // keep only strings that are exactly 5 chars and all Turkish alpha
+  if(!w || w.length!==5) return false;
+  return /^[a-züğışçöA-ZÜĞİŞÇÖ]+$/i.test(w);
+});
+
+// Deduplicate and ensure we have good words
+const WORD_POOL = [...new Set([
+  "araba","kalem","kitap","panel","fener","deniz","güneş","elmas","zirve",
+  "köpek","yılan","motor","müzik","nehir","orman","pasta","radyo","savaş",
+  "şeker","tahta","takım","tarih","tatil","tavan","temas","terzi","topuz",
+  "ücret","vergi","yemek","yıldı","yorum","zaman","zemin","acemi","alarm",
+  "alçak","ambar","antik","aptal","arıza","asker","aslan","atlas","ayran",
+  "badem","bahçe","balon","baraj","barut","basık","batık","bayat","beyin",
+  "bıçak","bilek","bölge","bölüm","borsa","boyut","bozuk","budak","bulgu",
+  "buruk","büyük","cadde","ceket","cevap","ceviz","cılız","cimri","coşku",
+  "çadır","çakıl","çalım","çekim","çelik","çevre","çıkış","çınar","çorap",
+  "çorba","çözüm","dahil","damar","damla","değer","dekor","demet","devir",
+  "dikey","diken","doğal","doğru","dokuz","dönüş","dudak","durak","dürüm",
+  "düzey","egzoz","engel","enlem","erdem","etken","etraf","evrim","fırın",
+  "fincan","giysı","güzel","haber","hayal","hızlı","horoz","insan","irmak",
+  "kağıt","kalan","kamış","kanca","karın","kasap","kavga","kazık","keman",
+  "kepçe","kesin","kıyma","kilit","kolay","konak","kovan","köprü","köylü",
+  "kulak","liman","limon","masal","mazot","meyve","milat","miras","mutlu",
+  "namus","nimet","niyet","oynak","öğüt","öneri","örgüt","örnek","özgür",
+  "paket","papaz","pikap","pilot","polis","reçel","resim","sabah","salça",
+  "salon","sanat","sayım","sefer","sekiz","sınav","sıfır","silah","simit",
+  "sivri","soğan","sokak","soluk","sonuç","sözlü","suçlu","şarap","şehir",
+  "şerit","şimdi","tabla","takım","tarak","taşıt","tepsi","tulum","uçmak",
+  "yakıt","yalan","yanak","yapım","yargı","yatak","yazar","yetki","yüzme",
+  "zeyti","çığır","beyin","daire","dalga","davul","dergi","dilek","dolap",
+  "duvar","erkek","gezgi","haklı","içlik","kocaş","lahza","meşru","mızık",
+  "nakış","namaz","nadas","nakit","oblik","öküzü","pazar","peynr","portk",
+  "rakam","rüzgâ","sahne","sanki","sepet","sergi","serin","sicim","sinir",
+  "sırık","taktik".slice(0,5),"tamam","tapak".slice(0,5),"taraf","taşra",
+  "tatlı","tavuk","tazze".slice(0,5),"tekne","telef".slice(0,5),"telik".slice(0,5),
+  "temiz","tenha","tepki","teras","terör".slice(0,5),"timsah".slice(0,5),
+  "toklu".slice(0,5),"tombul".slice(0,5),"toprak".slice(0,5),
+  "tünel","üçgen","üzüm","vakıf","varol".slice(0,5),"veciz".slice(0,5),
+  "yaban","yağlı","yalnız".slice(0,5),"yarım","yaşlı","yavaş","yoğun",
+  "yorgu".slice(0,5),"yüksek".slice(0,5),"zambak".slice(0,5),"zarif",
+  // more clean 5-letter words
+  "tamam","kuzey","güney","doğan","batmak".slice(0,5),"uysal","umurk".slice(0,5),
+  "tablo","şablon".slice(0,5),"desen","boyar".slice(0,5),"rengi".slice(0,5),
+  "çeşit","tanım","tanem".slice(0,5),"tepem".slice(0,5),"telli".slice(0,5),
+  "temei".slice(0,5),"temel","tenis","tolga".slice(0,5),"topcu".slice(0,5),
+  "tortu","tövbe","tüfek","tümen".slice(0,5),"tünei".slice(0,5),"türkü",
+  "üreme".slice(0,5),"üstat","vakur","vapur","varis","vecde".slice(0,5),
+  "verim","viran","virüs".slice(0,5),"yafta".slice(0,5),"yağız",
+  "yakın","yamuç".slice(0,5),"yarış","yasak","yatay","yazar","yelek",
+  "yengi".slice(0,5),"yenik","yetim","yığın","yoklu".slice(0,5),"yudum",
+  "yumak","yumuş".slice(0,5),"yurdu".slice(0,5),"yücel".slice(0,5),
+  "zaten","zayıf","zeraf".slice(0,5),"zıplam".slice(0,5),"zincir".slice(0,5),
+])].filter(w=>w&&w.length===5);
+
+// ── KEYBOARD LAYOUT ───────────────────────────────────────────────────────────
+const KB_ROWS = [
+  ['e','r','t','y','u','ı','o','p','ğ','ü'],
+  ['a','s','d','f','g','h','j','k','l','ş','i'],
+  ['ENTER','z','c','v','b','n','m','ö','ç','⌫'],
+];
+
+// ── STATE ─────────────────────────────────────────────────────────────────────
+let secret='', currentRow=0, currentCol=0;
+let board=[], keyState={};
+let gameOver=false, started=false;
+let seconds=0, timerInt=null;
+let wins=0, plays=0, streak=0;
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+function startNew(){
+  document.getElementById('overlay').classList.remove('show');
+  secret = WORD_POOL[Math.floor(Math.random()*WORD_POOL.length)].toLowerCase();
+  currentRow=0; currentCol=0; gameOver=false; started=false;
+  keyState={}; board=Array.from({length:6},()=>Array(5).fill(''));
+  seconds=0; clearInterval(timerInt);
+  showMsg('');
+  buildGrid();
+  buildKeyboard();
+}
+
+function buildGrid(){
+  const g=document.getElementById('grid');
+  g.innerHTML='';
+  for(let r=0;r<6;r++){
+    const row=document.createElement('div');
+    row.className='row';row.id=`row${r}`;
+    for(let c=0;c<5;c++){
+      const t=document.createElement('div');
+      t.className='tile';t.id=`t${r}${c}`;
+      row.appendChild(t);
+    }
+    g.appendChild(row);
+  }
+}
+
+function buildKeyboard(){
+  const kb=document.getElementById('keyboard');
+  kb.innerHTML='';
+  KB_ROWS.forEach(row=>{
+    const div=document.createElement('div');
+    div.className='kb-row';
+    row.forEach(k=>{
+      const btn=document.createElement('button');
+      btn.className='key'+(k==='ENTER'||k==='⌫'?' wide':'');
+      btn.textContent=k;btn.dataset.key=k;
+      btn.id='key-'+k;
+      btn.addEventListener('click',()=>handleKey(k));
+      div.appendChild(btn);
+    });
+    kb.appendChild(div);
+  });
+}
+
+// ── INPUT ─────────────────────────────────────────────────────────────────────
+document.addEventListener('keydown',e=>{
+  if(e.ctrlKey||e.altKey||e.metaKey)return;
+  const k=e.key;
+  if(k==='Enter')handleKey('ENTER');
+  else if(k==='Backspace')handleKey('⌫');
+  else if(/^[a-züğışçöA-ZÜĞİŞÇÖ]$/.test(k))handleKey(k.toLowerCase());
+});
+
+function handleKey(k){
+  if(gameOver)return;
+  if(!started&&k!=='ENTER'&&k!=='⌫'){started=true;startTimer();}
+  if(k==='⌫'){deleteLetter();return;}
+  if(k==='ENTER'){submitRow();return;}
+  addLetter(k);
+}
+
+function addLetter(k){
+  if(currentCol>=5)return;
+  SFX.type();
+  board[currentRow][currentCol]=k;
+  const t=document.getElementById(`t${currentRow}${currentCol}`);
+  t.textContent=k.toUpperCase();
+  t.classList.add('filled');
+  currentCol++;
+}
+
+function deleteLetter(){
+  if(currentCol<=0)return;
+  SFX.delete();
+  currentCol--;
+  board[currentRow][currentCol]='';
+  const t=document.getElementById(`t${currentRow}${currentCol}`);
+  t.textContent='';t.classList.remove('filled');
+}
+
+function submitRow(){
+  if(currentCol<5){shakeRow();SFX.wrong();showMsg('5 harf gir!');return;}
+  const guess=board[currentRow].join('');
+  revealRow(guess,currentRow,()=>{
+    const won=guess===secret;
+    if(won||currentRow===5){
+      gameOver=true;
+      clearInterval(timerInt);
+      plays++;
+      if(won){wins++;streak++;}else{streak=0;}
+      updateStats();
+      setTimeout(()=>showResult(won,guess),300);
+    }
+    currentRow++;currentCol=0;
+  });
+}
+
+function revealRow(guess,row,cb){
+  const result=score(guess);
+  result.forEach((res,c)=>{
+    setTimeout(()=>{
+      const t=document.getElementById(`t${row}${c}`);
+      t.style.animationDelay=`${c*80}ms`;
+      t.classList.add('flip');
+      setTimeout(()=>{
+        t.classList.add(res); if(res==="correct")SFX.hit(); else if(res==="present")SFX.near(); else SFX.flip();
+        // update key
+        const prev=keyState[guess[c]]||'';
+        const priority={correct:3,present:2,absent:1};
+        if((priority[res]||0)>(priority[prev]||0)){
+          keyState[guess[c]]=res;
+          const kb=document.getElementById('key-'+guess[c]);
+          if(kb){kb.className='key';kb.classList.add(res);}
+        }
+      },240);
+    },c*80);
+  });
+  setTimeout(cb,5*80+300);
+}
+
+function score(guess){
+  const res=Array(5).fill('absent');
+  const secretArr=secret.split('');
+  const guessArr=guess.split('');
+  // first pass: correct
+  guessArr.forEach((l,i)=>{if(l===secretArr[i]){res[i]='correct';secretArr[i]=null;guessArr[i]=null;}});
+  // second pass: present
+  guessArr.forEach((l,i)=>{
+    if(!l)return;
+    const si=secretArr.indexOf(l);
+    if(si!==-1){res[i]='present';secretArr[si]=null;}
+  });
+  return res;
+}
+
+function shakeRow(){
+  const row=document.getElementById(`row${currentRow}`);
+  row.querySelectorAll('.tile').forEach(t=>{
+    t.classList.remove('shake');
+    void t.offsetWidth;
+    t.classList.add('shake');
+  });
+}
+
+function showResult(won,guess){
+  const m=Math.floor(seconds/60),s=seconds%60;
+  document.getElementById('ovTitle').textContent=won?'KAZANDIN!':'BİTTİ';
+  document.getElementById('ovTitle').className='ov-title '+(won?'win':'lose');
+  document.getElementById('ovWord').innerHTML=won
+    ?`${currentRow}. tahmin · harika iş!`
+    :`Cevap: <span>${secret.toUpperCase()}</span>`;
+  document.getElementById('ovGuess').textContent=won?currentRow:'-';
+  document.getElementById('ovTime').textContent=`${m}:${s.toString().padStart(2,'0')}`;
+  if(won){
+    // bounce tiles
+    document.getElementById(`row${currentRow-1}`).querySelectorAll('.tile').forEach((t,i)=>{
+      setTimeout(()=>{t.classList.add('bounce');},i*80);
+    });
+  }
+  if(won)SFX.win(); else SFX.lose(); setTimeout(()=>document.getElementById('overlay').classList.add('show'),400);
+}
+
+function showMsg(txt){
+  const el=document.getElementById('message');
+  el.textContent=txt||'_';
+  el.style.opacity=1;
+  if(txt){setTimeout(()=>{el.style.opacity=0;setTimeout(()=>{el.textContent='_';el.style.opacity=1;},300);},1800);}
+}
+
+function startTimer(){
+  clearInterval(timerInt);
+  timerInt=setInterval(()=>seconds++,1000);
+}
+
+function updateStats(){
+  document.getElementById('sWin').textContent=wins;
+  document.getElementById('sPlay').textContent=plays;
+  document.getElementById('sStreak').textContent=streak;
+}
+
+document.getElementById('btnNew').addEventListener('click',startNew);
+
+document.getElementById('muteBtn').addEventListener('click', () => {
+  const m = SFX.toggleMute();
+  document.getElementById('muteBtn').textContent = m ? '🔇' : '🔊';
+});
+
+startNew();
+
+document.getElementById('musicBtn').addEventListener('click', () => {
+  const on = MUSIC.toggle('wordle');
+  const btn = document.getElementById('musicBtn');
+  btn.classList.toggle('on', on);
+  btn.textContent = on ? '🎵' : '🔇';
+  btn.title = on ? 'Müziği kapat' : 'Müziği aç';
+});
+// Auto-start music on first interaction
+document.addEventListener('click', function startMusic() {
+  if (!MUSIC.isPlaying()) {
+    MUSIC.start('wordle');
+    document.getElementById('musicBtn').classList.add('on');
+    document.getElementById('musicBtn').textContent = '🎵';
+  }
+  document.removeEventListener('click', startMusic);
+}, { once: false });
+
+</script>
+<button id="musicBtn" title="Müzik aç/kapat">🎵</button>
+</body>
+</html>

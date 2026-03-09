@@ -1,0 +1,1806 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>⚔ RPG Metin Macerası</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=MedievalSharp&family=Cinzel:wght@400;700&family=Share+Tech+Mono&display=swap');
+
+  :root {
+    --bg: #0a0a0f;
+    --panel: #12121a;
+    --border: #2a2040;
+    --gold: #c9a227;
+    --gold2: #f0d060;
+    --red: #e05050;
+    --green: #50e090;
+    --cyan: #50d8f0;
+    --magenta: #d050f0;
+    --purple: #7050c0;
+    --text: #d0cce0;
+    --dim: #7070a0;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Share Tech Mono', monospace;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    background-image: radial-gradient(ellipse at 20% 50%, #1a0a2a 0%, transparent 60%),
+                      radial-gradient(ellipse at 80% 20%, #0a1a2a 0%, transparent 60%);
+  }
+
+  h1 {
+    font-family: 'Cinzel', serif;
+    color: var(--gold);
+    font-size: 1.8rem;
+    text-align: center;
+    text-shadow: 0 0 20px #c9a22760;
+    letter-spacing: 4px;
+    margin-bottom: 4px;
+  }
+
+  .subtitle { color: var(--dim); font-size: 0.75rem; text-align: center; margin-bottom: 16px; letter-spacing: 2px; }
+
+  .game-container {
+    width: 100%;
+    max-width: 900px;
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: 16px;
+  }
+
+  /* ── PANEL ── */
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px;
+    position: relative;
+  }
+  .panel::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 8px;
+    background: linear-gradient(135deg, #ffffff08 0%, transparent 50%);
+    pointer-events: none;
+  }
+  .panel-title {
+    font-family: 'Cinzel', serif;
+    color: var(--gold);
+    font-size: 0.8rem;
+    letter-spacing: 2px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 8px;
+    margin-bottom: 12px;
+  }
+
+  /* ── STAT BAR ── */
+  .stat-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-size: 0.8rem; }
+  .stat-label { color: var(--dim); }
+  .stat-val { color: var(--text); font-weight: bold; }
+  .bar-wrap { background: #1a1a2a; border-radius: 4px; height: 8px; margin-bottom: 10px; overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 4px; transition: width 0.4s ease; }
+  .bar-hp   { background: linear-gradient(90deg, #c0303080, #e05050); }
+  .bar-exp  { background: linear-gradient(90deg, #4040c080, #7060e0); }
+
+  .stat-big { font-size: 1.1rem; color: var(--gold2); text-align: center; margin: 6px 0; }
+
+  .badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    font-weight: bold;
+    margin: 2px;
+  }
+  .badge-normal   { background: #2a2a3a; color: var(--dim); }
+  .badge-nadir    { background: #0a2a3a; color: var(--cyan); border: 1px solid #50d8f040; }
+  .badge-efsanevi { background: #2a0a3a; color: var(--magenta); border: 1px solid #d050f040; }
+  .badge-boss     { background: #3a0a0a; color: var(--red); border: 1px solid #e0505060; }
+
+  /* ── INVENTORY ── */
+  .inv-item {
+    background: #1a1a2a;
+    border: 1px solid #2a2a3a;
+    border-radius: 4px;
+    padding: 4px 8px;
+    font-size: 0.75rem;
+    margin-bottom: 4px;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+  }
+  .inv-item:hover { border-color: var(--gold); background: #22223a; }
+
+  /* ── LOG ── */
+  .log-area {
+    background: #0d0d16;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    height: 220px;
+    overflow-y: auto;
+    padding: 10px 12px;
+    font-size: 0.78rem;
+    line-height: 1.7;
+    margin-bottom: 14px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+  }
+  .log-area::-webkit-scrollbar { width: 6px; }
+  .log-area::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+  .log-normal  { color: var(--text); }
+  .log-gold    { color: var(--gold2); }
+  .log-red     { color: var(--red); }
+  .log-green   { color: var(--green); }
+  .log-cyan    { color: var(--cyan); }
+  .log-magenta { color: var(--magenta); }
+  .log-dim     { color: var(--dim); }
+  .log-boss    { color: var(--red); font-weight: bold; }
+
+  /* ── BUTTONS ── */
+  .btn-grid { display: grid; gap: 6px; }
+  .btn-grid-2 { grid-template-columns: 1fr 1fr; }
+  .btn-grid-3 { grid-template-columns: 1fr 1fr 1fr; }
+
+  button {
+    background: #1a1a2a;
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.78rem;
+    padding: 9px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.18s;
+    text-align: left;
+  }
+  button:hover:not(:disabled) {
+    background: #22223a;
+    border-color: var(--gold);
+    color: var(--gold2);
+  }
+  button:disabled { opacity: 0.35; cursor: not-allowed; }
+  button.btn-danger { border-color: #e0505040; }
+  button.btn-danger:hover:not(:disabled) { border-color: var(--red); color: var(--red); background: #2a1010; }
+  button.btn-gold { border-color: #c9a22740; }
+  button.btn-gold:hover:not(:disabled) { border-color: var(--gold); background: #1a1500; }
+  button.btn-back { border-color: #50505050; color: var(--dim); font-size: 0.72rem; }
+
+  /* ── SCREEN LAYERS ── */
+  .screen { display: none; }
+  .screen.active { display: block; }
+
+  /* ── INTRO ── */
+  #screen-intro { text-align: center; max-width: 500px; margin: 0 auto; }
+  .intro-box {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 30px;
+    margin-top: 20px;
+  }
+  .intro-box p { color: var(--dim); font-size: 0.82rem; margin: 10px 0 20px; line-height: 1.8; }
+  .name-input {
+    background: #0d0d16;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text);
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 1rem;
+    padding: 10px 14px;
+    width: 100%;
+    margin-bottom: 12px;
+    text-align: center;
+  }
+  .name-input:focus { outline: none; border-color: var(--gold); }
+  .btn-start {
+    width: 100%;
+    background: linear-gradient(135deg, #2a1e00, #3a2a00);
+    border: 1px solid var(--gold);
+    color: var(--gold2);
+    font-family: 'Cinzel', serif;
+    font-size: 1rem;
+    padding: 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    letter-spacing: 2px;
+    transition: all 0.2s;
+  }
+  .btn-start:hover { background: linear-gradient(135deg, #3a2a00, #4a3800); box-shadow: 0 0 20px #c9a22740; }
+
+  /* ── ENEMY DISPLAY ── */
+  .enemy-card {
+    background: #160a0a;
+    border: 1px solid #e0505040;
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin-bottom: 12px;
+  }
+  .enemy-card.boss-card { border-color: var(--red); box-shadow: 0 0 20px #e0505020; }
+  .enemy-card.nadir-card { border-color: var(--cyan); }
+  .enemy-card.efsanevi-card { border-color: var(--magenta); box-shadow: 0 0 15px #d050f020; }
+
+  .enemy-name { font-family: 'Cinzel', serif; font-size: 1rem; margin-bottom: 6px; }
+  .enemy-stats { font-size: 0.75rem; color: var(--dim); margin-bottom: 8px; }
+  .enemy-hp-wrap { background: #2a1010; border-radius: 4px; height: 10px; overflow: hidden; }
+  .enemy-hp-fill { height: 100%; background: linear-gradient(90deg, #a02020, #e05050); border-radius: 4px; transition: width 0.3s ease; }
+
+  /* ── SHOP ── */
+  .shop-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #1a1a2a;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 8px 12px;
+    margin-bottom: 6px;
+    font-size: 0.78rem;
+    cursor: pointer;
+    transition: all 0.18s;
+  }
+  .shop-item:hover { border-color: var(--gold); background: #1e1e30; }
+  .shop-price { color: var(--gold); font-weight: bold; }
+  .shop-effect { color: var(--green); font-size: 0.7rem; }
+
+  /* ── DUNGEON ── */
+  .dungeon-floor {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin: 10px 0;
+  }
+  .floor-dot {
+    width: 18px; height: 18px;
+    border-radius: 3px;
+    border: 1px solid var(--border);
+    background: #1a1a2a;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 8px;
+    cursor: default;
+    transition: all 0.2s;
+  }
+  .floor-dot.current { border-color: var(--gold); background: #2a2000; }
+  .floor-dot.unlocked { border-color: var(--purple); background: #1a0a2a; }
+  .floor-dot.boss { border-color: var(--red); }
+  .floor-dot.locked { opacity: 0.3; }
+
+  .dungeon-info {
+    background: #0d0d16;
+    border-left: 3px solid var(--purple);
+    padding: 8px 12px;
+    font-size: 0.78rem;
+    border-radius: 0 6px 6px 0;
+    margin-bottom: 12px;
+    color: var(--dim);
+    font-style: italic;
+  }
+
+  /* ── ANIMATIONS ── */
+  @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-4px)} 75%{transform:translateX(4px)} }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.6} }
+  @keyframes fadeIn { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
+
+  .shake { animation: shake 0.3s ease; }
+  .fadeIn { animation: fadeIn 0.3s ease; }
+
+  /* ── RESPONSIVE ── */
+  @media(max-width: 680px) {
+    .game-container { grid-template-columns: 1fr; }
+  }
+
+  .divider { border: none; border-top: 1px solid var(--border); margin: 10px 0; }
+  .section-label { color: var(--dim); font-size: 0.7rem; letter-spacing: 1px; margin-bottom: 6px; }
+
+  .floor-nav { display: flex; gap: 8px; margin-bottom: 10px; }
+  .floor-nav button { flex: 1; text-align: center; }
+
+  .combat-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+
+  #combat-turn-indicator {
+    font-size: 0.7rem;
+    color: var(--dim);
+    text-align: right;
+    margin-bottom: 4px;
+  }
+
+  .gold-text { color: var(--gold2); }
+  .level-up-flash { animation: pulse 0.6s ease 3; }
+
+  /* ── SAVE SYSTEM ── */
+  .save-bar {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 10px;
+    justify-content: flex-end;
+  }
+  .save-bar button {
+    font-size: 0.7rem;
+    padding: 5px 10px;
+    border-color: #3a3a5a;
+    color: var(--dim);
+  }
+  .save-bar button:hover:not(:disabled) { border-color: var(--gold); color: var(--gold); background: #1a1500; }
+  .save-slot {
+    background: #0d0d16;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 10px 14px;
+    margin-bottom: 6px;
+    font-size: 0.78rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+  }
+  .save-slot.has-save { border-color: #3a3060; cursor: default; }
+  .save-slot-info { color: var(--dim); font-size: 0.72rem; }
+  .save-slot-btns { display: flex; gap: 4px; }
+  .save-slot-btns button { font-size: 0.68rem; padding: 3px 8px; }
+
+  /* ── QUEST SYSTEM ── */
+  .quest-item {
+    background: #0f0f1a;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 10px 12px;
+    margin-bottom: 8px;
+    font-size: 0.78rem;
+    transition: border-color 0.2s;
+  }
+  .quest-item.active   { border-color: #4060a0; }
+  .quest-item.done     { border-color: var(--green); opacity: 0.75; }
+  .quest-item.claimable{ border-color: var(--gold); box-shadow: 0 0 10px #c9a22730; }
+  .quest-title { font-family: 'Cinzel', serif; font-size: 0.82rem; margin-bottom: 4px; }
+  .quest-desc  { color: var(--dim); font-size: 0.72rem; margin-bottom: 6px; line-height: 1.5; }
+  .quest-progress { display: flex; justify-content: space-between; align-items: center; }
+  .quest-bar-wrap { flex: 1; background: #1a1a2a; border-radius: 3px; height: 6px; margin: 0 8px; overflow: hidden; }
+  .quest-bar-fill { height: 100%; border-radius: 3px; background: linear-gradient(90deg, #4040a0, #7060e0); transition: width 0.4s; }
+  .quest-bar-fill.done { background: linear-gradient(90deg, #208040, #50e090); }
+  .quest-reward { color: var(--gold); font-size: 0.72rem; }
+  .quest-badge {
+    display: inline-block; padding: 1px 6px; border-radius: 3px;
+    font-size: 0.65rem; font-weight: bold; margin-left: 6px; vertical-align: middle;
+  }
+  .quest-badge.new      { background: #102a10; color: var(--green); border: 1px solid #50e09040; }
+  .quest-badge.active   { background: #101a30; color: var(--cyan); border: 1px solid #50d8f040; }
+  .quest-badge.claimable{ background: #2a2000; color: var(--gold2); border: 1px solid #c9a22760; }
+  .quest-badge.done     { background: #0a1a0a; color: #50a060; }
+  #quest-notify {
+    position: fixed; top: 20px; right: 20px;
+    background: #1a1a0a; border: 1px solid var(--gold);
+    border-radius: 8px; padding: 10px 16px;
+    font-size: 0.8rem; color: var(--gold2);
+    box-shadow: 0 0 20px #c9a22740;
+    animation: fadeIn 0.3s ease;
+    z-index: 999; max-width: 260px;
+    display: none;
+  }
+</style>
+</head>
+<body>
+
+<h1>⚔ RPG METİN MACERASI ⚔</h1>
+<p class="subtitle">— KARANLIĞA ADIM AT —</p>
+<div id="quest-notify"></div>
+
+<!-- ════════════════════════════════════ -->
+<!--  INTRO SCREEN                       -->
+<!-- ════════════════════════════════════ -->
+<div id="screen-intro" class="screen active">
+  <div class="intro-box">
+    <p>Eski bir kaleye dönüşmüş zindan seni bekliyor.<br>
+    Canavarları yen, hazineleri topla, efsane ol.</p>
+    <input class="name-input" id="player-name-input" type="text" placeholder="Kahraman adını gir..." maxlength="20">
+    <button class="btn-start" onclick="startGame()" style="margin-bottom:10px;">⚔ YENİ OYUN BAŞLAT ⚔</button>
+    <div id="save-slots-intro" style="margin-top:8px;"></div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════ -->
+<!--  MAIN GAME                          -->
+<!-- ════════════════════════════════════ -->
+<div id="screen-game" class="screen" style="width:100%;max-width:900px;">
+  <div class="game-container">
+
+    <!-- LEFT: STATS & INVENTORY -->
+    <div>
+      <!-- Character Stats -->
+      <div class="panel" style="margin-bottom:14px;">
+        <div class="panel-title">⚔ KAHRAMAN</div>
+        <div class="stat-big" id="stat-name">—</div>
+
+        <div class="stat-row">
+          <span class="stat-label">❤ Can</span>
+          <span class="stat-val" id="stat-hp">—</span>
+        </div>
+        <div class="bar-wrap"><div class="bar-fill bar-hp" id="bar-hp" style="width:100%"></div></div>
+
+        <div class="stat-row">
+          <span class="stat-label">📈 Deneyim</span>
+          <span class="stat-val" id="stat-exp">—</span>
+        </div>
+        <div class="bar-wrap"><div class="bar-fill bar-exp" id="bar-exp" style="width:0%"></div></div>
+
+        <hr class="divider">
+        <div class="stat-row"><span class="stat-label">⭐ Seviye</span><span class="stat-val" id="stat-level">1</span></div>
+        <div class="stat-row"><span class="stat-label">⚔ Güç</span><span class="stat-val" id="stat-guc">—</span></div>
+        <div class="stat-row"><span class="stat-label">🛡 Savunma</span><span class="stat-val" id="stat-savunma">—</span></div>
+        <div class="stat-row"><span class="stat-label">💰 Altın</span><span class="stat-val gold-text" id="stat-altin">—</span></div>
+        <div class="stat-row"><span class="stat-label">🏚 Zindan Kat</span><span class="stat-val" id="stat-zindan">—</span></div>
+      </div>
+
+      <!-- Inventory -->
+      <div class="panel">
+        <div class="panel-title">🎒 ENVANTER</div>
+        <div id="inventory-list" style="min-height:40px;"></div>
+        <div class="section-label" id="inv-empty" style="text-align:center;padding:8px 0;">Envanter boş</div>
+      </div>
+    </div>
+
+    <!-- RIGHT: MAIN AREA -->
+    <div>
+      <!-- Log -->
+      <div class="log-area" id="log"></div>
+
+      <!-- Screens -->
+      <div id="view-main">
+        <div class="save-bar">
+          <button onclick="saveGame()">💾 Kaydet</button>
+          <button onclick="showSaveMenu()">📂 Kayıtlar</button>
+          <button id="music-btn" onclick="toggleMusic()" title="Müzik Aç/Kapat">🎵</button>
+          <button id="sfx-btn" onclick="toggleSfx()" title="Ses Efekti Aç/Kapat">🔊</button>
+        </div>
+        <div class="btn-grid btn-grid-2" style="margin-bottom:6px;">
+          <button onclick="showDungeon()">🏚 Zindana Gir</button>
+          <button onclick="startCombat('Orman')">🌲 Ormana Git</button>
+          <button onclick="startCombat('Kale')">🏰 Kale Baskını</button>
+          <button onclick="showShop('pazar')">🏪 Köy Pazarı</button>
+          <button onclick="showShop('simyaci')">⚗ Simyacı</button>
+          <button onclick="showShop('silahci_plus')">⚔ Silahçı & Zırhçı</button>
+        </div>
+        <button onclick="showShop('sifaci')" style="width:100%;margin-bottom:6px;">🏥 Şifacı</button>
+        <button onclick="showQuestView()" style="width:100%;border-color:#4060a0;color:#8090d0;">📜 Görev Panosu <span id="quest-count-badge" style="color:var(--gold);"></span></button>
+      </div>
+
+      <!-- Dungeon View -->
+      <div id="view-dungeon" style="display:none;">
+        <div class="panel-title" style="margin-bottom:8px;">🏚 ZİNDAN HARİTASI</div>
+        <div class="dungeon-floor" id="dungeon-floor-map"></div>
+        <div class="dungeon-info" id="dungeon-desc"></div>
+        <div class="floor-nav" id="floor-nav"></div>
+        <button onclick="startCombat('Zindan')" style="width:100%;margin-bottom:6px;border-color:#7050c0;color:#9070e0;">⚔ Bu Katta Savaş</button>
+        <button class="btn-back" onclick="showMain()">🔙 Geri Dön</button>
+      </div>
+
+      <!-- Combat View -->
+      <div id="view-combat" style="display:none;">
+        <div id="enemy-display"></div>
+        <div id="combat-turn-indicator"></div>
+        <div class="combat-actions" id="combat-buttons"></div>
+      </div>
+
+      <!-- Shop View -->
+      <div id="view-shop" style="display:none;">
+        <div class="panel-title" id="shop-title" style="margin-bottom:10px;"></div>
+        <div id="shop-items"></div>
+        <button class="btn-back" onclick="showMain()" style="width:100%;margin-top:6px;">🔙 Geri Dön</button>
+      </div>
+
+      <!-- Quest View -->
+      <div id="view-quest" style="display:none;">
+        <div class="panel-title" style="margin-bottom:10px;">📜 GÖREV PANOSU</div>
+        <div id="quest-list"></div>
+        <button class="btn-back" onclick="showMain()" style="width:100%;margin-top:6px;">🔙 Geri Dön</button>
+      </div>
+
+      <!-- Save Menu View -->
+      <div id="view-save" style="display:none;">
+        <div class="panel-title" style="margin-bottom:10px;">💾 KAYIT MENÜSÜ</div>
+        <div id="save-slots-menu"></div>
+        <button class="btn-back" onclick="showMain()" style="width:100%;margin-top:8px;">🔙 Geri Dön</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ════════════════════════════════════ -->
+<!--  GAME OVER                          -->
+<!-- ════════════════════════════════════ -->
+<div id="screen-gameover" class="screen" style="text-align:center;max-width:400px;margin:40px auto;">
+  <div class="intro-box">
+    <div style="font-size:3rem;margin-bottom:10px;">💀</div>
+    <h2 style="font-family:'Cinzel',serif;color:var(--red);margin-bottom:10px;">ÖLDÜN!</h2>
+    <p style="color:var(--dim);margin-bottom:20px;" id="gameover-stats"></p>
+    <button class="btn-start" onclick="location.reload()">↺ YENİDEN BAŞLA</button>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════
+//  SOUND ENGINE  (Web Audio API — no files needed)
+// ══════════════════════════════════════════════════
+let audioCtx = null;
+let sfxEnabled = true;
+
+function getCtx() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+  return audioCtx;
+}
+
+// Generic synth: type, freq, duration, volume, attack, decay, shape
+function synth({ type='square', freq=440, dur=0.18, vol=0.18, attack=0.005, decay=0.12, freqEnd=null, delay=0 } = {}) {
+  if (!sfxEnabled) return;
+  try {
+    const ctx = getCtx();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    const now = ctx.currentTime + delay;
+    osc.type = type;
+    osc.frequency.setValueAtTime(freq, now);
+    if (freqEnd !== null) osc.frequency.exponentialRampToValueAtTime(freqEnd, now + dur);
+    gain.gain.setValueAtTime(0, now);
+    gain.gain.linearRampToValueAtTime(vol, now + attack);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + attack + decay);
+    osc.connect(gain); gain.connect(ctx.destination);
+    osc.start(now); osc.stop(now + dur + 0.05);
+  } catch(e) {}
+}
+
+// Noise burst (for hit/damage)
+function noise({ dur=0.1, vol=0.12, freq=800, delay=0 } = {}) {
+  if (!sfxEnabled) return;
+  try {
+    const ctx = getCtx();
+    const bufSize = ctx.sampleRate * dur;
+    const buf = ctx.createBuffer(1, bufSize, ctx.sampleRate);
+    const data = buf.getChannelData(0);
+    for (let i = 0; i < bufSize; i++) data[i] = (Math.random() * 2 - 1);
+    const src = ctx.createBufferSource();
+    src.buffer = buf;
+    const filter = ctx.createBiquadFilter();
+    filter.type = 'bandpass';
+    filter.frequency.value = freq;
+    filter.Q.value = 0.8;
+    const gain = ctx.createGain();
+    const now = ctx.currentTime + delay;
+    gain.gain.setValueAtTime(vol, now);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + dur);
+    src.connect(filter); filter.connect(gain); gain.connect(ctx.destination);
+    src.start(now); src.stop(now + dur + 0.05);
+  } catch(e) {}
+}
+
+// ── Named sound effects ──
+const SFX = {
+  // Sword swing — quick descending tone
+  swing()    { synth({ type:'sawtooth', freq:520, freqEnd:260, dur:0.18, vol:0.12, attack:0.005, decay:0.15 }); },
+
+  // Hit — noise burst + low thud
+  hit()      { noise({ dur:0.08, vol:0.14, freq:600 });
+               synth({ type:'triangle', freq:120, freqEnd:60, dur:0.15, vol:0.10, attack:0.002, decay:0.12, delay:0.02 }); },
+
+  // Critical hit — big noise + high ping
+  critical() { noise({ dur:0.12, vol:0.22, freq:1200 });
+               synth({ type:'square', freq:880, freqEnd:1760, dur:0.12, vol:0.18, attack:0.003, decay:0.10, delay:0.03 });
+               synth({ type:'sawtooth', freq:440, freqEnd:220, dur:0.2, vol:0.12, attack:0.005, decay:0.18, delay:0.05 }); },
+
+  // Miss — woosh down
+  miss()     { synth({ type:'sine', freq:300, freqEnd:100, dur:0.2, vol:0.08, attack:0.01, decay:0.18 }); },
+
+  // Player takes damage — low thud
+  playerHit(){ noise({ dur:0.1, vol:0.18, freq:300 });
+               synth({ type:'triangle', freq:80, freqEnd:40, dur:0.25, vol:0.15, attack:0.003, decay:0.22, delay:0.02 }); },
+
+  // Potion — cheerful ascending arpeggio
+  potion()   { [523,659,784,1047].forEach((f,i) =>
+               synth({ type:'sine', freq:f, dur:0.12, vol:0.12, attack:0.005, decay:0.10, delay:i*0.07 })); },
+
+  // Enemy dies — descending fanfare
+  enemyDie() { [660,550,440,330].forEach((f,i) =>
+               synth({ type:'triangle', freq:f, dur:0.14, vol:0.14, attack:0.005, decay:0.12, delay:i*0.08 })); },
+
+  // Boss die — dramatic low boom
+  bossDie()  { noise({ dur:0.3, vol:0.28, freq:200 });
+               [220,165,110].forEach((f,i) =>
+               synth({ type:'sawtooth', freq:f, freqEnd:f*0.5, dur:0.4, vol:0.18, attack:0.01, decay:0.38, delay:i*0.12 })); },
+
+  // Level up — ascending fanfare
+  levelUp()  { [523,659,784,1047,1319].forEach((f,i) =>
+               synth({ type:'sine', freq:f, dur:0.18, vol:0.16, attack:0.005, decay:0.16, delay:i*0.09 }));
+               synth({ type:'triangle', freq:1760, dur:0.3, vol:0.14, attack:0.01, decay:0.28, delay:0.5 }); },
+
+  // Quest reward — cheerful 3-note
+  questDone(){ [784,988,1175].forEach((f,i) =>
+               synth({ type:'sine', freq:f, dur:0.15, vol:0.15, attack:0.005, decay:0.13, delay:i*0.1 })); },
+
+  // Buy / purchase — coin clink
+  buy()      { synth({ type:'sine', freq:1200, freqEnd:900, dur:0.1, vol:0.12, attack:0.003, decay:0.09 });
+               synth({ type:'sine', freq:1600, freqEnd:1200, dur:0.1, vol:0.10, attack:0.003, decay:0.09, delay:0.06 }); },
+
+  // Save — soft confirm
+  save()     { synth({ type:'sine', freq:440, dur:0.1, vol:0.10, attack:0.005, decay:0.09 });
+               synth({ type:'sine', freq:660, dur:0.12, vol:0.10, attack:0.005, decay:0.10, delay:0.08 }); },
+
+  // Flee success — quick up-slide
+  flee()     { synth({ type:'square', freq:300, freqEnd:600, dur:0.2, vol:0.10, attack:0.005, decay:0.18 }); },
+
+  // Flee fail — sad blip
+  fleeFail() { synth({ type:'square', freq:200, freqEnd:120, dur:0.2, vol:0.10, attack:0.005, decay:0.18 }); },
+
+  // Dungeon floor unlock — low door creak
+  unlock()   { synth({ type:'sawtooth', freq:180, freqEnd:90, dur:0.5, vol:0.14, attack:0.02, decay:0.46 });
+               synth({ type:'triangle', freq:260, freqEnd:130, dur:0.4, vol:0.12, attack:0.01, decay:0.38, delay:0.15 }); },
+
+  // Game over — descending death knell
+  gameOver() { [330,220,165,110].forEach((f,i) =>
+               synth({ type:'sawtooth', freq:f, freqEnd:f*0.7, dur:0.5, vol:0.18, attack:0.01, decay:0.48, delay:i*0.22 })); },
+
+  // Menu click — subtle tick
+  click()    { synth({ type:'sine', freq:800, freqEnd:600, dur:0.06, vol:0.07, attack:0.002, decay:0.05 }); },
+
+  // Boss appears — ominous low pulse
+  bossAppear(){ [55,73,82].forEach((f,i) =>
+               synth({ type:'sawtooth', freq:f, freqEnd:f*0.6, dur:0.6, vol:0.20, attack:0.02, decay:0.55, delay:i*0.18 }));
+               noise({ dur:0.4, vol:0.18, freq:200, delay:0.3 }); },
+};
+
+// ══════════════════════════════════════════════════
+//  STATE
+// ══════════════════════════════════════════════════
+const rng = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+let player, currentEnemy, inCombat = false;
+
+function newPlayer(isim) {
+  return {
+    isim, can: 100, maxCan: 100, guc: 15, savunma: 5,
+    seviye: 1, deneyim: 0, altin: 100,
+    zindanKat: 1, maxZindanKat: 1,
+    envanter: ['Küçük İksir', 'Küçük İksir'],
+    // quest tracking counters
+    stats: { kills: 0, bossKills: 0, ormanKills: 0, kaleKills: 0, zindanKills: 0, altinKazanilan: 0, iksirKullanildi: 0, maxZindanKat: 1 }
+  };
+}
+
+// ══════════════════════════════════════════════════
+//  SAVE / LOAD  (localStorage, 3 slots)
+// ══════════════════════════════════════════════════
+const SAVE_KEY = 'rpg_save_slot_';
+
+function saveGame(slot) {
+  if (slot === undefined) slot = player._slot !== undefined ? player._slot : 0;
+  player._slot = slot;
+  const data = { player, ts: Date.now() };
+  localStorage.setItem(SAVE_KEY + slot, JSON.stringify(data));
+  SFX.save();
+  showNotify(`💾 Slot ${slot + 1}'e kaydedildi!`);
+  log(`💾 Oyun <b>Slot ${slot + 1}</b>'e kaydedildi.`, 'gold');
+}
+
+function loadGame(slot) {
+  const raw = localStorage.getItem(SAVE_KEY + slot);
+  if (!raw) return false;
+  const data = JSON.parse(raw);
+  player = data.player;
+  // ensure stats object exists for older saves
+  if (!player.stats) player.stats = { kills:0, bossKills:0, ormanKills:0, kaleKills:0, zindanKills:0, altinKazanilan:0, iksirKullanildi:0, maxZindanKat: player.maxZindanKat||1 };
+  player._slot = slot;
+  return true;
+}
+
+function getSaveInfo(slot) {
+  const raw = localStorage.getItem(SAVE_KEY + slot);
+  if (!raw) return null;
+  const { player: p, ts } = JSON.parse(raw);
+  const d = new Date(ts);
+  const dateStr = `${d.getDate()}.${d.getMonth()+1} ${d.getHours()}:${String(d.getMinutes()).padStart(2,'0')}`;
+  return { name: p.isim, seviye: p.seviye, zindanKat: p.zindanKat, altin: p.altin, dateStr };
+}
+
+function renderSaveSlots(containerId, mode) {
+  // mode: 'intro' (load only) or 'menu' (save + load + delete)
+  const el = document.getElementById(containerId);
+  el.innerHTML = '';
+  for (let i = 0; i < 3; i++) {
+    const info = getSaveInfo(i);
+    const div = document.createElement('div');
+    div.className = 'save-slot' + (info ? ' has-save' : '');
+    if (info) {
+      div.innerHTML = `
+        <div>
+          <div style="color:var(--text);font-weight:bold;">Slot ${i+1} — ${info.name}</div>
+          <div class="save-slot-info">Sv.${info.seviye} | Zindan Kat ${info.zindanKat} | ${info.altin}💰 | ${info.dateStr}</div>
+        </div>
+        <div class="save-slot-btns">
+          ${mode==='menu' ? `<button onclick="saveGame(${i})" class="btn-gold">💾 Kaydet</button>` : ''}
+          <button onclick="loadSlot(${i})" style="border-color:#4060a0;color:#8090d0;">📂 Yükle</button>
+          ${mode==='menu' ? `<button onclick="deleteSlot(${i})" class="btn-danger">🗑</button>` : ''}
+        </div>`;
+    } else {
+      div.innerHTML = `
+        <div style="color:var(--dim);">Slot ${i+1} — Boş</div>
+        <div class="save-slot-btns">
+          ${mode==='menu' ? `<button onclick="saveGame(${i})" class="btn-gold">💾 Kaydet</button>` : ''}
+          ${mode==='intro' ? `<span style="color:var(--border);font-size:0.72rem;">kayıt yok</span>` : ''}
+        </div>`;
+    }
+    el.appendChild(div);
+  }
+}
+
+function loadSlot(slot) {
+  if (!loadGame(slot)) { alert('Bu slot boş!'); return; }
+  // transition to game
+  document.getElementById('screen-intro').classList.remove('active');
+  document.getElementById('screen-game').classList.add('active');
+  updateStats(); updateInventory();
+  initQuests();
+  showMain();
+  log(`📂 <b>Slot ${slot+1}</b> yüklendi. Hoş geldin tekrar, <b>${player.isim}</b>!`, 'gold');
+  startMusic('menu');
+}
+
+function deleteSlot(slot) {
+  if (!confirm(`Slot ${slot+1} silinsin mi?`)) return;
+  localStorage.removeItem(SAVE_KEY + slot);
+  renderSaveSlots('save-slots-menu', 'menu');
+  log(`🗑 Slot ${slot+1} silindi.`, 'dim');
+}
+
+function showSaveMenu() {
+  hide('view-main'); hide('view-dungeon'); hide('view-combat'); hide('view-shop'); hide('view-quest');
+  show('view-save');
+  renderSaveSlots('save-slots-menu', 'menu');
+}
+
+function showNotify(msg) {
+  const el = document.getElementById('quest-notify');
+  el.innerHTML = msg;
+  el.style.display = 'block';
+  clearTimeout(el._t);
+  el._t = setTimeout(() => { el.style.display = 'none'; }, 2800);
+}
+
+// ══════════════════════════════════════════════════
+//  START
+// ══════════════════════════════════════════════════
+function startGame() {
+  const isim = document.getElementById('player-name-input').value.trim() || 'Kahraman';
+  player = newPlayer(isim);
+  player._slot = 0;
+  document.getElementById('screen-intro').classList.remove('active');
+  document.getElementById('screen-game').classList.add('active');
+  updateStats();
+  updateInventory();
+  initQuests();
+  log(`⚔ Hoş geldin, <b>${player.isim}</b>! Macera seni bekliyor...`, 'gold');
+  log('🗡 Hangi tehlikeye atılacaksın?', 'dim');
+  log('📜 Görev Panosu\'na bakarak ilk görevlerini al!', 'cyan');
+  startMusic('menu');
+}
+
+// ══════════════════════════════════════════════════
+//  LOG
+// ══════════════════════════════════════════════════
+function log(msg, cls = 'normal') {
+  const el = document.getElementById('log');
+  const line = document.createElement('div');
+  line.className = `log-${cls} fadeIn`;
+  line.innerHTML = msg;
+  el.appendChild(line);
+  el.scrollTop = el.scrollHeight;
+  // keep log tidy
+  while (el.children.length > 120) el.removeChild(el.firstChild);
+}
+
+// ══════════════════════════════════════════════════
+//  STATS & INVENTORY
+// ══════════════════════════════════════════════════
+function updateStats() {
+  document.getElementById('stat-name').textContent = `🧙 ${player.isim}`;
+  document.getElementById('stat-hp').textContent = `${player.can} / ${player.maxCan}`;
+  document.getElementById('bar-hp').style.width = Math.max(0, (player.can / player.maxCan) * 100) + '%';
+  const needExp = player.seviye * 50;
+  document.getElementById('stat-exp').textContent = `${player.deneyim} / ${needExp}`;
+  document.getElementById('bar-exp').style.width = Math.min(100, (player.deneyim / needExp) * 100) + '%';
+  document.getElementById('stat-level').textContent = player.seviye;
+  document.getElementById('stat-guc').textContent = player.guc;
+  document.getElementById('stat-savunma').textContent = player.savunma;
+  document.getElementById('stat-altin').textContent = player.altin + ' 💰';
+  document.getElementById('stat-zindan').textContent = `Kat ${player.zindanKat} (maks: ${player.maxZindanKat})`;
+}
+
+function updateInventory() {
+  const list = document.getElementById('inventory-list');
+  const empty = document.getElementById('inv-empty');
+  list.innerHTML = '';
+  if (player.envanter.length === 0) { empty.style.display = 'block'; return; }
+  empty.style.display = 'none';
+  // count items
+  const counts = {};
+  player.envanter.forEach(i => counts[i] = (counts[i] || 0) + 1);
+  Object.entries(counts).forEach(([item, count]) => {
+    const div = document.createElement('div');
+    div.className = 'inv-item';
+    div.innerHTML = `${itemEmoji(item)} ${item} ${count > 1 ? `<span style="color:var(--gold)">×${count}</span>` : ''}`;
+    div.onclick = () => useItemOutsideCombat(item);
+    list.appendChild(div);
+  });
+}
+
+function itemEmoji(name) {
+  if (name.includes('Mega İksir')) return '🌟';
+  if (name.includes('Büyük İksir')) return '💊';
+  if (name.includes('İksir')) return '🧪';
+  if (name.includes('Güç Taşı')) return '💪';
+  if (name.includes('Savunma Taşı')) return '🛡';
+  return '📦';
+}
+
+function useItemOutsideCombat(item) {
+  if (inCombat) return;
+  const idx = player.envanter.indexOf(item);
+  if (idx === -1) return;
+  if (item.includes('İksir')) {
+    const heal = item.includes('Mega') ? 100 : item.includes('Büyük') ? 50 : 30;
+    player.can = Math.min(player.can + heal, player.maxCan);
+    player.envanter.splice(idx, 1);
+    log(`💊 ${item} kullandın! +${heal} Can (${player.can}/${player.maxCan})`, 'green');
+  } else if (item === 'Güç Taşı') {
+    player.guc += 8; player.envanter.splice(idx, 1);
+    log('💪 Güç Taşı kullandın! +8 Güç', 'green');
+  } else if (item === 'Savunma Taşı') {
+    player.savunma += 5; player.envanter.splice(idx, 1);
+    log('🛡 Savunma Taşı kullandın! +5 Savunma', 'green');
+  } else {
+    log('Bu eşya burada kullanılamaz.', 'dim');
+    return;
+  }
+  updateStats(); updateInventory();
+}
+
+// ══════════════════════════════════════════════════
+//  VIEW MANAGEMENT
+// ══════════════════════════════════════════════════
+function showMain() {
+  inCombat = false;
+  show('view-main'); hide('view-dungeon'); hide('view-combat'); hide('view-shop'); hide('view-quest'); hide('view-save');
+  updateQuestBadge();
+}
+function showDungeon() {
+  show('view-dungeon'); hide('view-main'); hide('view-combat'); hide('view-shop'); hide('view-quest'); hide('view-save');
+  renderDungeon();
+}
+function showCombatView() {
+  show('view-combat'); hide('view-main'); hide('view-dungeon'); hide('view-shop'); hide('view-quest'); hide('view-save');
+}
+function showShopView() {
+  show('view-shop'); hide('view-main'); hide('view-dungeon'); hide('view-combat'); hide('view-quest'); hide('view-save');
+}
+function showQuestView() {
+  show('view-quest'); hide('view-main'); hide('view-dungeon'); hide('view-combat'); hide('view-shop'); hide('view-save');
+  renderQuests();
+}
+function show(id) { document.getElementById(id).style.display = 'block'; }
+function hide(id) { document.getElementById(id).style.display = 'none'; }
+
+// ══════════════════════════════════════════════════
+//  DUNGEON
+// ══════════════════════════════════════════════════
+function renderDungeon() {
+  const map = document.getElementById('dungeon-floor-map');
+  map.innerHTML = '';
+  for (let k = 1; k <= 20; k++) {
+    const dot = document.createElement('div');
+    dot.className = 'floor-dot';
+    dot.title = `Kat ${k}`;
+    if (k === player.zindanKat) dot.classList.add('current');
+    else if (k <= player.maxZindanKat) dot.classList.add('unlocked');
+    else dot.classList.add('locked');
+    if (k % 5 === 0) dot.classList.add('boss');
+    dot.textContent = k % 5 === 0 ? '💀' : k;
+    dot.onclick = () => navigateDungeon(k);
+    map.appendChild(dot);
+  }
+
+  document.getElementById('dungeon-desc').textContent = dungeonDesc(player.zindanKat);
+
+  const nav = document.getElementById('floor-nav');
+  nav.innerHTML = '';
+  if (player.zindanKat > 1) {
+    const btn = document.createElement('button');
+    btn.textContent = `⬆ Kat ${player.zindanKat - 1}`;
+    btn.onclick = () => { player.zindanKat--; renderDungeon(); };
+    nav.appendChild(btn);
+  }
+  if (player.zindanKat < 20) {
+    const next = player.zindanKat + 1;
+    const btn = document.createElement('button');
+    if (next > player.maxZindanKat) {
+      btn.textContent = `⬇ Kat ${next} 🔒`;
+      btn.disabled = true;
+    } else {
+      btn.textContent = `⬇ Kat ${next}`;
+      btn.onclick = () => { player.zindanKat++; renderDungeon(); };
+    }
+    nav.appendChild(btn);
+  }
+}
+
+function navigateDungeon(k) {
+  if (k > player.maxZindanKat) { log(`🔒 Kat ${k} henüz kilitli!`, 'red'); return; }
+  player.zindanKat = k;
+  renderDungeon();
+  log(`🏚 Kat ${k}'e geçtin.`, 'dim');
+}
+
+function dungeonDesc(kat) {
+  if (kat <= 3)  return '🪨 Taş duvarlar, rutubetli koridorlar...';
+  if (kat <= 6)  return '🕯 Meşaleler sönük, kemik sesleri yankılanıyor...';
+  if (kat <= 9)  return '💀 Cesetler yerde, karanlık iyice çöküyor...';
+  if (kat <= 12) return '🔥 Duvarlar kızgın, cehennem kokusu var...';
+  if (kat <= 15) return '👁 Gözler karanlıkta parıldıyor, tehlike hissediyorsun...';
+  if (kat <= 18) return '☠ Ölümün eşiğindesin. Burası çok tehlikeli!';
+  return '👹 KARANLIKLARIN DİBİ. En güçlü varlıklar burada yaşıyor!';
+}
+
+// ══════════════════════════════════════════════════
+//  QUEST SYSTEM
+// ══════════════════════════════════════════════════
+// Quest status: 'new' | 'active' | 'claimable' | 'done'
+// Each quest: { id, title, desc, goal, statKey, target, reward, status, progress }
+
+const QUEST_DEFS = [
+  // Chapter 1 — Başlangıç
+  { id:'q1',  chapter:1, title:'İlk Kan',           desc:'Herhangi bir düşmanı yen.',                               statKey:'kills',         target:1,   reward:{ altin:30,  exp:20  } },
+  { id:'q2',  chapter:1, title:'Ormana Giriş',       desc:'Ormandaki 3 düşmanı yen.',                               statKey:'ormanKills',    target:3,   reward:{ altin:50,  exp:40  } },
+  { id:'q3',  chapter:1, title:'Tecrübe Kazanımı',   desc:'Toplam 5 düşman yen.',                                   statKey:'kills',         target:5,   reward:{ altin:60,  exp:60  } },
+  // Chapter 2 — Zindan
+  { id:'q4',  chapter:2, title:'Zindana Adım At',    desc:'Zindanda 1 düşman yen.',                                 statKey:'zindanKills',   target:1,   reward:{ altin:40,  exp:30  } },
+  { id:'q5',  chapter:2, title:'Derinlere İn',       desc:'Zindan Kat 3\'e ulaş.',                                  statKey:'maxZindanKat',  target:3,   reward:{ altin:80,  maxCan:10 } },
+  { id:'q6',  chapter:2, title:'İlk Boss',           desc:'Bir boss düşmanı yen.',                                  statKey:'bossKills',     target:1,   reward:{ altin:120, exp:100, item:'Büyük İksir' } },
+  // Chapter 3 — Kale
+  { id:'q7',  chapter:3, title:'Kale Kâbusu',        desc:'Kalede 5 düşman yen.',                                   statKey:'kaleKills',     target:5,   reward:{ altin:100, exp:80  } },
+  { id:'q8',  chapter:3, title:'Altın Avcısı',       desc:'Toplamda 500 altın kazan.',                              statKey:'altinKazanilan',target:500,  reward:{ altin:150, exp:60  } },
+  { id:'q9',  chapter:3, title:'Zindan Kaşifi',      desc:'Zindan Kat 5 Bossu\'nu yen.',                            statKey:'maxZindanKat',  target:6,   reward:{ altin:200, guc:3,  item:'Mega İksir' } },
+  // Chapter 4 — Ustalaşma
+  { id:'q10', chapter:4, title:'Savaş Makinesi',     desc:'Toplamda 25 düşman yen.',                                statKey:'kills',         target:25,  reward:{ altin:200, exp:150 } },
+  { id:'q11', chapter:4, title:'Zindan Ustası',      desc:'Zindan Kat 10\'a ulaş.',                                 statKey:'maxZindanKat',  target:10,  reward:{ altin:300, savunma:3 } },
+  { id:'q12', chapter:4, title:'Boss Avcısı',        desc:'5 boss düşmanı yen.',                                    statKey:'bossKills',     target:5,   reward:{ altin:400, guc:5,  item:'Mega İksir' } },
+  // Chapter 5 — Efsane
+  { id:'q13', chapter:5, title:'Karanlık Kahraman',  desc:'Toplam 50 düşman yen.',                                  statKey:'kills',         target:50,  reward:{ altin:500, exp:300 } },
+  { id:'q14', chapter:5, title:'Zindanın Efendisi',  desc:'Zindan Kat 15\'e ulaş.',                                 statKey:'maxZindanKat',  target:15,  reward:{ altin:600, maxCan:25, guc:5 } },
+  { id:'q15', chapter:5, title:'Efsane Savaşçı',     desc:'10 boss düşmanı yen.',                                   statKey:'bossKills',     target:10,  reward:{ altin:800, guc:8, savunma:5 } },
+];
+
+let quests = []; // active quest objects
+
+function initQuests() {
+  if (!player.quests) {
+    // First time: activate chapter 1 quests
+    player.quests = QUEST_DEFS.map(q => ({ ...q, status: q.chapter === 1 ? 'active' : 'new', progress: 0 }));
+  } else {
+    // Merge new quest defs in case we added new ones
+    player.quests = QUEST_DEFS.map(qd => {
+      const saved = player.quests.find(q => q.id === qd.id);
+      return saved ? { ...qd, status: saved.status, progress: saved.progress } : { ...qd, status: qd.chapter === 1 ? 'active' : 'new', progress: 0 };
+    });
+  }
+  quests = player.quests;
+  updateQuestBadge();
+}
+
+function updateQuestProgress() {
+  // Sync progress from player.stats and check for completions
+  let newClaimable = false;
+  quests.forEach(q => {
+    if (q.status === 'done') return;
+    if (q.status === 'new') return;
+    const val = player.stats[q.statKey] || 0;
+    q.progress = Math.min(val, q.target);
+    if (q.status === 'active' && q.progress >= q.target) {
+      q.status = 'claimable';
+      newClaimable = true;
+      showNotify(`📜 Görev tamamlandı: <b>${q.title}</b>! Ödülünü al!`);
+      log(`📜 Görev tamamlandı: <b>${q.title}</b>! Görev Panosu'ndan ödülünü al.`, 'gold');
+    }
+  });
+  // Unlock next chapter quests if any in current chapter are done
+  const doneChapters = new Set(quests.filter(q => q.status === 'done').map(q => q.chapter));
+  const chapterDoneCounts = {};
+  quests.forEach(q => { if (!chapterDoneCounts[q.chapter]) chapterDoneCounts[q.chapter] = 0; if (q.status === 'done') chapterDoneCounts[q.chapter]++; });
+  const chapterTotals = {};
+  quests.forEach(q => { if (!chapterTotals[q.chapter]) chapterTotals[q.chapter] = 0; chapterTotals[q.chapter]++; });
+  for (let ch = 1; ch <= 4; ch++) {
+    if ((chapterDoneCounts[ch] || 0) >= Math.ceil((chapterTotals[ch] || 0) * 0.5)) {
+      quests.filter(q => q.chapter === ch + 1 && q.status === 'new').forEach(q => {
+        q.status = 'active';
+        log(`📜 Yeni görevler açıldı: <b>Bölüm ${ch+1}</b>!`, 'cyan');
+      });
+    }
+  }
+  updateQuestBadge();
+}
+
+function claimQuestReward(id) {
+  const q = quests.find(q => q.id === id);
+  if (!q || q.status !== 'claimable') return;
+  q.status = 'done';
+  SFX.questDone();
+  const r = q.reward;
+  if (r.altin)   { player.altin   += r.altin;   log(`💰 +${r.altin} Altın kazandın!`, 'gold'); }
+  if (r.exp)     { player.deneyim += r.exp;      log(`📈 +${r.exp} EXP kazandın!`, 'cyan'); checkLevelUp(); }
+  if (r.guc)     { player.guc     += r.guc;      log(`⚔ +${r.guc} Güç kazandın!`, 'green'); }
+  if (r.savunma) { player.savunma += r.savunma;  log(`🛡 +${r.savunma} Savunma kazandın!`, 'green'); }
+  if (r.maxCan)  { player.maxCan  += r.maxCan; player.can += r.maxCan; log(`❤ +${r.maxCan} Maks Can kazandın!`, 'green'); }
+  if (r.item)    { player.envanter.push(r.item); log(`🎁 ${r.item} kazandın!`, 'magenta'); }
+  updateStats(); updateInventory();
+  updateQuestProgress();
+  renderQuests();
+  showNotify(`✨ Görev ödülü alındı: ${q.title}!`);
+}
+
+function updateQuestBadge() {
+  const claimable = quests.filter(q => q.status === 'claimable').length;
+  const el = document.getElementById('quest-count-badge');
+  if (!el) return;
+  el.textContent = claimable > 0 ? `🔔 ${claimable} ödül bekliyor` : '';
+}
+
+function renderQuests() {
+  const el = document.getElementById('quest-list');
+  el.innerHTML = '';
+  const chapters = [...new Set(quests.map(q => q.chapter))].sort();
+  chapters.forEach(ch => {
+    const chQs = quests.filter(q => q.chapter === ch);
+    const chDone = chQs.every(q => q.status === 'done');
+    const hdr = document.createElement('div');
+    hdr.style.cssText = 'font-family:Cinzel,serif;font-size:0.75rem;color:var(--dim);letter-spacing:2px;margin:12px 0 6px;';
+    hdr.innerHTML = `BÖLÜM ${ch} ${chDone ? '<span style="color:var(--green)">✓ TAMAMLANDI</span>' : ''}`;
+    el.appendChild(hdr);
+    chQs.forEach(q => {
+      if (q.status === 'new') return; // hidden until unlocked
+      const div = document.createElement('div');
+      div.className = `quest-item ${q.status}`;
+      const pct = Math.min(100, (q.progress / q.target) * 100);
+      const badgeLabel = { active:'AKTİF', claimable:'ÖDÜL AL!', done:'TAMAM' }[q.status] || q.status;
+      const rewardStr = [
+        q.reward.altin   ? `${q.reward.altin}💰` : '',
+        q.reward.exp     ? `+${q.reward.exp}EXP` : '',
+        q.reward.guc     ? `+${q.reward.guc}⚔` : '',
+        q.reward.savunma ? `+${q.reward.savunma}🛡` : '',
+        q.reward.maxCan  ? `+${q.reward.maxCan}❤` : '',
+        q.reward.item    ? q.reward.item : '',
+      ].filter(Boolean).join('  ');
+      div.innerHTML = `
+        <div class="quest-title">${q.title} <span class="quest-badge ${q.status}">${badgeLabel}</span></div>
+        <div class="quest-desc">${q.desc}</div>
+        <div class="quest-progress">
+          <span style="font-size:0.7rem;color:var(--dim);min-width:55px;">${q.progress}/${q.target}</span>
+          <div class="quest-bar-wrap"><div class="quest-bar-fill ${q.status==='done'?'done':''}" style="width:${pct}%"></div></div>
+          <span class="quest-reward">${rewardStr}</span>
+        </div>
+        ${q.status === 'claimable' ? `<button onclick="claimQuestReward('${q.id}')" style="width:100%;margin-top:8px;border-color:var(--gold);color:var(--gold2);">🎁 Ödülü Al</button>` : ''}`;
+      el.appendChild(div);
+    });
+  });
+}
+
+// ══════════════════════════════════════════════════
+//  ENEMY GENERATION
+// ══════════════════════════════════════════════════
+const ORMAN = [
+  {isim:'Kurt',           can:35,  guc:10, sav:2,  exp:22,  altin:12, nadir:'Normal'},
+  {isim:'Zehirli Örümcek',can:28,  guc:12, sav:1,  exp:20,  altin:10, nadir:'Normal'},
+  {isim:'Ağaç Devi',      can:80,  guc:18, sav:8,  exp:60,  altin:40, nadir:'Normal'},
+  {isim:'Orman Cadısı',   can:60,  guc:22, sav:4,  exp:55,  altin:50, nadir:'Nadir'},
+  {isim:'Dev Akrep',      can:90,  guc:24, sav:9,  exp:75,  altin:60, nadir:'Nadir'},
+  {isim:'Efsanevi Feniks',can:150, guc:30, sav:14, exp:150, altin:120,nadir:'Efsanevi'},
+];
+const KALE = [
+  {isim:'Kale Muhafızı',  can:55,  guc:13, sav:7,  exp:35,  altin:20, nadir:'Normal'},
+  {isim:'Zırhlı Şövalye', can:90,  guc:20, sav:12, exp:65,  altin:50, nadir:'Normal'},
+  {isim:'Kara Büyücü',    can:70,  guc:26, sav:5,  exp:70,  altin:60, nadir:'Nadir'},
+  {isim:'Vampir Kont',    can:110, guc:28, sav:10, exp:90,  altin:80, nadir:'Nadir'},
+  {isim:'Lich Kral',      can:200, guc:35, sav:15, exp:200, altin:200,nadir:'Efsanevi'},
+];
+
+const ZINDAN_HAVUZ = {
+  '1-3':  [
+    {isim:'Bodrum Sıçanı',      can:20,  guc:6,  sav:1,  exp:12,  altin:8,  nadir:'Normal'},
+    {isim:'Çürük İskelet',      can:30,  guc:8,  sav:2,  exp:18,  altin:10, nadir:'Normal'},
+    {isim:'Cüce Goblin',        can:25,  guc:7,  sav:1,  exp:15,  altin:9,  nadir:'Normal'},
+    {isim:'Mantar Cini',        can:22,  guc:9,  sav:2,  exp:16,  altin:10, nadir:'Normal'},
+  ],
+  '4-6':  [
+    {isim:'Zindan Goblini',     can:40,  guc:12, sav:3,  exp:28,  altin:18, nadir:'Normal'},
+    {isim:'Kemik Savaşçı',      can:50,  guc:14, sav:4,  exp:35,  altin:22, nadir:'Normal'},
+    {isim:'Gölge Avcı',         can:45,  guc:16, sav:3,  exp:32,  altin:25, nadir:'Nadir'},
+    {isim:'Zehirli Böcek Kral', can:55,  guc:13, sav:5,  exp:38,  altin:28, nadir:'Nadir'},
+  ],
+  '7-9':  [
+    {isim:'Taş Golem',          can:80,  guc:18, sav:8,  exp:55,  altin:40, nadir:'Normal'},
+    {isim:'Karanlık Rahip',     can:70,  guc:22, sav:5,  exp:50,  altin:45, nadir:'Normal'},
+    {isim:'Çift Başlı Troll',   can:90,  guc:20, sav:9,  exp:65,  altin:50, nadir:'Nadir'},
+    {isim:'Gölge Vampir',       can:85,  guc:24, sav:7,  exp:60,  altin:55, nadir:'Nadir'},
+  ],
+  '10-12':[
+    {isim:'Cehennem Köpeği',    can:110, guc:26, sav:10, exp:80,  altin:65, nadir:'Normal'},
+    {isim:'Lanetli Şövalye',    can:120, guc:28, sav:12, exp:88,  altin:70, nadir:'Normal'},
+    {isim:'Ruh Emici',          can:105, guc:30, sav:9,  exp:85,  altin:75, nadir:'Nadir'},
+    {isim:'Ejder Yavrusu',      can:130, guc:32, sav:11, exp:95,  altin:85, nadir:'Efsanevi'},
+  ],
+  '13-15':[
+    {isim:'Ölümsüz Savaşçı',   can:150, guc:34, sav:14, exp:110, altin:90,  nadir:'Normal'},
+    {isim:'Kara Ejder',         can:170, guc:38, sav:16, exp:130, altin:110, nadir:'Nadir'},
+    {isim:'Karanlık Devasa',    can:160, guc:36, sav:15, exp:120, altin:100, nadir:'Nadir'},
+    {isim:'Şeytan Büyücüsü',   can:155, guc:40, sav:12, exp:125, altin:115, nadir:'Efsanevi'},
+  ],
+  '16-18':[
+    {isim:'Cehennem Devi',      can:200, guc:44, sav:18, exp:150, altin:130, nadir:'Normal'},
+    {isim:'Ruh Avcısı',         can:190, guc:48, sav:16, exp:145, altin:140, nadir:'Nadir'},
+    {isim:'Kanatlı Şeytan',     can:220, guc:46, sav:20, exp:160, altin:150, nadir:'Efsanevi'},
+    {isim:'Lanetli Lich',       can:210, guc:50, sav:17, exp:155, altin:145, nadir:'Efsanevi'},
+  ],
+  '19-20':[
+    {isim:'Karanlık Tanrı',     can:280, guc:55, sav:22, exp:200, altin:200, nadir:'Efsanevi'},
+    {isim:'Sonsuzluk Ejderi',   can:320, guc:58, sav:24, exp:220, altin:220, nadir:'Efsanevi'},
+    {isim:'Ölüm Meleği',        can:300, guc:60, sav:20, exp:210, altin:210, nadir:'Efsanevi'},
+  ],
+};
+
+function getZindanHavuz(kat) {
+  if (kat <= 3)  return ZINDAN_HAVUZ['1-3'];
+  if (kat <= 6)  return ZINDAN_HAVUZ['4-6'];
+  if (kat <= 9)  return ZINDAN_HAVUZ['7-9'];
+  if (kat <= 12) return ZINDAN_HAVUZ['10-12'];
+  if (kat <= 15) return ZINDAN_HAVUZ['13-15'];
+  if (kat <= 18) return ZINDAN_HAVUZ['16-18'];
+  return ZINDAN_HAVUZ['19-20'];
+}
+
+function scale(base, carpan) { return Math.round(base * carpan); }
+
+function spawnEnemy(bolge) {
+  if (bolge === 'Zindan') {
+    const kat = player.zindanKat;
+    const carpan = 1.0 + (kat - 1) * 0.18;
+    const isBoss = (kat % 5 === 0);
+    const havuz = getZindanHavuz(kat);
+    const base = havuz[rng(0, havuz.length - 1)];
+
+    if (isBoss) {
+      return {
+        isim: `[KAT ${kat} BOSSU] ${base.isim} Lordu`,
+        can: scale(base.can * 3, carpan), maxCan: scale(base.can * 3, carpan),
+        guc: scale(base.guc * 2, carpan), sav: scale(base.sav * 2, carpan),
+        exp: scale(base.exp * 4, carpan), altin: scale(base.altin * 4, carpan),
+        nadir: 'Efsanevi', isBoss: true
+      };
+    }
+    return {
+      isim: base.isim,
+      can: scale(base.can, carpan), maxCan: scale(base.can, carpan),
+      guc: scale(base.guc, carpan), sav: scale(base.sav, carpan),
+      exp: scale(base.exp, carpan), altin: scale(base.altin, carpan),
+      nadir: base.nadir, isBoss: false
+    };
+  }
+
+  const pool = bolge === 'Orman' ? ORMAN : KALE;
+  const base = pool[rng(0, pool.length - 1)];
+  return { ...base, maxCan: base.can, isBoss: false };
+}
+
+// ══════════════════════════════════════════════════
+//  COMBAT
+// ══════════════════════════════════════════════════
+let combatBolge = '';
+
+function startCombat(bolge) {
+  combatBolge = bolge;
+  currentEnemy = spawnEnemy(bolge);
+  inCombat = true;
+  showCombatView();
+  renderEnemy();
+  renderCombatButtons();
+
+  const prefix = currentEnemy.isBoss ? '💀 BOSS — ' :
+                 currentEnemy.nadir === 'Efsanevi' ? '🌟 [Efsanevi] — ' :
+                 currentEnemy.nadir === 'Nadir'    ? '✨ [Nadir] — '    : '';
+  log(`\n⚠ ${prefix}<b>${currentEnemy.isim}</b> karşına çıktı!`, currentEnemy.isBoss ? 'boss' : currentEnemy.nadir === 'Efsanevi' ? 'magenta' : currentEnemy.nadir === 'Nadir' ? 'cyan' : 'red');
+  log(`   ❤ ${currentEnemy.can} | ⚔ ${currentEnemy.guc} | 🛡 ${currentEnemy.sav}`, 'dim');
+  if (currentEnemy.isBoss) log('  ⚠ BOSS — Yenersen yeni kat açılır! Kaçamazsın!', 'red');
+  if (currentEnemy.isBoss) setTimeout(() => SFX.bossAppear(), 200);
+}
+
+function renderEnemy() {
+  const cls = currentEnemy.isBoss ? 'boss-card' :
+              currentEnemy.nadir === 'Efsanevi' ? 'efsanevi-card' :
+              currentEnemy.nadir === 'Nadir'    ? 'nadir-card'    : '';
+  const badgeCls = currentEnemy.isBoss ? 'badge-boss' :
+                   currentEnemy.nadir === 'Efsanevi' ? 'badge-efsanevi' :
+                   currentEnemy.nadir === 'Nadir'    ? 'badge-nadir'    : 'badge-normal';
+  const pct = Math.max(0, (currentEnemy.can / currentEnemy.maxCan) * 100);
+  document.getElementById('enemy-display').innerHTML = `
+    <div class="enemy-card ${cls} fadeIn">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px;">
+        <div class="enemy-name" style="color:${currentEnemy.isBoss?'var(--red)':currentEnemy.nadir==='Efsanevi'?'var(--magenta)':currentEnemy.nadir==='Nadir'?'var(--cyan)':'var(--text)'}">
+          ${currentEnemy.isim}
+        </div>
+        <span class="badge ${badgeCls}">${currentEnemy.isBoss ? 'BOSS' : currentEnemy.nadir}</span>
+      </div>
+      <div class="enemy-stats">⚔ Güç: ${currentEnemy.guc} &nbsp; 🛡 Savunma: ${currentEnemy.sav} &nbsp; 🎁 ${currentEnemy.exp}exp / ${currentEnemy.altin}💰</div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span style="font-size:0.75rem;color:var(--dim);min-width:60px;">❤ ${Math.max(0,currentEnemy.can)}/${currentEnemy.maxCan}</span>
+        <div class="enemy-hp-wrap" style="flex:1"><div class="enemy-hp-fill" style="width:${pct}%"></div></div>
+      </div>
+    </div>`;
+}
+
+function renderCombatButtons(disabled = false) {
+  const hasPotion = player.envanter.some(i => i.includes('İksir'));
+  document.getElementById('combat-buttons').innerHTML = `
+    <button onclick="combatAction('normal')" ${disabled?'disabled':''}>⚔ Normal Saldır</button>
+    <button onclick="combatAction('heavy')"  ${disabled?'disabled':''}>💥 Güçlü Saldır</button>
+    <button onclick="combatAction('potion')" ${disabled?'disabled':'' + (!hasPotion?'disabled':'')} style="${!hasPotion?'opacity:0.35':''}">🧪 İksir Kullan</button>
+    <button onclick="combatAction('flee')"   ${disabled?'disabled':''} class="btn-danger">${currentEnemy.isBoss?'🔒 Kaçış Yok':'🏃 Kaç'}</button>`;
+}
+
+function combatAction(action) {
+  if (!inCombat) return;
+  renderCombatButtons(true); // disable during processing
+  let playerDmg = 0;
+
+  if (action === 'normal') {
+    SFX.swing();
+    playerDmg = Math.max(1, player.guc - currentEnemy.sav + rng(0, 7));
+    setTimeout(() => SFX.hit(), 120);
+    log(`⚔ <b>${currentEnemy.isim}</b>'e <b style="color:var(--cyan)">${playerDmg}</b> hasar verdin!`, 'normal');
+  }
+  else if (action === 'heavy') {
+    SFX.swing();
+    if (rng(0, 1) === 0) {
+      playerDmg = player.guc * 2 - currentEnemy.sav + rng(0, 11);
+      setTimeout(() => SFX.critical(), 100);
+      log(`💥 KRİTİK! <b>${currentEnemy.isim}</b>'e <b style="color:var(--magenta)">${playerDmg}</b> hasar verdin!`, 'magenta');
+    } else {
+      SFX.miss();
+      log('❌ Güçlü saldırı ıskaladı!', 'red');
+    }
+  }
+  else if (action === 'potion') {
+    const idx = player.envanter.findIndex(i => i.includes('İksir'));
+    if (idx !== -1) {
+      SFX.potion();
+      const item = player.envanter[idx];
+      const heal = item.includes('Mega') ? 100 : item.includes('Büyük') ? 50 : 30;
+      player.can = Math.min(player.can + heal, player.maxCan);
+      player.envanter.splice(idx, 1);
+      log(`💊 ${item} kullandın! +${heal} Can (${player.can}/${player.maxCan})`, 'green');
+      updateStats(); updateInventory();
+    } else {
+      SFX.miss();
+      log('Envanterinde iksir yok!', 'red');
+    }
+    // potion doesn't deal damage, enemy still attacks
+  }
+  else if (action === 'flee') {
+    if (currentEnemy.isBoss) { SFX.miss(); log('Boss savaşından kaçamazsın!', 'red'); renderCombatButtons(); return; }
+    if (rng(0, 1) === 0) {
+      SFX.flee();
+      log('🏃 Kaçmayı başardın!', 'gold');
+      inCombat = false;
+      setTimeout(showMain, 400);
+      return;
+    } else {
+      SFX.fleeFail();
+      log('❌ Kaçamadın!', 'red');
+    }
+  }
+
+  // Apply player damage
+  currentEnemy.can -= playerDmg;
+  renderEnemy();
+
+  // Check enemy dead
+  if (currentEnemy.can <= 0) {
+    if (currentEnemy.isBoss) SFX.bossDie(); else SFX.enemyDie();
+    log(`\n🏆 <b>${currentEnemy.isim}</b> yenildi! <b style="color:var(--gold)">+${currentEnemy.exp} EXP  +${currentEnemy.altin} 💰</b>`, 'gold');
+    player.deneyim += currentEnemy.exp;
+    player.altin += currentEnemy.altin;
+
+    // Track stats for quests
+    player.stats.kills++;
+    player.stats.altinKazanilan += currentEnemy.altin;
+    if (currentEnemy.isBoss) player.stats.bossKills++;
+    if (combatBolge === 'Orman')  player.stats.ormanKills++;
+    if (combatBolge === 'Kale')   player.stats.kaleKills++;
+    if (combatBolge === 'Zindan') player.stats.zindanKills++;
+
+    // Loot
+    if (currentEnemy.nadir === 'Nadir' && rng(0, 1) === 0) {
+      player.envanter.push('Büyük İksir');
+      log('🎁 Nadir düşüş: <b>Büyük İksir</b>!', 'cyan');
+    } else if (currentEnemy.nadir === 'Efsanevi' && rng(0, 1) === 0) {
+      player.envanter.push('Mega İksir');
+      log('🌟 Efsanevi düşüş: <b>Mega İksir</b>!', 'magenta');
+    } else if (currentEnemy.isBoss && rng(0, 1) === 0) {
+      player.envanter.push('Mega İksir');
+      log('👑 Boss düşüşü: <b>Mega İksir</b>!', 'boss');
+    }
+
+    // Unlock dungeon floor
+    if (combatBolge === 'Zindan') {
+      const kat = player.zindanKat;
+      if (kat === player.maxZindanKat && kat < 20) {
+        player.maxZindanKat++;
+        player.stats.maxZindanKat = player.maxZindanKat;
+        SFX.unlock();
+        log(`\n🔓 <b>KAT ${kat + 1} AÇILDI!</b> Artık daha derine inebilirsin.`, 'magenta');
+      }
+    }
+
+    checkLevelUp();
+    updateQuestProgress();
+    updateStats(); updateInventory();
+    inCombat = false;
+
+    document.getElementById('enemy-display').innerHTML = '';
+    document.getElementById('combat-buttons').innerHTML = `
+      <button onclick="startCombat('${combatBolge}')" style="grid-column:span 2;">⚔ Tekrar Savaş</button>
+      <button onclick="${combatBolge === 'Zindan' ? 'showDungeon()' : 'showMain()'}" style="grid-column:span 2;" class="btn-back">🔙 Geri Dön</button>`;
+    return;
+  }
+
+  // Enemy attacks
+  setTimeout(() => {
+    if (!inCombat) return; // could have exited
+    const enemyDmg = Math.max(1, currentEnemy.guc - player.savunma + rng(0, 5));
+    player.can -= enemyDmg;
+    SFX.playerHit();
+    log(`🩸 <b>${currentEnemy.isim}</b> sana <b style="color:var(--red)">${enemyDmg}</b> hasar verdi! (❤ ${player.can}/${player.maxCan})`, 'red');
+    updateStats();
+
+    if (player.can <= 0) {
+      SFX.gameOver();
+      log('\n💀 ÖLDÜN!', 'boss');
+      inCombat = false;
+      setTimeout(gameOver, 800);
+      return;
+    }
+    renderCombatButtons(); // re-enable
+  }, 300);
+}
+
+// ══════════════════════════════════════════════════
+//  LEVEL UP
+// ══════════════════════════════════════════════════
+function checkLevelUp() {
+  const need = player.seviye * 50;
+  if (player.deneyim >= need) {
+    player.seviye++;
+    player.maxCan += 25;
+    player.can = player.maxCan;
+    player.guc += 5;
+    player.savunma += 2;
+    player.deneyim = 0;
+    SFX.levelUp();
+    log(`\n🌟 <b>SEVİYE ATLADIN! Seviye ${player.seviye}</b> oldun! Can tam doldu.`, 'gold');
+    document.getElementById('stat-level').classList.add('level-up-flash');
+    setTimeout(() => document.getElementById('stat-level').classList.remove('level-up-flash'), 2000);
+  }
+}
+
+// ══════════════════════════════════════════════════
+//  BACKGROUND MUSIC  (Web Audio API procedural)
+// ══════════════════════════════════════════════════
+let musicEnabled = true;
+let musicNodes = [];   // active oscillators/gains to stop
+let musicScheduler = null;
+
+// Scales & chord sets
+const MINOR_PENTA = [0,3,5,7,10]; // minor pentatonic intervals
+const DRONE_NOTES = [55, 82.4, 110]; // A1, E2, A2
+
+function midiToFreq(midi) { return 440 * Math.pow(2, (midi - 69) / 12); }
+
+function stopMusic() {
+  if (musicScheduler) { clearTimeout(musicScheduler); musicScheduler = null; }
+  musicNodes.forEach(n => { try { n.stop(); } catch(e){} });
+  musicNodes = [];
+}
+
+function startMusic(theme) {
+  if (!musicEnabled) return;
+  stopMusic();
+  if (theme === 'menu')   playMenuTheme();
+  if (theme === 'battle') playBattleTheme();
+  if (theme === 'dungeon')playDungeonTheme();
+  if (theme === 'shop')   playShopTheme();
+}
+
+// Utility: schedule a note
+function schedNote(freq, start, dur, vol=0.06, type='sine', ctx=null) {
+  if (!musicEnabled) return null;
+  try {
+    const c = ctx || getCtx();
+    const osc = c.createOscillator();
+    const g = c.createGain();
+    osc.type = type;
+    osc.frequency.value = freq;
+    const now = c.currentTime + start;
+    g.gain.setValueAtTime(0, now);
+    g.gain.linearRampToValueAtTime(vol, now + 0.04);
+    g.gain.setValueAtTime(vol, now + dur - 0.06);
+    g.gain.linearRampToValueAtTime(0, now + dur);
+    osc.connect(g); g.connect(c.destination);
+    osc.start(now); osc.stop(now + dur + 0.1);
+    musicNodes.push(osc);
+    return osc;
+  } catch(e) { return null; }
+}
+
+// ── MENU THEME: slow ambient arpeggios, low drone ──
+function playMenuTheme() {
+  const ctx = getCtx();
+  // Drone
+  DRONE_NOTES.forEach((f,i) => schedNote(f, 0, 999, 0.04, 'triangle', ctx));
+
+  const baseOctave = 48; // C3
+  const pattern = [0,3,7,10,12,10,7,3];
+  const BPM = 72, beat = 60/BPM;
+  let t = 0;
+
+  function loop() {
+    if (!musicEnabled) return;
+    const ctx2 = getCtx();
+    pattern.forEach((interval, i) => {
+      const freq = midiToFreq(baseOctave + interval);
+      schedNote(freq, t + i*beat*0.5, beat*0.45, 0.055, 'sine', ctx2);
+      // bass note every 4 beats
+      if (i % 4 === 0) schedNote(freq/2, t + i*beat*0.5, beat*1.8, 0.05, 'triangle', ctx2);
+    });
+    const loopDur = pattern.length * beat * 0.5 * 1000;
+    t += pattern.length * beat * 0.5;
+    musicScheduler = setTimeout(loop, loopDur - 200);
+  }
+  loop();
+}
+
+// ── BATTLE THEME: driving 4/4 rhythm with tension ──
+function playBattleTheme() {
+  const BPM = 140, beat = 60/BPM;
+  // Rhythm pattern: root/5th/root/5th alternating, driving
+  const melody = [0,0,3,5,7,5,3,7, 0,0,3,5,10,7,5,3];
+  const bass   = [0,0,7,0,5,0,7,0, 0,0,7,0,5,0,3,0];
+  const baseM  = 57; // A3
+  const baseB  = 33; // A1
+  let t = 0;
+
+  function loop() {
+    if (!musicEnabled) return;
+    const ctx = getCtx();
+    melody.forEach((n, i) => {
+      schedNote(midiToFreq(baseM + n), t + i*beat*0.5, beat*0.4, 0.07, 'sawtooth', ctx);
+    });
+    bass.forEach((n, i) => {
+      schedNote(midiToFreq(baseB + n), t + i*beat*0.5, beat*0.45, 0.09, 'triangle', ctx);
+    });
+    // Snare-like noise burst on beats 2 & 4
+    [1,3,5,7,9,11,13,15].forEach(i => {
+      if (!musicEnabled) return;
+      setTimeout(() => noise({ dur:0.06, vol:0.07, freq:3000 }), (t + i*beat*0.5)*1000);
+    });
+    const loopDur = melody.length * beat * 0.5 * 1000;
+    t += melody.length * beat * 0.5;
+    musicScheduler = setTimeout(loop, loopDur - 200);
+  }
+  loop();
+}
+
+// ── DUNGEON THEME: dark, slow, eerie ──
+function playDungeonTheme() {
+  const BPM = 55, beat = 60/BPM;
+  const eerie = [0,0,2,0,3,2,0,-1, 0,0,2,3,5,3,2,0];
+  const baseD = 45; // A2
+  let t = 0;
+
+  // Low rumble drones
+  [55, 73.4].forEach(f => schedNote(f, 0, 999, 0.05, 'triangle'));
+
+  function loop() {
+    if (!musicEnabled) return;
+    const ctx = getCtx();
+    eerie.forEach((n, i) => {
+      schedNote(midiToFreq(baseD + n), t + i*beat*0.5, beat*0.6, 0.06, 'triangle', ctx);
+    });
+    const loopDur = eerie.length * beat * 0.5 * 1000;
+    t += eerie.length * beat * 0.5;
+    musicScheduler = setTimeout(loop, loopDur - 200);
+  }
+  loop();
+}
+
+// ── SHOP THEME: bright, pleasant, medieval tavern feel ──
+function playShopTheme() {
+  const BPM = 110, beat = 60/BPM;
+  const tavern = [0,4,7,12,7,4,0,4, 7,9,7,4,0,2,4,0];
+  const baseS = 60; // C4
+  let t = 0;
+
+  function loop() {
+    if (!musicEnabled) return;
+    const ctx = getCtx();
+    tavern.forEach((n, i) => {
+      schedNote(midiToFreq(baseS + n), t + i*beat*0.4, beat*0.35, 0.065, 'sine', ctx);
+      if (i % 4 === 0) schedNote(midiToFreq(baseS + n - 12), t + i*beat*0.4, beat*0.9, 0.055, 'triangle', ctx);
+    });
+    const loopDur = tavern.length * beat * 0.4 * 1000;
+    t += tavern.length * beat * 0.4;
+    musicScheduler = setTimeout(loop, loopDur - 200);
+  }
+  loop();
+}
+
+function toggleMusic() {
+  musicEnabled = !musicEnabled;
+  document.getElementById('music-btn').textContent = musicEnabled ? '🎵' : '🎵̶';
+  document.getElementById('music-btn').style.opacity = musicEnabled ? '1' : '0.45';
+  if (musicEnabled) {
+    const view = document.getElementById('view-combat').style.display !== 'none' ? 'battle'
+               : document.getElementById('view-dungeon').style.display !== 'none' ? 'dungeon'
+               : document.getElementById('view-shop').style.display !== 'none' ? 'shop' : 'menu';
+    startMusic(view);
+  } else {
+    stopMusic();
+  }
+}
+
+// Hook music into view transitions
+const _smOrig = showMain;
+showMain = function() { _smOrig(); startMusic('menu'); };
+const _sdOrig = showDungeon;
+showDungeon = function() { _sdOrig(); startMusic('dungeon'); };
+const _scvOrig = showCombatView;
+showCombatView = function() { _scvOrig(); startMusic('battle'); };
+const _ssvOrig = showShopView;
+showShopView = function() { _ssvOrig(); startMusic('shop'); };
+
+// ══════════════════════════════════════════════════
+//  EQUIPMENT SYSTEM  (one-time permanent upgrades)
+// ══════════════════════════════════════════════════
+
+// Equipment catalog — unique ID, one purchase per player
+const EQUIPMENT_CATALOG = [
+  // ── SİLAHLAR ──
+  { id:'w01', cat:'silah', icon:'🔪', name:'Taş Bıçak',       guc:3,  sav:0,  maxCan:0, price:30,   tier:1, desc:'Yontulmuş taş, ama keser.' },
+  { id:'w02', cat:'silah', icon:'🗡', name:'Hançer',           guc:5,  sav:0,  maxCan:0, price:55,   tier:1, desc:'Hızlı ve hafif.' },
+  { id:'w03', cat:'silah', icon:'🪃', name:'Savaş Çekici',     guc:8,  sav:0,  maxCan:0, price:95,   tier:2, desc:'Güçlü ama ağır.' },
+  { id:'w04', cat:'silah', icon:'🪓', name:'Balta',            guc:10, sav:0,  maxCan:0, price:120,  tier:2, desc:'Ağaç da keser, baş da.' },
+  { id:'w05', cat:'silah', icon:'⚔', name:'Uzun Kılıç',       guc:13, sav:0,  maxCan:0, price:160,  tier:2, desc:'Klasik şövalye silahı.' },
+  { id:'w06', cat:'silah', icon:'🪓', name:'Savaş Baltası',    guc:17, sav:0,  maxCan:0, price:220,  tier:3, desc:'Zırhı yarabilir.' },
+  { id:'w07', cat:'silah', icon:'⚔', name:'İki El Kılıcı',    guc:22, sav:0,  maxCan:0, price:300,  tier:3, desc:'Devasa, yıkıcı güç.' },
+  { id:'w08', cat:'silah', icon:'🔱', name:'Ejder Mızrağı',    guc:28, sav:0,  maxCan:0, price:420,  tier:4, desc:'Ejderha kemiğinden yapılmış.' },
+  { id:'w09', cat:'silah', icon:'⚡', name:'Şimşek Kılıcı',   guc:35, sav:0,  maxCan:0, price:580,  tier:4, desc:'Elektrik yüklü lanetli kılıç.' },
+  { id:'w10', cat:'silah', icon:'☠', name:'Ölüm Bıçağı',      guc:45, sav:0,  maxCan:0, price:800,  tier:5, desc:'Ruhları biçer.' },
+  { id:'w11', cat:'silah', icon:'🌟', name:'Efsanevi Kılıç',   guc:60, sav:0,  maxCan:0, price:1200, tier:5, desc:'Tanrılar tarafından dövülmüş.' },
+
+  // ── ZIRH / KALKAN ──
+  { id:'a01', cat:'zirh',  icon:'👘', name:'Deri Zırh',        guc:0,  sav:3,  maxCan:0, price:45,   tier:1, desc:'Temel koruma sağlar.' },
+  { id:'a02', cat:'zirh',  icon:'🛡', name:'Ahşap Kalkan',     guc:0,  sav:5,  maxCan:0, price:70,   tier:1, desc:'Ağaçtan yontulmuş.' },
+  { id:'a03', cat:'zirh',  icon:'🛡', name:'Demir Kalkan',     guc:0,  sav:8,  maxCan:0, price:110,  tier:2, desc:'Standart asker kalkanı.' },
+  { id:'a04', cat:'zirh',  icon:'⛓', name:'Zincir Zırh',      guc:0,  sav:10, maxCan:0, price:160,  tier:2, desc:'Esnek ama dayanıklı.' },
+  { id:'a05', cat:'zirh',  icon:'🛡', name:'Çelik Kalkan',     guc:0,  sav:13, maxCan:0, price:220,  tier:3, desc:'Ağır ama sağlam.' },
+  { id:'a06', cat:'zirh',  icon:'⛓', name:'Plakalı Zırh',     guc:0,  sav:17, maxCan:0, price:300,  tier:3, desc:'Tam koruma.' },
+  { id:'a07', cat:'zirh',  icon:'🛡', name:'Kule Kalkanı',     guc:0,  sav:22, maxCan:0, price:400,  tier:4, desc:'Neredeyse geçilmez.' },
+  { id:'a08', cat:'zirh',  icon:'🔮', name:'Büyülü Zırh',      guc:0,  sav:28, maxCan:0, price:550,  tier:4, desc:'Büyüyle güçlendirilmiş.' },
+  { id:'a09', cat:'zirh',  icon:'🐉', name:'Ejderha Zırhı',    guc:0,  sav:36, maxCan:0, price:750,  tier:5, desc:'Ejderha pulundan yapılmış.' },
+  { id:'a10', cat:'zirh',  icon:'✨', name:'Tanrısal Zırh',    guc:0,  sav:50, maxCan:0, price:1100, tier:5, desc:'Ölümsüzlerin koruması.' },
+
+  // ── AKSESUAR (CAN BONUSU) ──
+  { id:'r01', cat:'aksesuar', icon:'💍', name:'Yaşam Yüzüğü',    guc:0, sav:0, maxCan:20,  price:80,   tier:1, desc:'+20 Maks Can.' },
+  { id:'r02', cat:'aksesuar', icon:'📿', name:'Can Kolyesi',      guc:0, sav:0, maxCan:40,  price:150,  tier:2, desc:'+40 Maks Can.' },
+  { id:'r03', cat:'aksesuar', icon:'💎', name:'Hayat Taşı',       guc:0, sav:0, maxCan:70,  price:260,  tier:3, desc:'+70 Maks Can.' },
+  { id:'r04', cat:'aksesuar', icon:'🔮', name:'Ebediyet Orb\'u',  guc:0, sav:0, maxCan:110, price:420,  tier:4, desc:'+110 Maks Can.' },
+  { id:'r05', cat:'aksesuar', icon:'👑', name:'Ölümsüzlük Tacı',  guc:0, sav:0, maxCan:160, price:700,  tier:5, desc:'+160 Maks Can.' },
+];
+
+function equipBuy(id) {
+  if (!player.purchased) player.purchased = [];
+  if (player.purchased.includes(id)) { log('Bu eşyayı zaten satın aldın!', 'red'); return; }
+  const eq = EQUIPMENT_CATALOG.find(e => e.id === id);
+  if (!eq) return;
+  if (!pay(eq.price)) return;
+  player.purchased.push(id);
+  SFX.buy();
+  if (eq.guc)    { player.guc     += eq.guc;    log(`${eq.icon} ${eq.name} kuşandın! +${eq.guc} Güç`, 'green'); }
+  if (eq.sav)    { player.savunma += eq.sav;    log(`${eq.icon} ${eq.name} kuşandın! +${eq.sav} Savunma`, 'green'); }
+  if (eq.maxCan) { player.maxCan  += eq.maxCan; player.can += eq.maxCan; log(`${eq.icon} ${eq.name} taktın! +${eq.maxCan} Maks Can`, 'green'); }
+  updateStats(); updateInventory();
+  // re-render shop to show purchased state
+  showShop('silahci_plus');
+}
+
+const TIER_COLOR = { 1:'#7070a0', 2:'#50d8f0', 3:'#50e090', 4:'#d050f0', 5:'#f0d060' };
+const TIER_LABEL = { 1:'Sıradan', 2:'Nadir', 3:'Efsanevi', 4:'Mistik', 5:'İlahi' };
+
+// ══════════════════════════════════════════════════
+//  SHOPS
+// ══════════════════════════════════════════════════
+
+const CONSUMABLE_SHOPS = {
+  pazar: {
+    title: '🏪 KÖY PAZARI',
+    items: [
+      { label:'Küçük İksir',  effect:'+30 Can',   price:20,  action: () => buyItem('Küçük İksir', 20) },
+      { label:'Büyük İksir',  effect:'+50 Can',   price:40,  action: () => buyItem('Büyük İksir', 40) },
+      { label:'Mega İksir',   effect:'+100 Can',  price:70,  action: () => buyItem('Mega İksir', 70) },
+      { label:'Ekmek',        effect:'+15 Can',   price:10,  action: () => { if(pay(10)){SFX.buy();player.can=Math.min(player.can+15,player.maxCan);log('🍞 +15 Can.','green');updateStats();} } },
+      { label:'Güç Tozu',     effect:'+5 Güç (tek)',   price:60,  action: () => { if(pay(60)){SFX.buy();player.guc+=5;log('💪 +5 Güç!','green');updateStats();} } },
+      { label:'Güç Taşı',     effect:'+8 Güç (tek)',   price:130, action: () => buyItem('Güç Taşı', 130) },
+      { label:'Savunma Taşı', effect:'+5 Sav (tek)',   price:130, action: () => buyItem('Savunma Taşı', 130) },
+    ]
+  },
+  simyaci: {
+    title: '⚗ SİMYACI DÜKKANI',
+    items: [
+      { label:'Can Büyütme',  effect:'+25 Maks Can', price:150, action: () => { if(pay(150)){SFX.buy();player.maxCan+=25;player.can+=25;log('✨ Maks Can +25!','magenta');updateStats();} } },
+      { label:'EXP Kitabı',   effect:'+50 EXP',      price:90,  action: () => { if(pay(90)){SFX.buy();player.deneyim+=50;log('📖 +50 EXP!','cyan');checkLevelUp();updateStats();updateInventory();} } },
+      { label:'Büyük EXP Kitabı', effect:'+150 EXP', price:220, action: () => { if(pay(220)){SFX.buy();player.deneyim+=150;log('📖 +150 EXP!','cyan');checkLevelUp();updateStats();updateInventory();} } },
+    ]
+  },
+  sifaci: {
+    title: '🏥 ŞİFACI',
+    items: [
+      { label:'Küçük İyileşme', effect:'+40 Can',       price:25,  action: () => { if(pay(25)){SFX.potion();player.can=Math.min(player.can+40,player.maxCan);log(`💚 +40 Can! (${player.can}/${player.maxCan})`,'green');updateStats();} } },
+      { label:'Büyük İyileşme', effect:'+80 Can',       price:50,  action: () => { if(pay(50)){SFX.potion();player.can=Math.min(player.can+80,player.maxCan);log(`💚 +80 Can! (${player.can}/${player.maxCan})`,'green');updateStats();} } },
+      { label:'Tam İyileşme',   effect:'Canı doldurur', price:100, action: () => { if(pay(100)){SFX.potion();player.can=player.maxCan;log(`💚 Tam iyileştirme! (${player.can}/${player.maxCan})`,'green');updateStats();} } },
+    ]
+  }
+};
+
+function showShop(key) {
+  showShopView();
+  if (!player.purchased) player.purchased = [];
+
+  // Equipment shops (one-time)
+  if (key === 'silahci_plus') {
+    document.getElementById('shop-title').textContent = `⚔ SİLAHÇI & ZIRHGİİ  —  💰 ${player.altin} Altın`;
+    const container = document.getElementById('shop-items');
+    container.innerHTML = '';
+
+    // Filter tabs
+    const tabBar = document.createElement('div');
+    tabBar.style.cssText = 'display:flex;gap:6px;margin-bottom:10px;';
+    ['silah','zirh','aksesuar'].forEach((cat, idx) => {
+      const labels = ['⚔ Silahlar','🛡 Zırhlar','💍 Aksesuarlar'];
+      const btn = document.createElement('button');
+      btn.textContent = labels[idx];
+      btn.style.cssText = 'flex:1;text-align:center;font-size:0.72rem;';
+      btn.dataset.cat = cat;
+      btn.onclick = () => renderEquipTab(cat);
+      tabBar.appendChild(btn);
+    });
+    container.appendChild(tabBar);
+
+    const listEl = document.createElement('div');
+    listEl.id = 'equip-list';
+    container.appendChild(listEl);
+    renderEquipTab('silah');
+    return;
+  }
+
+  // Consumable shops
+  const shop = CONSUMABLE_SHOPS[key];
+  if (!shop) return;
+  document.getElementById('shop-title').textContent = shop.title + `  —  💰 ${player.altin} Altın`;
+  const container = document.getElementById('shop-items');
+  container.innerHTML = '';
+  shop.items.forEach(item => {
+    const div = document.createElement('div');
+    div.className = 'shop-item';
+    div.innerHTML = `<span>${item.label} <span class="shop-effect">${item.effect}</span></span><span class="shop-price">${item.price} 💰</span>`;
+    div.onclick = () => { item.action(); document.getElementById('shop-title').textContent = shop.title + `  —  💰 ${player.altin} Altın`; };
+    container.appendChild(div);
+  });
+}
+
+function renderEquipTab(cat) {
+  const listEl = document.getElementById('equip-list');
+  if (!listEl) return;
+  listEl.innerHTML = '';
+  const items = EQUIPMENT_CATALOG.filter(e => e.cat === cat);
+  items.forEach(eq => {
+    const bought = player.purchased.includes(eq.id);
+    const canAfford = player.altin >= eq.price;
+    const div = document.createElement('div');
+    div.className = 'shop-item';
+    div.style.opacity = bought ? '0.5' : '1';
+    div.style.borderColor = bought ? 'var(--green)' : TIER_COLOR[eq.tier] + '60';
+
+    const statStr = [
+      eq.guc    ? `+${eq.guc}⚔` : '',
+      eq.sav    ? `+${eq.sav}🛡` : '',
+      eq.maxCan ? `+${eq.maxCan}❤` : '',
+    ].filter(Boolean).join(' ');
+
+    div.innerHTML = `
+      <span>
+        <span style="color:${TIER_COLOR[eq.tier]};font-size:0.65rem;margin-right:4px;">[${TIER_LABEL[eq.tier]}]</span>
+        ${eq.icon} ${eq.name}
+        <span class="shop-effect"> ${statStr}</span>
+        <span style="color:var(--dim);font-size:0.68rem;display:block;margin-top:2px;">${eq.desc}</span>
+      </span>
+      <span style="text-align:right;min-width:70px;">
+        ${bought
+          ? `<span style="color:var(--green);font-size:0.72rem;">✓ Alındı</span>`
+          : `<span class="shop-price" style="color:${canAfford?'var(--gold)':'var(--red)'};">${eq.price} 💰</span>`
+        }
+      </span>`;
+    if (!bought) div.onclick = () => { equipBuy(eq.id); renderEquipTab(cat); document.getElementById('shop-title').textContent = `⚔ SİLAHÇI & ZIRHGİİ  —  💰 ${player.altin} Altın`; };
+    listEl.appendChild(div);
+  });
+}
+
+function pay(amount) {
+  if (player.altin >= amount) { player.altin -= amount; updateStats(); return true; }
+  log('💸 Yeterli altının yok!', 'red'); return false;
+}
+
+function buyItem(name, price) {
+  if (pay(price)) { SFX.buy(); player.envanter.push(name); log(`✅ ${name} aldın!`, 'green'); updateInventory(); }
+}
+
+// ══════════════════════════════════════════════════
+//  GAME OVER
+// ══════════════════════════════════════════════════
+function gameOver() {
+  stopMusic();
+  document.getElementById('screen-game').classList.remove('active');
+  document.getElementById('screen-gameover').classList.add('active');
+  document.getElementById('gameover-stats').innerHTML =
+    `${player.isim} — Seviye ${player.seviye}<br>Zindan Kat ${player.zindanKat} • ${player.altin} Altın`;
+}
+
+function toggleSfx() {
+  sfxEnabled = !sfxEnabled;
+  document.getElementById('sfx-btn').textContent = sfxEnabled ? '🔊' : '🔇';
+  document.getElementById('sfx-btn').style.opacity = sfxEnabled ? '1' : '0.45';
+  if (sfxEnabled) SFX.click();
+}
+
+// ══════════════════════════════════════════════════
+//  KEYBOARD SHORTCUT
+// ══════════════════════════════════════════════════
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && document.getElementById('screen-intro').classList.contains('active')) startGame();
+});
+
+// Render save slots on intro screen
+window.addEventListener('load', () => {
+  renderSaveSlots('save-slots-intro', 'intro');
+  // Global button click sound (menu only, not combat)
+  document.addEventListener('click', e => {
+    if (e.target.tagName === 'BUTTON' && !inCombat) {
+      const txt = e.target.textContent;
+      if (!txt.includes('Kaydet') && !txt.includes('Yükle') && !txt.includes('Ödülü')) {
+        SFX.click();
+      }
+    }
+  });
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🐍 SNAKE</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --green: #00ff88; --green-dim: #00994d; --red: #ff3366;
+    --yellow: #ffe066; --purple: #cc44ff; --cyan: #00eeff;
+    --bg: #050a0e; --panel: #0a1520;
+    --glow: 0 0 10px #00ff88, 0 0 30px #00ff8855;
+    --accent: #00ff88;
+  }
+  body {
+    background: var(--bg); display: flex; flex-direction: column;
+    align-items: center; justify-content: center; min-height: 100vh;
+    font-family: 'Press Start 2P', monospace; color: var(--green);
+    overflow: hidden; user-select: none;
+  }
+  body::before {
+    content: ''; position: fixed; inset: 0;
+    background: radial-gradient(ellipse at center, #0a1f1500 40%, #000 100%);
+    pointer-events: none; z-index: 0;
+  }
+  .wrapper { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; gap: 12px; }
+  h1 { font-size: 26px; letter-spacing: 6px; text-shadow: var(--glow); animation: flicker 4s infinite; }
+  @keyframes flicker { 0%,95%,100%{opacity:1} 96%{opacity:0.6} 97%{opacity:1} 98%{opacity:0.4} }
+
+  .hud { display: flex; gap: 20px; font-size: 9px; letter-spacing: 2px; flex-wrap: wrap; justify-content: center; }
+  .hud span { color: #ffffff55; }
+  .hud strong { color: var(--accent); text-shadow: 0 0 8px var(--accent); transition: color 0.4s, text-shadow 0.4s; }
+  #modeTag { font-size: 7px; letter-spacing: 3px; padding: 3px 10px;
+    border: 1px solid var(--accent); color: var(--accent);
+    text-shadow: 0 0 6px var(--accent); transition: all 0.4s; }
+
+  canvas { display: block; border: 2px solid var(--green-dim);
+    box-shadow: 0 0 20px #00ff8833, inset 0 0 40px #00000088;
+    background: var(--panel); image-rendering: pixelated; }
+
+  #timerWrap { width: 400px; height: 6px; background: #0a1520; border: 1px solid #ffffff22; display: none; }
+  #timerBar  { height: 100%; background: var(--red); width: 100%; transition: width 0.1s linear, background 0.3s; box-shadow: 0 0 8px var(--red); }
+
+  .controls { display: grid; grid-template-columns: repeat(3,44px); grid-template-rows: repeat(2,44px); gap: 6px; margin-top: 6px; }
+  .controls button { background: var(--panel); border: 1px solid var(--green-dim); color: var(--green);
+    font-family:'Press Start 2P',monospace; font-size:16px; cursor:pointer; transition:all 0.1s; box-shadow:0 0 6px #00ff8822; }
+  .controls button:active { background:var(--accent); color:var(--bg); box-shadow:0 0 10px var(--accent); transform:scale(0.95); }
+  .btn-up{grid-column:2;grid-row:1} .btn-left{grid-column:1;grid-row:2}
+  .btn-down{grid-column:2;grid-row:2} .btn-right{grid-column:3;grid-row:2}
+  .hint { font-size:7px; color:#ffffff33; letter-spacing:1px; margin-top:-6px; }
+
+  .topbar { position:fixed; top:12px; right:12px; display:flex; gap:8px; z-index:99; }
+  .topbar button { background:var(--panel); border:1px solid var(--green-dim); color:var(--green);
+    font-family:'Press Start 2P',monospace; font-size:9px; padding:6px 10px; cursor:pointer; transition:all 0.15s; }
+  .topbar button:hover { background:var(--green); color:var(--bg); }
+  .topbar button.off { color:#ffffff33; border-color:#ffffff22; }
+
+  .overlay { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center;
+    background:#050a0ecc; gap:14px; backdrop-filter:blur(2px); padding:16px; }
+  .overlay h2 { font-size:16px; text-shadow:0 0 10px var(--accent); letter-spacing:4px; animation:flicker 3s infinite; }
+  .overlay p  { font-size:7px; color:#ffffff66; letter-spacing:2px; line-height:2.2; text-align:center; }
+
+  .mode-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; width:100%; max-width:340px; }
+  .mode-card { background:var(--panel); border:2px solid #ffffff22; padding:12px 8px; cursor:pointer;
+    transition:all 0.15s; text-align:center; }
+  .mode-card:hover { border-color:#ffffff55; }
+  .mode-card.selected { border-color:var(--accent); box-shadow:0 0 14px var(--accent)55; }
+  .mode-card .mc-icon  { font-size:22px; margin-bottom:6px; }
+  .mode-card .mc-title { font-size:8px; letter-spacing:1px; margin-bottom:4px; }
+  .mode-card .mc-desc  { font-size:6px; color:#ffffff55; line-height:1.8; }
+  .mode-card[data-mode="classic"]    .mc-title { color:#00ff88; }
+  .mode-card[data-mode="portal"]     .mc-title { color:#00eeff; }
+  .mode-card[data-mode="timeattack"] .mc-title { color:#ffe066; }
+  .mode-card[data-mode="chaos"]      .mc-title { color:#cc44ff; }
+
+  .start-btn { background:transparent; border:2px solid var(--accent); color:var(--accent);
+    font-family:'Press Start 2P',monospace; font-size:10px; padding:12px 26px; cursor:pointer;
+    letter-spacing:3px; text-shadow:0 0 8px var(--accent); transition:all 0.2s; animation:pulse 2s infinite; }
+  .start-btn:hover { background:var(--accent); color:var(--bg); }
+  @keyframes pulse { 0%,100%{box-shadow:0 0 12px var(--accent)88} 50%{box-shadow:0 0 28px var(--accent)} }
+  .dead-text { color:var(--red)!important; text-shadow:0 0 12px var(--red),0 0 30px #ff336655!important; }
+</style>
+</head>
+<body>
+<div class="topbar">
+  <button id="musicBtn" title="Müzik">🎵</button>
+  <button id="muteBtn"  title="Ses efektleri">🔊</button>
+</div>
+
+<div class="wrapper">
+  <h1>SNAKE</h1>
+  <div class="hud">
+    <div><span>SKOR </span><strong id="score">0</strong></div>
+    <div><span>EN İYİ </span><strong id="best">0</strong></div>
+    <div><span>SEVİYE </span><strong id="level">1</strong></div>
+    <div id="modeTag">KLASİK</div>
+  </div>
+
+  <div id="timerWrap"><div id="timerBar"></div></div>
+
+  <div style="position:relative">
+    <canvas id="c" width="400" height="400"></canvas>
+
+    <!-- MODE SELECT -->
+    <div class="overlay" id="modeScreen">
+      <h2>OYUN MODU SEÇ</h2>
+      <div class="mode-grid">
+        <div class="mode-card selected" data-mode="classic">
+          <div class="mc-icon">🐍</div>
+          <div class="mc-title">KLASİK</div>
+          <div class="mc-desc">Duvara çarparsan biter.<br>Seviyeyle hızlanır.</div>
+        </div>
+        <div class="mode-card" data-mode="portal">
+          <div class="mc-icon">🌀</div>
+          <div class="mc-title">PORTAL</div>
+          <div class="mc-desc">Duvardan geçip karşı<br>taraftan çıkarsın!</div>
+        </div>
+        <div class="mode-card" data-mode="timeattack">
+          <div class="mc-icon">⏱️</div>
+          <div class="mc-title">SÜRE YARIŞI</div>
+          <div class="mc-desc">30 sn'de max skor!<br>Elma süreyi uzatır.</div>
+        </div>
+        <div class="mode-card" data-mode="chaos">
+          <div class="mc-icon">💥</div>
+          <div class="mc-title">KAOS</div>
+          <div class="mc-desc">Engeller + portal açık<br>+ çoklu yiyecek!</div>
+        </div>
+      </div>
+      <button class="start-btn" id="modeStartBtn">BAŞLAT ▶</button>
+    </div>
+
+    <!-- GAME OVER -->
+    <div class="overlay" id="overlay" style="display:none">
+      <h2 id="overlay-title">SNAKE</h2>
+      <p id="overlay-msg"></p>
+      <button class="start-btn" id="startBtn">TEKRAR ▶</button>
+      <button style="background:transparent;border:1px solid #ffffff33;color:#ffffff55;font-family:'Press Start 2P',monospace;font-size:7px;padding:8px 16px;cursor:pointer;letter-spacing:2px;margin-top:-4px" id="changeModeBtn">MOD DEĞİŞTİR</button>
+    </div>
+  </div>
+
+  <div class="controls">
+    <button class="btn-up"    id="bU">▲</button>
+    <button class="btn-left"  id="bL">◄</button>
+    <button class="btn-down"  id="bD">▼</button>
+    <button class="btn-right" id="bR">►</button>
+  </div>
+  <p class="hint">YÖN TUŞLARI · WASD · DOKUNMATİK</p>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════
+//  AUDIO
+// ══════════════════════════════════════════════════════
+const AC = new (window.AudioContext || window.webkitAudioContext)();
+const masterGain = AC.createGain(); masterGain.gain.value = 0.7; masterGain.connect(AC.destination);
+let muted = false, musicOn = true;
+
+function resumeAC(){ if(AC.state==='suspended') AC.resume(); }
+
+function playTone({type='square',freq=440,freq2=null,duration=0.08,volume=0.18,attack=0.005,decay=0.05,startTime=null,dest=null}){
+  if(muted) return; resumeAC();
+  const t = startTime || AC.currentTime;
+  const osc = AC.createOscillator(), g = AC.createGain();
+  osc.connect(g); g.connect(dest||masterGain);
+  osc.type = type; osc.frequency.setValueAtTime(freq,t);
+  if(freq2!==null) osc.frequency.linearRampToValueAtTime(freq2, t+duration);
+  g.gain.setValueAtTime(0,t);
+  g.gain.linearRampToValueAtTime(volume, t+attack);
+  g.gain.exponentialRampToValueAtTime(0.001, t+duration+decay);
+  osc.start(t); osc.stop(t+duration+decay+0.02);
+}
+
+function sfxEat()    { playTone({type:'square',freq:320,freq2:640,duration:0.06,volume:0.22}); playTone({type:'sine',freq:800,duration:0.08,volume:0.10,startTime:AC.currentTime+0.04}); }
+function sfxLevelUp(){ const b=AC.currentTime; [262,330,392,523].forEach((f,i)=>playTone({type:'square',freq:f,duration:0.09,volume:0.18,decay:0.08,startTime:b+i*0.1})); }
+function sfxTurn()   { playTone({type:'square',freq:180,freq2:200,duration:0.03,volume:0.06,decay:0.02}); }
+function sfxStart()  { const b=AC.currentTime; [200,300,450].forEach((f,i)=>playTone({type:'square',freq:f,duration:0.07,volume:0.15,startTime:b+i*0.07})); }
+function sfxPortal() { playTone({type:'sine',freq:700,freq2:300,duration:0.12,volume:0.2,decay:0.08}); }
+function sfxBonus()  { const b=AC.currentTime; [500,700,950].forEach((f,i)=>playTone({type:'triangle',freq:f,duration:0.06,volume:0.2,startTime:b+i*0.07})); }
+function sfxDie(){
+  if(muted) return; resumeAC();
+  const b=AC.currentTime;
+  [400,300,200,130,80].forEach((f,i)=>playTone({type:'sawtooth',freq:f,duration:0.12,volume:0.22,decay:0.1,startTime:b+i*0.12}));
+  const bufSize=AC.sampleRate*0.35, buf=AC.createBuffer(1,bufSize,AC.sampleRate), d=buf.getChannelData(0);
+  for(let i=0;i<bufSize;i++) d[i]=(Math.random()*2-1)*Math.max(0,1-i/bufSize);
+  const src=AC.createBufferSource(); src.buffer=buf;
+  const g=AC.createGain(); g.gain.setValueAtTime(0.12,b); g.gain.exponentialRampToValueAtTime(0.001,b+0.5);
+  src.connect(g); g.connect(AC.destination); src.start(b); src.stop(b+0.55);
+}
+
+// ── CHIPTUNE MUSIC ENGINE ──
+// Each pattern: [freq_hz, beats, wave_type] — 0 freq = rest
+const MUSIC = {
+  classic: { bpm:138,
+    mel:[[330,1,'square'],[294,.5,'square'],[330,.5,'square'],[392,1,'square'],[440,1,'square'],
+         [392,.5,'square'],[330,.5,'square'],[294,1,'square'],[262,2,'square'],[0,.5,null],
+         [330,1,'square'],[370,.5,'square'],[392,.5,'square'],[440,1,'square'],[494,1,'square'],
+         [440,.5,'square'],[392,.5,'square'],[370,1,'square'],[330,2,'square'],[0,.5,null],
+         [523,1,'square'],[494,.5,'square'],[440,.5,'square'],[392,1,'square'],[330,1,'square'],
+         [294,.5,'square'],[262,.5,'square'],[294,1,'square'],[330,2,'square'],[0,.5,null],
+         [440,1,'square'],[392,.5,'square'],[330,.5,'square'],[294,1,'square'],[262,1,'square'],
+         [0,.5,null],[294,.5,'square'],[330,1,'square'],[392,2,'square'],[0,1,null]],
+    bas:[[131,2,'triangle'],[165,2,'triangle'],[131,2,'triangle'],[110,2,'triangle'],
+         [131,2,'triangle'],[147,2,'triangle'],[131,2,'triangle'],[110,2,'triangle'],
+         [131,2,'triangle'],[165,2,'triangle'],[131,2,'triangle'],[110,2,'triangle'],
+         [131,2,'triangle'],[147,2,'triangle'],[131,2,'triangle'],[110,2,'triangle'],
+         [131,2,'triangle'],[165,2,'triangle'],[131,2,'triangle'],[110,2,'triangle']]
+  },
+  portal: { bpm:155,
+    mel:[[440,.5,'sine'],[494,.5,'sine'],[523,.5,'sine'],[587,.5,'sine'],
+         [659,1,'sine'],[587,.5,'sine'],[523,.5,'sine'],[494,1,'sine'],[0,.5,null],
+         [523,.5,'sine'],[587,.5,'sine'],[659,.5,'sine'],[698,.5,'sine'],
+         [784,1,'sine'],[698,.5,'sine'],[659,.5,'sine'],[587,1,'sine'],[0,.5,null],
+         [0,.5,null],[659,.5,'sine'],[587,.5,'sine'],[523,.5,'sine'],
+         [494,1,'sine'],[440,.5,'sine'],[494,.5,'sine'],[523,1,'sine'],[0,.5,null],
+         [587,.5,'sine'],[523,.5,'sine'],[494,.5,'sine'],[440,.5,'sine'],
+         [392,2,'sine'],[0,1,null]],
+    bas:[[220,2,'triangle'],[196,2,'triangle'],[220,2,'triangle'],[247,2,'triangle'],
+         [220,2,'triangle'],[196,2,'triangle'],[174,2,'triangle'],[196,2,'triangle'],
+         [220,2,'triangle'],[196,2,'triangle'],[220,2,'triangle'],[247,2,'triangle'],
+         [220,2,'triangle'],[196,2,'triangle'],[174,2,'triangle'],[196,2,'triangle']]
+  },
+  timeattack: { bpm:170,
+    mel:[[523,.5,'square'],[494,.5,'square'],[523,.5,'square'],[587,.5,'square'],
+         [659,1,'square'],[587,.5,'square'],[523,1,'square'],[0,.5,null],
+         [659,.5,'square'],[698,.5,'square'],[784,.5,'square'],[698,.5,'square'],
+         [659,1,'square'],[587,.5,'square'],[523,1,'square'],[0,.5,null],
+         [784,.5,'square'],[880,.5,'square'],[784,.5,'square'],[698,.5,'square'],
+         [659,1,'square'],[587,.5,'square'],[523,1,'square'],[0,.5,null],
+         [523,.25,'square'],[587,.25,'square'],[523,.25,'square'],[494,.25,'square'],
+         [523,2,'square'],[0,1,null]],
+    bas:[[131,1,'square'],[147,1,'square'],[131,1,'square'],[110,1,'square'],
+         [131,1,'square'],[147,1,'square'],[165,1,'square'],[147,1,'square'],
+         [131,1,'square'],[147,1,'square'],[131,1,'square'],[110,1,'square'],
+         [131,1,'square'],[147,1,'square'],[165,1,'square'],[147,1,'square']]
+  },
+  chaos: { bpm:185,
+    mel:[[494,.25,'sawtooth'],[523,.25,'sawtooth'],[494,.25,'sawtooth'],[466,.25,'sawtooth'],
+         [494,.5,'sawtooth'],[523,.5,'sawtooth'],[587,.5,'sawtooth'],[659,.5,'sawtooth'],
+         [698,.25,'sawtooth'],[659,.25,'sawtooth'],[698,.25,'sawtooth'],[784,.25,'sawtooth'],
+         [784,.5,'sawtooth'],[698,.5,'sawtooth'],[659,.5,'sawtooth'],[587,.5,'sawtooth'],
+         [523,.25,'sawtooth'],[494,.25,'sawtooth'],[523,.25,'sawtooth'],[587,.25,'sawtooth'],
+         [659,.5,'sawtooth'],[698,.5,'sawtooth'],[784,.5,'sawtooth'],[880,.5,'sawtooth'],
+         [784,.5,'sawtooth'],[698,.5,'sawtooth'],[659,.5,'sawtooth'],[587,.5,'sawtooth'],
+         [523,1,'sawtooth'],[0,.5,null]],
+    bas:[[98,1,'square'],[110,1,'square'],[98,1,'square'],[87,1,'square'],
+         [98,1,'square'],[110,1,'square'],[123,1,'square'],[110,1,'square'],
+         [98,1,'square'],[110,1,'square'],[98,1,'square'],[87,1,'square'],
+         [98,1,'square'],[110,1,'square'],[123,1,'square'],[110,1,'square']]
+  }
+};
+
+let musicNodes=[], musicTimers=[], musicPlaying=false;
+
+function stopMusic(){
+  musicNodes.forEach(n=>{ try{n.stop();}catch(e){} });
+  musicNodes=[];
+  musicTimers.forEach(clearTimeout);
+  musicTimers=[];
+  musicPlaying=false;
+}
+
+function playMusic(key){
+  stopMusic();
+  if(!musicOn||muted) return;
+  resumeAC();
+  const trk = MUSIC[key]||MUSIC.classic;
+  const beat = 60/trk.bpm;
+  const melGain = AC.createGain(); melGain.gain.value=0.09; melGain.connect(AC.destination);
+  const basGain = AC.createGain(); basGain.gain.value=0.06; basGain.connect(AC.destination);
+
+  function schedule(notes, gNode){
+    let t=AC.currentTime+0.05, total=0;
+    notes.forEach(([freq,beats,type])=>{
+      const dur=beats*beat;
+      if(freq>0&&type){
+        const osc=AC.createOscillator(), g=AC.createGain();
+        osc.connect(g); g.connect(gNode); osc.type=type; osc.frequency.value=freq;
+        g.gain.setValueAtTime(0,t); g.gain.linearRampToValueAtTime(0.9,t+0.01);
+        g.gain.exponentialRampToValueAtTime(0.001,t+dur*0.9);
+        osc.start(t); osc.stop(t+dur);
+        musicNodes.push(osc);
+      }
+      t+=dur; total+=dur;
+    });
+    return total;
+  }
+
+  musicPlaying=true;
+  function loop(){
+    if(!musicPlaying) return;
+    const melDur=schedule(trk.mel,melGain);
+    schedule(trk.bas,basGain);
+    const tid=setTimeout(loop,(melDur*1000)-60);
+    musicTimers.push(tid);
+  }
+  loop();
+}
+
+// ══════════════════════════════════════════════════════
+//  GAME
+// ══════════════════════════════════════════════════════
+const canvas=document.getElementById('c'), ctx=canvas.getContext('2d');
+const COLS=20,ROWS=20,CELL=canvas.width/COLS;
+
+let snake,dir,nextDir,foods,obstacles;
+let score,best={classic:0,portal:0,timeattack:0,chaos:0},level,speed,gameLoop;
+let running=false, gameMode='classic';
+let timeLeft,timerInterval;
+
+const scoreEl=document.getElementById('score'),bestEl=document.getElementById('best'),levelEl=document.getElementById('level');
+const modeTag=document.getElementById('modeTag');
+const overlay=document.getElementById('overlay'),modeScreen=document.getElementById('modeScreen');
+const overlayTitle=document.getElementById('overlay-title'),overlayMsg=document.getElementById('overlay-msg');
+const timerWrap=document.getElementById('timerWrap'),timerBar=document.getElementById('timerBar');
+
+const ACCENTS={classic:'#00ff88',portal:'#00eeff',timeattack:'#ffe066',chaos:'#cc44ff'};
+const MNAMES={classic:'KLASİK',portal:'PORTAL',timeattack:'SÜRE YARIŞI',chaos:'KAOS'};
+
+function setAccent(c){ document.documentElement.style.setProperty('--accent',c); }
+
+// Mode cards
+document.querySelectorAll('.mode-card').forEach(card=>{
+  card.addEventListener('click',()=>{
+    document.querySelectorAll('.mode-card').forEach(c=>c.classList.remove('selected'));
+    card.classList.add('selected');
+    gameMode=card.dataset.mode;
+    setAccent(ACCENTS[gameMode]);
+  });
+});
+
+function initGame(){
+  snake=[{x:10,y:10},{x:9,y:10},{x:8,y:10}];
+  dir={x:1,y:0}; nextDir={x:1,y:0};
+  score=0; level=1; speed=150;
+  foods=[]; obstacles=[];
+  scoreEl.textContent=0; levelEl.textContent=1;
+  modeTag.textContent=MNAMES[gameMode];
+  bestEl.textContent=best[gameMode];
+
+  if(gameMode==='chaos'){
+    speed=115;
+    for(let i=0;i<9;i++) placeObstacle();
+    placeFood(); placeFood(); placeFood();
+  } else {
+    placeFood();
+  }
+
+  clearInterval(timerInterval);
+  if(gameMode==='timeattack'){
+    timeLeft=30;
+    timerWrap.style.display='block';
+    updateTimer();
+    timerInterval=setInterval(()=>{
+      timeLeft=Math.max(0,timeLeft-0.1);
+      updateTimer();
+      if(timeLeft<=0){ clearInterval(timerInterval); gameOver(); }
+    },100);
+  } else {
+    timerWrap.style.display='none';
+  }
+}
+
+function updateTimer(){
+  const pct=timeLeft/30*100;
+  timerBar.style.width=pct+'%';
+  if(timeLeft<=8) timerBar.style.background='#ff3366';
+  else if(timeLeft<=15) timerBar.style.background='#ffe066';
+  else timerBar.style.background='#00ff88';
+}
+
+function rand(){ return {x:Math.floor(Math.random()*COLS),y:Math.floor(Math.random()*ROWS)}; }
+
+function occupied(p){ return snake.some(s=>s.x===p.x&&s.y===p.y)||foods.some(f=>f.x===p.x&&f.y===p.y)||obstacles.some(o=>o.x===p.x&&o.y===p.y); }
+
+function placeFood(){
+  let p,t=0;
+  do{ p=rand(); t++; }while(t<300&&occupied(p));
+  foods.push({...p, bonus:Math.random()<0.18});
+}
+
+function placeObstacle(){
+  let p,t=0;
+  do{ p=rand(); t++; }while(t<300&&(occupied(p)||(p.x>=7&&p.x<=13&&p.y>=7&&p.y<=13)));
+  obstacles.push(p);
+}
+
+function step(){
+  dir=nextDir;
+  let hx=snake[0].x+dir.x, hy=snake[0].y+dir.y;
+
+  if(gameMode==='portal'||gameMode==='chaos'){
+    const ox=hx,oy=hy;
+    hx=(hx+COLS)%COLS; hy=(hy+ROWS)%ROWS;
+    if(hx!==ox||hy!==oy) sfxPortal();
+  } else {
+    if(hx<0||hx>=COLS||hy<0||hy>=ROWS) return gameOver();
+  }
+
+  const head={x:hx,y:hy};
+  if(snake.some(s=>s.x===head.x&&s.y===head.y)) return gameOver();
+  if(gameMode==='chaos'&&obstacles.some(o=>o.x===head.x&&o.y===head.y)) return gameOver();
+
+  snake.unshift(head);
+
+  const ei=foods.findIndex(f=>f.x===head.x&&f.y===head.y);
+  if(ei!==-1){
+    const eaten=foods.splice(ei,1)[0];
+    const pts=eaten.bonus?3:1;
+    score+=pts; scoreEl.textContent=score;
+    if(score>best[gameMode]){ best[gameMode]=score; bestEl.textContent=score; }
+    if(gameMode==='timeattack') timeLeft=Math.min(30,timeLeft+(eaten.bonus?5:2.5));
+    if(eaten.bonus) sfxBonus(); else sfxEat();
+    if(score%5===0){
+      level++; speed=Math.max(55,speed-12); levelEl.textContent=level;
+      sfxLevelUp(); clearInterval(gameLoop); gameLoop=setInterval(step,speed);
+    }
+    if(gameMode==='chaos'){ if(foods.length<3) placeFood(); }
+    else placeFood();
+  } else {
+    snake.pop();
+  }
+  draw();
+}
+
+// ── DRAW ──
+function draw(){
+  ctx.fillStyle='#0a1520';
+  ctx.fillRect(0,0,canvas.width,canvas.height);
+  for(let x=0;x<COLS;x++) for(let y=0;y<ROWS;y++){
+    ctx.fillStyle=(x+y)%2===0?'#0c1a28':'#0a1520';
+    ctx.fillRect(x*CELL,y*CELL,CELL,CELL);
+  }
+
+  // obstacles
+  obstacles.forEach(o=>{
+    ctx.shadowColor='#8866ff'; ctx.shadowBlur=8;
+    ctx.fillStyle='#221133';
+    roundRect(ctx,o.x*CELL+1,o.y*CELL+1,CELL-2,CELL-2,3); ctx.fill();
+    ctx.fillStyle='#6644bb44';
+    roundRect(ctx,o.x*CELL+4,o.y*CELL+4,CELL-8,CELL-8,2); ctx.fill();
+    ctx.shadowBlur=0;
+  });
+
+  // food
+  foods.forEach(f=>{
+    const col=f.bonus?'#ffe066':'#ff3366';
+    const fx=f.x*CELL+CELL/2,fy=f.y*CELL+CELL/2;
+    const gr=ctx.createRadialGradient(fx,fy,1,fx,fy,CELL);
+    gr.addColorStop(0,f.bonus?'#ffe06666':'#ff336666'); gr.addColorStop(1,'transparent');
+    ctx.fillStyle=gr; ctx.fillRect(f.x*CELL-CELL,f.y*CELL-CELL,CELL*3,CELL*3);
+    ctx.fillStyle=col; ctx.shadowColor=col; ctx.shadowBlur=16;
+    roundRect(ctx,f.x*CELL+3,f.y*CELL+3,CELL-6,CELL-6,3); ctx.fill();
+    if(f.bonus){
+      ctx.shadowBlur=0; ctx.fillStyle='#fff9';
+      ctx.font=`bold ${CELL*0.5}px sans-serif`; ctx.textAlign='center'; ctx.textBaseline='middle';
+      ctx.fillText('★',fx,fy);
+    }
+    ctx.shadowBlur=0;
+  });
+
+  // snake
+  snake.forEach((seg,i)=>{
+    const t=1-i/snake.length;
+    let r=0,g=0,b=0;
+    if(gameMode==='portal')     { r=0;g=Math.floor(238*t+20*(1-t));b=Math.floor(255*t); }
+    else if(gameMode==='chaos') { r=Math.floor(200*t);g=0;b=Math.floor(255*t+80*(1-t)); }
+    else if(gameMode==='timeattack'){ r=Math.floor(255*t);g=Math.floor(200*t);b=0; }
+    else { r=0;g=Math.floor(255*t+80*(1-t));b=Math.floor(136*t); }
+    ctx.fillStyle=`rgb(${r},${g},${b})`;
+    ctx.shadowColor=i===0?ACCENTS[gameMode]:`rgba(${r},${g},${b},0.5)`;
+    ctx.shadowBlur=i===0?20:6;
+    roundRect(ctx,seg.x*CELL+1,seg.y*CELL+1,CELL-2,CELL-2,i===0?5:3); ctx.fill();
+  });
+  ctx.shadowBlur=0;
+
+  // eyes
+  const h=snake[0]; ctx.fillStyle='#050a0e';
+  if(dir.x===1){ctx.fillRect(h.x*CELL+CELL-7,h.y*CELL+4,3,3);ctx.fillRect(h.x*CELL+CELL-7,h.y*CELL+CELL-7,3,3);}
+  else if(dir.x===-1){ctx.fillRect(h.x*CELL+4,h.y*CELL+4,3,3);ctx.fillRect(h.x*CELL+4,h.y*CELL+CELL-7,3,3);}
+  else if(dir.y===-1){ctx.fillRect(h.x*CELL+4,h.y*CELL+4,3,3);ctx.fillRect(h.x*CELL+CELL-7,h.y*CELL+4,3,3);}
+  else{ctx.fillRect(h.x*CELL+4,h.y*CELL+CELL-7,3,3);ctx.fillRect(h.x*CELL+CELL-7,h.y*CELL+CELL-7,3,3);}
+}
+
+function roundRect(ctx,x,y,w,h,r){
+  ctx.beginPath(); ctx.moveTo(x+r,y);
+  ctx.lineTo(x+w-r,y); ctx.arcTo(x+w,y,x+w,y+r,r);
+  ctx.lineTo(x+w,y+h-r); ctx.arcTo(x+w,y+h,x+w-r,y+h,r);
+  ctx.lineTo(x+r,y+h); ctx.arcTo(x,y+h,x,y+h-r,r);
+  ctx.lineTo(x,y+r); ctx.arcTo(x,y,x+r,y,r); ctx.closePath();
+}
+
+function gameOver(){
+  running=false; clearInterval(gameLoop); clearInterval(timerInterval);
+  stopMusic(); sfxDie();
+  let fl=0;
+  const fInt=setInterval(()=>{
+    ctx.fillStyle=`rgba(255,51,102,${fl%2===0?.18:0})`;
+    ctx.fillRect(0,0,canvas.width,canvas.height);
+    if(++fl>5){ clearInterval(fInt); showGameOver(); }
+  },100);
+}
+
+function showGameOver(){
+  overlay.style.display='flex';
+  overlayTitle.textContent='GAME OVER'; overlayTitle.className='dead-text';
+  let extra = gameMode==='timeattack' ? '<br>⏰ SÜRE DOLDU!' : '';
+  overlayMsg.innerHTML=`MOD: <strong style="color:var(--accent)">${MNAMES[gameMode]}</strong><br>SKOR: <strong style="color:var(--accent)">${score}</strong><br>EN İYİ: <strong style="color:var(--accent)">${best[gameMode]}</strong>${extra}`;
+}
+
+function startGame(){
+  resumeAC(); overlay.style.display='none'; modeScreen.style.display='none';
+  setAccent(ACCENTS[gameMode]);
+  initGame(); draw(); sfxStart();
+  running=true; clearInterval(gameLoop);
+  gameLoop=setInterval(step,speed);
+  playMusic(gameMode);
+}
+
+document.getElementById('modeStartBtn').addEventListener('click',startGame);
+document.getElementById('startBtn').addEventListener('click',startGame);
+document.getElementById('changeModeBtn').addEventListener('click',()=>{
+  overlay.style.display='none';
+  modeScreen.style.display='flex';
+  stopMusic();
+});
+
+// Controls
+document.addEventListener('keydown',e=>{
+  const map={ArrowUp:{x:0,y:-1},ArrowDown:{x:0,y:1},ArrowLeft:{x:-1,y:0},ArrowRight:{x:1,y:0},
+    w:{x:0,y:-1},s:{x:0,y:1},a:{x:-1,y:0},d:{x:1,y:0},W:{x:0,y:-1},S:{x:0,y:1},A:{x:-1,y:0},D:{x:1,y:0}};
+  if(map[e.key]){
+    const nd=map[e.key];
+    if(nd.x!==-dir.x||nd.y!==-dir.y){ nextDir=nd; if(running) sfxTurn(); }
+    e.preventDefault();
+  }
+  if((e.key===' '||e.key==='Enter')&&!running) startGame();
+});
+
+function btnDir(nd){ if(!running)return; if(nd.x!==-dir.x||nd.y!==-dir.y){nextDir=nd;sfxTurn();} }
+document.getElementById('bU').addEventListener('click',()=>btnDir({x:0,y:-1}));
+document.getElementById('bD').addEventListener('click',()=>btnDir({x:0,y:1}));
+document.getElementById('bL').addEventListener('click',()=>btnDir({x:-1,y:0}));
+document.getElementById('bR').addEventListener('click',()=>btnDir({x:1,y:0}));
+
+let tx=0,ty=0;
+canvas.addEventListener('touchstart',e=>{tx=e.touches[0].clientX;ty=e.touches[0].clientY;e.preventDefault();},{passive:false});
+canvas.addEventListener('touchend',e=>{
+  const dx=e.changedTouches[0].clientX-tx,dy=e.changedTouches[0].clientY-ty;
+  if(Math.abs(dx)>Math.abs(dy)) btnDir({x:dx>0?1:-1,y:0}); else btnDir({x:0,y:dy>0?1:-1});
+  e.preventDefault();
+},{passive:false});
+
+// Audio toggles
+const muteBtn=document.getElementById('muteBtn'), musicBtn=document.getElementById('musicBtn');
+muteBtn.addEventListener('click',()=>{
+  resumeAC(); muted=!muted;
+  muteBtn.textContent=muted?'🔇':'🔊'; muteBtn.classList.toggle('off',muted);
+  if(muted) stopMusic(); else if(running) playMusic(gameMode);
+});
+musicBtn.addEventListener('click',()=>{
+  resumeAC(); musicOn=!musicOn;
+  musicBtn.textContent=musicOn?'🎵':'🎵'; musicBtn.classList.toggle('off',!musicOn);
+  musicBtn.style.opacity=musicOn?'1':'0.35';
+  if(!musicOn) stopMusic(); else if(running) playMusic(gameMode);
+});
+
+// Init
+initGame(); draw();
+</script>
+</body>
+</html>

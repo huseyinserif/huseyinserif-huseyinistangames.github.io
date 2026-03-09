@@ -1,0 +1,1423 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kart Savaşı</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gold: #c9a84c;
+    --gold-light: #f0d080;
+    --crimson: #8b1a1a;
+    --crimson-light: #c0392b;
+    --deep: #0d0a14;
+    --mid: #1a1228;
+    --panel: #120e1e;
+    --border: #3a2d5c;
+    --text: #e8d5b0;
+    --mana: #4a90d9;
+    --green: #2ecc71;
+    --red: #e74c3c;
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  body {
+    font-family: 'Crimson Text', serif;
+    background: var(--deep);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+    background-image:
+      radial-gradient(ellipse at 20% 50%, rgba(80,20,120,0.15) 0%, transparent 60%),
+      radial-gradient(ellipse at 80% 20%, rgba(180,50,50,0.1) 0%, transparent 50%),
+      url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.015'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  }
+
+  h1, h2, h3 { font-family: 'Cinzel', serif; }
+
+  /* ===== SCREENS ===== */
+  .screen { display:none; min-height:100vh; }
+  .screen.active { display:flex; flex-direction:column; }
+
+  /* ===== TITLE SCREEN ===== */
+  #titleScreen {
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    gap:30px;
+    padding:40px;
+  }
+
+  .title-emblem {
+    font-size:80px;
+    filter: drop-shadow(0 0 20px rgba(201,168,76,0.6));
+    animation: float 3s ease-in-out infinite;
+  }
+  @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-12px)} }
+
+  .game-title {
+    font-family:'Cinzel',serif;
+    font-size:clamp(36px,8vw,72px);
+    font-weight:900;
+    background: linear-gradient(135deg, var(--gold-light), var(--gold), #8b6914);
+    -webkit-background-clip:text;
+    -webkit-text-fill-color:transparent;
+    background-clip:text;
+    text-shadow:none;
+    filter: drop-shadow(0 0 30px rgba(201,168,76,0.4));
+    letter-spacing:4px;
+  }
+
+  .game-subtitle {
+    font-family:'Crimson Text',serif;
+    font-size:20px;
+    color:rgba(232,213,176,0.6);
+    letter-spacing:3px;
+    text-transform:uppercase;
+  }
+
+  .btn {
+    font-family:'Cinzel',serif;
+    font-size:16px;
+    letter-spacing:2px;
+    padding:14px 36px;
+    border:none;
+    cursor:pointer;
+    transition:all 0.3s;
+    text-transform:uppercase;
+    position:relative;
+    overflow:hidden;
+  }
+
+  .btn-primary {
+    background: linear-gradient(135deg, #7c3f00, var(--gold), #7c3f00);
+    color: var(--deep);
+    font-weight:700;
+    clip-path: polygon(12px 0%, 100% 0%, calc(100% - 12px) 100%, 0% 100%);
+    box-shadow: 0 0 30px rgba(201,168,76,0.3);
+  }
+  .btn-primary:hover {
+    transform:scale(1.05);
+    box-shadow:0 0 50px rgba(201,168,76,0.6);
+  }
+
+  .btn-secondary {
+    background:transparent;
+    color:var(--gold);
+    border:1px solid var(--gold);
+    clip-path: polygon(12px 0%, 100% 0%, calc(100% - 12px) 100%, 0% 100%);
+  }
+  .btn-secondary:hover { background:rgba(201,168,76,0.1); }
+
+  .title-divider {
+    width:300px;
+    height:1px;
+    background:linear-gradient(90deg,transparent,var(--gold),transparent);
+    position:relative;
+  }
+  .title-divider::before {
+    content:'✦';
+    position:absolute;
+    top:50%;
+    left:50%;
+    transform:translate(-50%,-50%);
+    color:var(--gold);
+    background:var(--deep);
+    padding:0 10px;
+    font-size:12px;
+  }
+
+  /* ===== GAME SCREEN ===== */
+  #gameScreen {
+    padding:0;
+    flex-direction:column;
+    min-height:100vh;
+    height:100vh;
+    overflow:hidden;
+  }
+
+  .game-header {
+    background:linear-gradient(180deg,rgba(0,0,0,0.8),transparent);
+    padding:10px 20px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    position:relative;
+    z-index:10;
+  }
+
+  .turn-indicator {
+    font-family:'Cinzel',serif;
+    font-size:13px;
+    letter-spacing:2px;
+    color:var(--gold);
+    text-transform:uppercase;
+    background:rgba(0,0,0,0.5);
+    border:1px solid rgba(201,168,76,0.3);
+    padding:6px 16px;
+    clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
+  }
+
+  .game-area {
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    padding:10px 16px;
+    gap:6px;
+    overflow-y:auto;
+    overflow-x:hidden;
+  }
+  .game-area::-webkit-scrollbar { width:4px; }
+  .game-area::-webkit-scrollbar-track { background:transparent; }
+  .game-area::-webkit-scrollbar-thumb { background:var(--border); border-radius:2px; }
+
+  /* ===== PLAYER AREAS ===== */
+  .player-area {
+    background:rgba(18,14,30,0.8);
+    border:1px solid var(--border);
+    border-radius:4px;
+    padding:8px 10px;
+    position:relative;
+  }
+
+  .enemy-area { border-color:rgba(139,26,26,0.5); }
+  .player-area-label {
+    font-family:'Cinzel',serif;
+    font-size:11px;
+    letter-spacing:3px;
+    color:rgba(232,213,176,0.4);
+    text-transform:uppercase;
+    margin-bottom:8px;
+  }
+
+  /* ===== HEALTH & MANA ===== */
+  .stats-row {
+    display:flex;
+    gap:12px;
+    align-items:center;
+    margin-bottom:6px;
+    flex-wrap:wrap;
+  }
+
+  .stat-block { display:flex; flex-direction:column; gap:3px; min-width:120px; }
+  .stat-label {
+    font-size:10px;
+    letter-spacing:2px;
+    text-transform:uppercase;
+    color:rgba(232,213,176,0.5);
+  }
+  .stat-bar {
+    height:8px;
+    background:rgba(255,255,255,0.1);
+    border-radius:1px;
+    overflow:hidden;
+    position:relative;
+  }
+  .stat-fill {
+    height:100%;
+    transition:width 0.5s ease;
+    position:relative;
+  }
+  .hp-fill { background:linear-gradient(90deg,#6b1111,var(--red)); }
+  .mp-fill { background:linear-gradient(90deg,#1a3a6b,var(--mana)); }
+
+  .stat-value {
+    font-family:'Cinzel',serif;
+    font-size:13px;
+    color:var(--text);
+  }
+
+  /* ===== BATTLEFIELD ===== */
+  .battlefield {
+    display:flex;
+    gap:8px;
+    justify-content:center;
+    align-items:center;
+    flex-wrap:wrap;
+    min-height:75px;
+  }
+
+  .vs-divider {
+    flex:1;
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:0 10px;
+  }
+  .vs-line { flex:1; height:1px; background:linear-gradient(90deg,transparent,rgba(201,168,76,0.3),transparent); }
+  .vs-text {
+    font-family:'Cinzel',serif;
+    font-size:11px;
+    color:rgba(201,168,76,0.4);
+    letter-spacing:3px;
+  }
+
+  /* ===== CARDS ===== */
+  .card {
+    width:85px;
+    height:120px;
+    border-radius:4px;
+    cursor:pointer;
+    position:relative;
+    transition:all 0.25s;
+    flex-shrink:0;
+    display:flex;
+    flex-direction:column;
+    border:2px solid transparent;
+    overflow:hidden;
+  }
+
+  .card-inner {
+    width:100%;
+    height:100%;
+    display:flex;
+    flex-direction:column;
+    padding:6px;
+    background:var(--panel);
+    position:relative;
+  }
+
+  .card::before {
+    content:'';
+    position:absolute;
+    inset:0;
+    border-radius:3px;
+    opacity:0;
+    transition:opacity 0.3s;
+    background:radial-gradient(circle at 50% 30%, rgba(255,255,255,0.15), transparent 70%);
+  }
+
+  .card:hover::before { opacity:1; }
+
+  .card.hand-card {
+    border-color:var(--border);
+    background:linear-gradient(135deg,#1e1633,#120e1e);
+  }
+  .card.hand-card:hover {
+    transform:translateY(-12px) scale(1.05);
+    border-color:var(--gold);
+    box-shadow:0 8px 25px rgba(201,168,76,0.3), 0 0 0 1px rgba(201,168,76,0.2);
+    z-index:10;
+  }
+  .card.selected {
+    border-color:var(--gold-light);
+    transform:translateY(-16px) scale(1.08);
+    box-shadow:0 12px 35px rgba(201,168,76,0.5), 0 0 20px rgba(201,168,76,0.3);
+    z-index:20;
+  }
+  .card.battlefield-card {
+    width:72px;
+    height:100px;
+    cursor:default;
+  }
+  .card.battlefield-card.enemy-card {
+    border-color:rgba(139,26,26,0.6);
+    background:linear-gradient(135deg,#2a0e0e,#1a0808);
+  }
+  .card.battlefield-card.player-card {
+    border-color:rgba(26,80,139,0.6);
+    background:linear-gradient(135deg,#0e1e2a,#080f1a);
+  }
+  .card.battlefield-card.enemy-card.can-attack {
+    cursor:pointer;
+    border-color:var(--crimson-light);
+    animation: pulse-red 1.5s ease-in-out infinite;
+  }
+  @keyframes pulse-red {
+    0%,100%{box-shadow:0 0 8px rgba(192,57,43,0.4)}
+    50%{box-shadow:0 0 20px rgba(192,57,43,0.8), 0 0 40px rgba(192,57,43,0.3)}
+  }
+  .card.battlefield-card.player-card.can-attack {
+    border-color:var(--gold);
+    animation: pulse-gold 1.5s ease-in-out infinite;
+  }
+  @keyframes pulse-gold {
+    0%,100%{box-shadow:0 0 8px rgba(201,168,76,0.4)}
+    50%{box-shadow:0 0 20px rgba(201,168,76,0.7), 0 0 40px rgba(201,168,76,0.2)}
+  }
+  .card.tapped { opacity:0.6; filter:grayscale(0.4); }
+  .card.tapped.player-card { animation:none !important; cursor:default; }
+
+  .card-type-bar {
+    height:3px;
+    width:100%;
+    margin-bottom:4px;
+    border-radius:1px;
+  }
+  .type-warrior { background:linear-gradient(90deg,#8b1a1a,#e74c3c); }
+  .type-mage { background:linear-gradient(90deg,#1a3a8b,#4a90d9); }
+  .type-beast { background:linear-gradient(90deg,#2d6b1a,#2ecc71); }
+  .type-undead { background:linear-gradient(90deg,#3a1a5c,#8e44ad); }
+  .type-dragon { background:linear-gradient(90deg,#8b5000,#f39c12); }
+
+  .card-emoji {
+    font-size:28px;
+    text-align:center;
+    line-height:1.2;
+    flex:1;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    filter:drop-shadow(0 2px 4px rgba(0,0,0,0.8));
+  }
+  .battlefield-card .card-emoji { font-size:24px; }
+
+  .card-name {
+    font-family:'Cinzel',serif;
+    font-size:8px;
+    text-align:center;
+    color:var(--text);
+    letter-spacing:0.5px;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    margin-bottom:4px;
+  }
+
+  .card-stats {
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:3px 4px;
+    background:rgba(0,0,0,0.4);
+    border-radius:2px;
+    margin-top:auto;
+  }
+  .card-attack {
+    font-family:'Cinzel',serif;
+    font-size:11px;
+    color:#e74c3c;
+    font-weight:700;
+  }
+  .card-mana-cost {
+    font-family:'Cinzel',serif;
+    font-size:10px;
+    color:var(--mana);
+    background:rgba(74,144,217,0.2);
+    border:1px solid rgba(74,144,217,0.4);
+    border-radius:50%;
+    width:18px;
+    height:18px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  .card-hp {
+    font-family:'Cinzel',serif;
+    font-size:11px;
+    color:var(--green);
+    font-weight:700;
+  }
+  .card-hp.low { color:var(--red); }
+
+  /* ===== HAND ===== */
+  .hand-area {
+    display:flex;
+    gap:6px;
+    justify-content:center;
+    flex-wrap:wrap;
+    padding:8px 0;
+  }
+
+  /* ===== ACTION BUTTONS ===== */
+  .action-bar {
+    display:flex;
+    gap:10px;
+    justify-content:center;
+    align-items:center;
+    padding:8px 16px;
+    background:rgba(0,0,0,0.4);
+    border-top:1px solid var(--border);
+    flex-wrap:wrap;
+  }
+
+  .action-hint {
+    font-size:13px;
+    color:rgba(232,213,176,0.5);
+    font-style:italic;
+    flex:1;
+    text-align:center;
+    min-width:200px;
+  }
+
+  /* ===== LOG ===== */
+  .battle-log {
+    background:rgba(0,0,0,0.6);
+    border:1px solid var(--border);
+    border-radius:3px;
+    padding:6px 12px;
+    max-height:55px;
+    overflow-y:auto;
+    font-size:12px;
+    color:rgba(232,213,176,0.7);
+    font-style:italic;
+  }
+  .battle-log::-webkit-scrollbar { width:4px; }
+  .battle-log::-webkit-scrollbar-track { background:transparent; }
+  .battle-log::-webkit-scrollbar-thumb { background:var(--border); border-radius:2px; }
+
+  .log-entry { padding:2px 0; border-bottom:1px solid rgba(255,255,255,0.04); }
+  .log-entry:last-child { border:none; color:var(--text); }
+  .log-entry.player-action { color:#7eb8f0; }
+  .log-entry.enemy-action { color:#f07e7e; }
+  .log-entry.special { color:var(--gold); }
+
+  /* ===== RESULT SCREEN ===== */
+  #resultScreen {
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    gap:24px;
+    padding:40px;
+  }
+
+  .result-icon { font-size:80px; animation:float 3s ease-in-out infinite; }
+  .result-title {
+    font-family:'Cinzel',serif;
+    font-size:clamp(32px,7vw,60px);
+    font-weight:900;
+  }
+  .result-win { color:var(--gold-light); filter:drop-shadow(0 0 20px rgba(201,168,76,0.5)); }
+  .result-lose { color:#c0392b; filter:drop-shadow(0 0 20px rgba(192,57,43,0.5)); }
+  .result-subtitle { font-size:18px; color:rgba(232,213,176,0.6); letter-spacing:2px; }
+
+  /* ===== ATTACK ANIMATION ===== */
+  .attack-flash {
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+    z-index:100;
+    animation:flash 0.4s ease forwards;
+  }
+  @keyframes flash {
+    0%{opacity:0} 30%{opacity:0.3} 100%{opacity:0}
+  }
+  .flash-red { background:var(--red); }
+  .flash-gold { background:var(--gold); }
+
+  .floating-dmg {
+    position:fixed;
+    font-family:'Cinzel',serif;
+    font-size:28px;
+    font-weight:900;
+    pointer-events:none;
+    z-index:200;
+    animation:rise 1.2s ease forwards;
+    text-shadow:0 0 10px currentColor;
+  }
+  @keyframes rise {
+    0%{opacity:1;transform:translateY(0) scale(1)}
+    50%{opacity:1;transform:translateY(-40px) scale(1.3)}
+    100%{opacity:0;transform:translateY(-80px) scale(0.8)}
+  }
+
+  /* ===== RESPONSIVE ===== */
+  @media(max-width:500px) {
+    .card { width:72px; height:105px; }
+    .card-emoji { font-size:24px; }
+    .battlefield-card { width:68px; height:98px; }
+    .battlefield-card .card-emoji { font-size:20px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- TITLE SCREEN -->
+<div id="titleScreen" class="screen active">
+  <div class="title-emblem">⚔️</div>
+  <div>
+    <div class="game-title">KART SAVAŞI</div>
+    <div class="game-subtitle">Efsaneler Arasında</div>
+  </div>
+  <div class="title-divider"></div>
+  <p style="font-size:16px;color:rgba(232,213,176,0.6);max-width:360px;line-height:1.7;">
+    Güçlü yaratıkları savaşa çağır, düşmanın canını sıfırla ve zaferi kap!
+  </p>
+  <button class="btn btn-primary" onclick="startGame()">⚔ SAVAŞA BAŞLA</button>
+  <button class="btn btn-secondary" onclick="showRules()">📜 Nasıl Oynanır</button>
+  <p id="rulesText" style="display:none;max-width:420px;font-size:15px;line-height:1.8;color:rgba(232,213,176,0.7);background:rgba(0,0,0,0.4);padding:16px;border:1px solid var(--border);">
+    🃏 Her tur 1 mana kazanırsın<br>
+    ⚡ El kartlarına tıkla → sahaya yerleştir<br>
+    ⚔️ Sahanda kart varsa düşmana saldır<br>
+    💀 Düşman canı 0'a düşünce kazanırsın<br>
+    🔄 "Tur Bitir" ile düşman hamle yapar
+  </p>
+</div>
+
+<!-- GAME SCREEN -->
+<div id="gameScreen" class="screen">
+  <div class="game-header">
+    <div class="turn-indicator" id="turnIndicator">Tur 1</div>
+    <button id="muteBtn" onclick="toggleMute()" style="background:transparent;border:1px solid rgba(201,168,76,0.3);color:var(--gold);font-size:16px;padding:4px 10px;cursor:pointer;border-radius:3px;" title="Sesi Aç/Kapat">🔊</button>
+    <button id="musicBtn" onclick="toggleMusic()" style="background:transparent;border:1px solid rgba(201,168,76,0.3);color:var(--gold);font-size:16px;padding:4px 10px;cursor:pointer;border-radius:3px;" title="Müzik Aç/Kapat">🎵</button>
+    <button class="btn btn-secondary" style="font-size:12px;padding:6px 16px;" onclick="endTurn()">Tur Bitir ⏭</button>
+  </div>
+
+  <div class="game-area">
+    <!-- ENEMY -->
+    <div class="player-area enemy-area">
+      <div class="player-area-label">☠ Düşman</div>
+      <div class="stats-row">
+        <div class="stat-block">
+          <div class="stat-label">❤ Can</div>
+          <div class="stat-bar"><div class="stat-fill hp-fill" id="enemyHpBar" style="width:100%"></div></div>
+          <div class="stat-value" id="enemyHpText">30 / 30</div>
+        </div>
+        <div class="stat-block">
+          <div class="stat-label">🔷 Mana</div>
+          <div class="stat-bar"><div class="stat-fill mp-fill" id="enemyMpBar" style="width:100%"></div></div>
+          <div class="stat-value" id="enemyMpText">3 / 10</div>
+        </div>
+        <div style="font-family:Cinzel,serif;font-size:12px;color:rgba(232,213,176,0.4);">🃏 El: <span id="enemyHandCount">5</span></div>
+      </div>
+      <div class="battlefield" id="enemyBattlefield">
+        <div style="color:rgba(232,213,176,0.2);font-size:13px;font-style:italic;">Boş alan</div>
+      </div>
+    </div>
+
+    <!-- BATTLE LOG -->
+    <div class="battle-log" id="battleLog">
+      <div class="log-entry special">⚔ Savaş başladı! İlk hamle sende.</div>
+    </div>
+
+    <!-- VS DIVIDER -->
+    <div class="vs-divider">
+      <div class="vs-line"></div>
+      <div class="vs-text">⚔ VS ⚔</div>
+      <div class="vs-line"></div>
+    </div>
+
+    <!-- PLAYER -->
+    <div class="player-area">
+      <div class="player-area-label">🛡 Kahraman</div>
+      <div class="stats-row">
+        <div class="stat-block">
+          <div class="stat-label">❤ Can</div>
+          <div class="stat-bar"><div class="stat-fill hp-fill" id="playerHpBar" style="width:100%"></div></div>
+          <div class="stat-value" id="playerHpText">30 / 30</div>
+        </div>
+        <div class="stat-block">
+          <div class="stat-label">🔷 Mana</div>
+          <div class="stat-bar"><div class="stat-fill mp-fill" id="playerMpBar" style="width:100%"></div></div>
+          <div class="stat-value" id="playerMpText">1 / 10</div>
+        </div>
+      </div>
+      <div class="battlefield" id="playerBattlefield">
+        <div style="color:rgba(232,213,176,0.2);font-size:13px;font-style:italic;">Boş alan</div>
+      </div>
+    </div>
+
+    <!-- HAND -->
+    <div style="text-align:center;">
+      <div style="font-family:Cinzel,serif;font-size:10px;letter-spacing:3px;color:rgba(232,213,176,0.4);margin-bottom:6px;">EL KARTLARİ</div>
+      <div class="hand-area" id="playerHand"></div>
+    </div>
+  </div>
+
+  <div class="action-bar">
+    <div class="action-hint" id="actionHint">Oynamak için bir kart seç</div>
+    <button class="btn btn-primary" style="font-size:13px;padding:10px 24px;" onclick="endTurn()">Tur Bitir</button>
+  </div>
+</div>
+
+<!-- RESULT SCREEN -->
+<div id="resultScreen" class="screen">
+  <div class="result-icon" id="resultIcon">🏆</div>
+  <div class="result-title" id="resultTitle">Zafer!</div>
+  <div class="result-subtitle" id="resultSubtitle">Efsanevi savaşçı!</div>
+  <div class="title-divider"></div>
+  <button class="btn btn-primary" onclick="startGame()">🔄 Tekrar Oyna</button>
+  <button class="btn btn-secondary" onclick="showScreen('titleScreen')">🏠 Ana Menü</button>
+</div>
+
+<script>
+// ===== BACKGROUND MUSIC =====
+let musicCtx = null, musicNodes = [], musicPlaying = false;
+
+function startMusic() {
+  if(musicPlaying) return;
+  try {
+    musicCtx = new (window.AudioContext || window.webkitAudioContext)();
+    musicPlaying = true;
+    playBgMusic();
+  } catch(e){}
+}
+
+function stopMusic() {
+  musicPlaying = false;
+  musicNodes.forEach(n => { try{ n.stop(); }catch(e){} });
+  musicNodes = [];
+}
+
+function playBgMusic() {
+  if(!musicPlaying || !musicCtx) return;
+  const ctx = musicCtx;
+
+  // Master gain
+  const master = ctx.createGain();
+  master.gain.setValueAtTime(0.12, ctx.currentTime);
+  master.connect(ctx.destination);
+
+  // Reverb
+  const convSize = ctx.sampleRate * 1.5;
+  const convBuf = ctx.createBuffer(2, convSize, ctx.sampleRate);
+  for(let ch=0;ch<2;ch++){const d=convBuf.getChannelData(ch);for(let i=0;i<convSize;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/convSize,2);}
+  const reverb = ctx.createConvolver();
+  reverb.buffer = convBuf;
+  const reverbGain = ctx.createGain();
+  reverbGain.gain.value = 0.35;
+  reverb.connect(reverbGain);
+  reverbGain.connect(master);
+
+  // Epic fantasy melody notes (pentatonic minor)
+  const BPM = 76;
+  const beat = 60/BPM;
+  const melody = [
+    [196,1],[220,0.5],[196,0.5],[175,1],[165,1],
+    [196,1],[220,0.5],[247,0.5],[220,1],[196,2],
+    [175,1],[196,0.5],[175,0.5],[165,1],[147,1],
+    [165,1],[175,0.5],[196,0.5],[175,1],[165,2],
+  ];
+  const bass = [
+    [65,2],[73,2],[65,2],[58,2],
+    [65,2],[73,2],[65,2],[58,2],
+    [55,2],[58,2],[55,2],[49,2],
+    [55,2],[58,2],[55,2],[49,4],
+  ];
+
+  let t = ctx.currentTime + 0.1;
+
+  // Bass drone
+  bass.forEach(([freq, dur]) => {
+    const osc = ctx.createOscillator();
+    const g = ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.value = freq;
+    g.gain.setValueAtTime(0, t);
+    g.gain.linearRampToValueAtTime(0.5, t+0.05);
+    g.gain.setValueAtTime(0.5, t + dur*beat - 0.05);
+    g.gain.linearRampToValueAtTime(0, t + dur*beat);
+    osc.connect(g); g.connect(master); g.connect(reverb);
+    osc.start(t); osc.stop(t + dur*beat + 0.1);
+    musicNodes.push(osc);
+    t += dur * beat;
+  });
+
+  // Melody
+  let mt = ctx.currentTime + 0.1;
+  melody.forEach(([freq, dur]) => {
+    const osc = ctx.createOscillator();
+    const g = ctx.createGain();
+    osc.type = 'triangle';
+    osc.frequency.value = freq * 2;
+    g.gain.setValueAtTime(0, mt);
+    g.gain.linearRampToValueAtTime(0.35, mt+0.04);
+    g.gain.setValueAtTime(0.3, mt + dur*beat - 0.08);
+    g.gain.linearRampToValueAtTime(0, mt + dur*beat);
+    osc.connect(g); g.connect(master); g.connect(reverb);
+    osc.start(mt); osc.stop(mt + dur*beat + 0.1);
+    musicNodes.push(osc);
+    mt += dur * beat;
+  });
+
+  // Pad chords
+  const chords = [[196,247,294],[175,220,262],[165,208,247],[147,196,233]];
+  let pt = ctx.currentTime + 0.1;
+  chords.forEach(chord => {
+    chord.forEach(freq => {
+      const osc = ctx.createOscillator();
+      const g = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.value = freq * 1.5;
+      g.gain.setValueAtTime(0, pt);
+      g.gain.linearRampToValueAtTime(0.08, pt+0.3);
+      g.gain.setValueAtTime(0.08, pt + beat*7);
+      g.gain.linearRampToValueAtTime(0, pt + beat*8);
+      osc.connect(g); g.connect(reverb);
+      osc.start(pt); osc.stop(pt + beat*8 + 0.1);
+      musicNodes.push(osc);
+    });
+    pt += beat * 4;
+  });
+
+  // Loop after total duration
+  const totalDur = melody.reduce((s,[,d])=>s+d,0) * beat;
+  const loopTimer = setTimeout(() => {
+    if(musicPlaying) { musicNodes=[]; playBgMusic(); }
+  }, (totalDur + 0.5) * 1000);
+}
+
+// ===== CARD DATA ===== (30 cards, player-friendly balance)
+const ALL_CARDS = [
+  // Warriors
+  {id:1,  name:"Ateş Şövalye",   emoji:"🤺", type:"warrior", atk:4, hp:4, cost:3, maxHp:4},
+  {id:2,  name:"Kalkan Savaşçı", emoji:"🛡️", type:"warrior", atk:2, hp:7, cost:3, maxHp:7},
+  {id:3,  name:"Kılıç Ustası",   emoji:"⚔️", type:"warrior", atk:3, hp:4, cost:3, maxHp:4},
+  {id:4,  name:"Goblin",         emoji:"👺", type:"warrior", atk:2, hp:2, cost:1, maxHp:2},
+  {id:5,  name:"Barbar",         emoji:"🪓", type:"warrior", atk:5, hp:3, cost:4, maxHp:3},
+  {id:6,  name:"Şövalye",        emoji:"🏇", type:"warrior", atk:3, hp:5, cost:4, maxHp:5},
+  // Mages
+  {id:7,  name:"Buz Büyücüsü",   emoji:"🧙", type:"mage",    atk:3, hp:3, cost:2, maxHp:3},
+  {id:8,  name:"Ateş Maji",      emoji:"🔮", type:"mage",    atk:4, hp:2, cost:3, maxHp:2},
+  {id:9,  name:"Yıldırım Maji",  emoji:"⚡", type:"mage",    atk:5, hp:2, cost:4, maxHp:2},
+  {id:10, name:"Gece Elf",       emoji:"🧝", type:"mage",    atk:2, hp:4, cost:2, maxHp:4},
+  {id:11, name:"Büyücü Çömlek",  emoji:"🏺", type:"mage",    atk:1, hp:6, cost:3, maxHp:6},
+  {id:12, name:"Kâhin",          emoji:"🔯", type:"mage",    atk:3, hp:3, cost:3, maxHp:3},
+  // Beasts
+  {id:13, name:"Kara Kurt",      emoji:"🐺", type:"beast",   atk:3, hp:3, cost:2, maxHp:3},
+  {id:14, name:"Dev Örümcek",    emoji:"🕷️", type:"beast",   atk:4, hp:2, cost:2, maxHp:2},
+  {id:15, name:"Ayı Savaşçı",    emoji:"🐻", type:"beast",   atk:3, hp:6, cost:4, maxHp:6},
+  {id:16, name:"Sürüngen",       emoji:"🦎", type:"beast",   atk:2, hp:3, cost:1, maxHp:3},
+  {id:17, name:"Kaplan",         emoji:"🐯", type:"beast",   atk:4, hp:3, cost:3, maxHp:3},
+  {id:18, name:"Dev Yengeç",     emoji:"🦀", type:"beast",   atk:2, hp:5, cost:3, maxHp:5},
+  // Undead
+  {id:19, name:"İskelet Asker",  emoji:"💀", type:"undead",  atk:2, hp:5, cost:3, maxHp:5},
+  {id:20, name:"Vampir Lord",    emoji:"🧛", type:"undead",  atk:3, hp:5, cost:4, maxHp:5},
+  {id:21, name:"Lich Kral",      emoji:"👑", type:"undead",  atk:4, hp:6, cost:6, maxHp:6},
+  {id:22, name:"Hayalet",        emoji:"👻", type:"undead",  atk:2, hp:3, cost:2, maxHp:3},
+  {id:23, name:"Mumya",          emoji:"🧟", type:"undead",  atk:3, hp:4, cost:3, maxHp:4},
+  {id:24, name:"Kara Büyücü",    emoji:"🧝‍♂️",type:"undead",  atk:4, hp:3, cost:4, maxHp:3},
+  // Dragons
+  {id:25, name:"Ejder Yavru",    emoji:"🐉", type:"dragon",  atk:4, hp:3, cost:3, maxHp:3},
+  {id:26, name:"Ejder Ata",      emoji:"🔥", type:"dragon",  atk:5, hp:5, cost:6, maxHp:5},
+  {id:27, name:"Anka Kuşu",      emoji:"🦅", type:"dragon",  atk:3, hp:4, cost:3, maxHp:4},
+  {id:28, name:"Buz Ejderi",     emoji:"❄️", type:"dragon",  atk:4, hp:4, cost:5, maxHp:4},
+  {id:29, name:"Göksel Kartal",  emoji:"🦁", type:"dragon",  atk:3, hp:5, cost:4, maxHp:5},
+  {id:30, name:"Taş Golem",      emoji:"🗿", type:"warrior", atk:2, hp:8, cost:4, maxHp:8},
+];
+
+// ===== GAME STATE =====
+let state = {};
+
+function createDeck() {
+  let deck = [];
+  for(let i=0; i<2; i++) {
+    ALL_CARDS.forEach(c => deck.push({...c, uid: Math.random()}));
+  }
+  return shuffle(deck).slice(0,30);
+}
+
+function shuffle(arr) {
+  for(let i=arr.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [arr[i],arr[j]]=[arr[j],arr[i]];
+  }
+  return arr;
+}
+
+function drawCard(who) {
+  const deck = state[who+'Deck'];
+  const hand = state[who+'Hand'];
+  if(deck.length > 0 && hand.length < 8) {
+    hand.push(deck.pop());
+  }
+}
+
+function startGame() {
+  state = {
+    turn: 1,
+    phase: 'player',
+    playerHp: 30, playerMaxHp: 30,
+    playerMana: 1, playerMaxMana: 1,
+    enemyHp: 30, enemyMaxHp: 30,
+    enemyMana: 1, enemyMaxMana: 1,
+    playerDeck: createDeck(),
+    enemyDeck: createDeck(),
+    playerHand: [],
+    enemyHand: [],
+    playerBattlefield: [],
+    enemyBattlefield: [],
+    selectedCard: null,
+    attackMode: false,
+    attackingCard: null,
+    log: ['⚔ Savaş başladı! İlk hamle sende.'],
+  };
+
+  for(let i=0;i<5;i++) drawCard('player');
+  for(let i=0;i<4;i++) drawCard('enemy');
+
+  stopMusic();
+  startMusic();
+  showScreen('gameScreen');
+  render();
+}
+
+function showRules() {
+  const r = document.getElementById('rulesText');
+  r.style.display = r.style.display === 'none' ? 'block' : 'none';
+}
+
+// ===== RENDER =====
+function render() {
+  // Stats
+  updateStat('playerHp','playerHpBar','playerHpText', state.playerHp, state.playerMaxHp);
+  updateStat('playerMana','playerMpBar','playerMpText', state.playerMana, state.playerMaxMana);
+  updateStat('enemyHp','enemyHpBar','enemyHpText', state.enemyHp, state.enemyMaxHp);
+  updateStat('enemyMana','enemyMpBar','enemyMpText', state.enemyMana, state.enemyMaxMana);
+
+  document.getElementById('enemyHandCount').textContent = state.enemyHand.length;
+  document.getElementById('turnIndicator').textContent = `Tur ${state.turn} — ${state.phase==='player'?'Senin Turun':'Düşman Turu'}`;
+
+  // Hand
+  const handEl = document.getElementById('playerHand');
+  handEl.innerHTML = '';
+  state.playerHand.forEach((card,i) => {
+    const el = buildCard(card, 'hand');
+    const cantPlay = card.cost > state.playerMana;
+    if(cantPlay) el.style.opacity='0.45';
+    el.onclick = () => !cantPlay && playCard(i);
+    if(state.selectedCard === i) el.classList.add('selected');
+    handEl.appendChild(el);
+  });
+
+  // Player Battlefield
+  renderBattlefield('playerBattlefield', state.playerBattlefield, 'player');
+  renderBattlefield('enemyBattlefield', state.enemyBattlefield, 'enemy');
+
+  // Log
+  const log = document.getElementById('battleLog');
+  log.innerHTML = state.log.slice(-8).map((l,i,a) => {
+    let cls = 'log-entry';
+    if(l.startsWith('⚔') || l.startsWith('✨') || l.startsWith('🏆') || l.startsWith('💀')) cls+=' special';
+    else if(l.includes('Düşman')) cls+=' enemy-action';
+    else if(l.includes('saldırdı') || l.includes('oynadı') || l.includes('Kahraman')) cls+=' player-action';
+    return `<div class="${cls}">${l}</div>`;
+  }).join('');
+  log.scrollTop = log.scrollHeight;
+
+  // Hint
+  const hint = document.getElementById('actionHint');
+  if(state.attackMode) {
+    hint.textContent = '🎯 Saldırmak için düşman kartına ya da yüzüne tıkla';
+  } else if(state.selectedCard !== null) {
+    hint.textContent = '✅ Kart seçildi — tekrar tıkla veya sahaya yerleştir';
+  } else {
+    const canAttack = state.playerBattlefield.some(c=>!c.tapped);
+    hint.textContent = canAttack ? '🃏 Kart oyna veya ⚔ saldır' : '🃏 Kart oyna, sonra tur bitir';
+  }
+}
+
+function updateStat(id, barId, textId, val, max) {
+  document.getElementById(barId).style.width = Math.max(0,(val/max)*100)+'%';
+  document.getElementById(textId).textContent = `${Math.max(0,val)} / ${max}`;
+}
+
+function renderBattlefield(elId, cards, owner) {
+  const el = document.getElementById(elId);
+  if(cards.length === 0) {
+    el.innerHTML = `<div style="color:rgba(232,213,176,0.2);font-size:13px;font-style:italic;">Boş alan</div>`;
+    return;
+  }
+  el.innerHTML = '';
+  cards.forEach((card,i) => {
+    const cardEl = buildCard(card, 'battlefield', owner);
+    if(owner==='player' && !card.tapped && state.phase==='player') {
+      cardEl.classList.add('can-attack');
+      cardEl.onclick = () => startAttack(i);
+    } else if(owner==='enemy' && state.attackMode) {
+      cardEl.classList.add('can-attack');
+      cardEl.onclick = () => attackTarget('card', i);
+    }
+    if(card.tapped) cardEl.classList.add('tapped');
+    el.appendChild(cardEl);
+  });
+
+  // If attack mode, also enemy face is clickable
+  if(owner==='enemy' && state.attackMode) {
+    el.style.outline='2px solid rgba(201,168,76,0.4)';
+    el.style.cursor='pointer';
+    el.onclick = (e) => {
+      if(e.target === el) attackTarget('face');
+    };
+  } else {
+    el.style.outline='';
+    el.style.cursor='';
+    el.onclick=null;
+  }
+}
+
+function buildCard(card, mode, owner) {
+  const el = document.createElement('div');
+  el.className = 'card';
+  if(mode==='hand') el.classList.add('hand-card');
+  if(mode==='battlefield') {
+    el.classList.add('battlefield-card');
+    el.classList.add(owner+'-card');
+  }
+  const hpClass = card.hp <= 1 ? 'low' : '';
+  const typeClass = `type-${card.type}`;
+  el.innerHTML = `
+    <div class="card-inner">
+      <div class="card-type-bar ${typeClass}"></div>
+      <div class="card-emoji">${card.emoji}</div>
+      <div class="card-name">${card.name}</div>
+      <div class="card-stats">
+        <span class="card-attack">⚔${card.atk}</span>
+        ${mode==='hand'?`<span class="card-mana-cost">${card.cost}</span>`:''}
+        <span class="card-hp ${hpClass}">♥${card.hp}</span>
+      </div>
+    </div>
+  `;
+  return el;
+}
+
+// ===== SOUND ENGINE (Web Audio API) =====
+let audioCtx = null;
+let isMuted = false;
+
+function toggleMute() {
+  isMuted = !isMuted;
+  document.getElementById('muteBtn').textContent = isMuted ? '🔇' : '🔊';
+}
+
+function toggleMusic() {
+  if(musicPlaying) {
+    stopMusic();
+    document.getElementById('musicBtn').textContent = '🔕';
+  } else {
+    startMusic();
+    document.getElementById('musicBtn').textContent = '🎵';
+  }
+}
+
+function getAudio() {
+  if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  return audioCtx;
+}
+
+function playSound(type) {
+  if(isMuted) return;
+  try {
+    const ctx = getAudio();
+    const master = ctx.createGain();
+    master.gain.setValueAtTime(0.35, ctx.currentTime);
+    master.connect(ctx.destination);
+
+    switch(type) {
+
+      case 'cardPlay': { // Whoosh + shimmer
+        const osc = ctx.createOscillator();
+        const g = ctx.createGain();
+        osc.connect(g); g.connect(master);
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(600, ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(200, ctx.currentTime+0.25);
+        g.gain.setValueAtTime(0.5, ctx.currentTime);
+        g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime+0.3);
+        osc.start(); osc.stop(ctx.currentTime+0.3);
+        // shimmer
+        const osc2 = ctx.createOscillator();
+        const g2 = ctx.createGain();
+        osc2.connect(g2); g2.connect(master);
+        osc2.type = 'triangle';
+        osc2.frequency.setValueAtTime(1200, ctx.currentTime+0.05);
+        osc2.frequency.exponentialRampToValueAtTime(800, ctx.currentTime+0.2);
+        g2.gain.setValueAtTime(0.3, ctx.currentTime+0.05);
+        g2.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime+0.25);
+        osc2.start(ctx.currentTime+0.05); osc2.stop(ctx.currentTime+0.25);
+        break;
+      }
+
+      case 'attack': { // Sword clash
+        const buf = ctx.createBuffer(1, ctx.sampleRate*0.15, ctx.sampleRate);
+        const d = buf.getChannelData(0);
+        for(let i=0;i<d.length;i++) d[i] = (Math.random()*2-1) * Math.exp(-i/(ctx.sampleRate*0.04));
+        const src = ctx.createBufferSource();
+        src.buffer = buf;
+        const dist = ctx.createWaveShaper();
+        const curve = new Float32Array(256);
+        for(let i=0;i<256;i++) { const x=i/128-1; curve[i]=x<0?-1:1; }
+        dist.curve = curve;
+        const bpf = ctx.createBiquadFilter();
+        bpf.type='bandpass'; bpf.frequency.value=2000; bpf.Q.value=1;
+        const g = ctx.createGain();
+        src.connect(dist); dist.connect(bpf); bpf.connect(g); g.connect(master);
+        g.gain.setValueAtTime(1.2, ctx.currentTime);
+        g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime+0.18);
+        src.start(); src.stop(ctx.currentTime+0.18);
+        // Metal ring
+        const ring = ctx.createOscillator();
+        const rg = ctx.createGain();
+        ring.connect(rg); rg.connect(master);
+        ring.type='sine'; ring.frequency.value=1800;
+        rg.gain.setValueAtTime(0.4, ctx.currentTime);
+        rg.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime+0.3);
+        ring.start(); ring.stop(ctx.currentTime+0.3);
+        break;
+      }
+
+      case 'damage': { // Thud hit
+        const buf = ctx.createBuffer(1, ctx.sampleRate*0.2, ctx.sampleRate);
+        const d = buf.getChannelData(0);
+        for(let i=0;i<d.length;i++) d[i] = (Math.random()*2-1) * Math.exp(-i/(ctx.sampleRate*0.06));
+        const src = ctx.createBufferSource();
+        src.buffer = buf;
+        const lpf = ctx.createBiquadFilter();
+        lpf.type='lowpass'; lpf.frequency.value=400;
+        const g = ctx.createGain();
+        src.connect(lpf); lpf.connect(g); g.connect(master);
+        g.gain.setValueAtTime(1.5, ctx.currentTime);
+        g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime+0.22);
+        src.start(); src.stop(ctx.currentTime+0.22);
+        break;
+      }
+
+      case 'cardDie': { // Low explosion
+        const buf = ctx.createBuffer(1, ctx.sampleRate*0.3, ctx.sampleRate);
+        const d = buf.getChannelData(0);
+        for(let i=0;i<d.length;i++) d[i] = (Math.random()*2-1) * Math.exp(-i/(ctx.sampleRate*0.1));
+        const src = ctx.createBufferSource(); src.buffer=buf;
+        const lpf = ctx.createBiquadFilter(); lpf.type='lowpass'; lpf.frequency.value=300;
+        const g = ctx.createGain(); g.gain.setValueAtTime(1.8, ctx.currentTime); g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.35);
+        src.connect(lpf); lpf.connect(g); g.connect(master);
+        src.start(); src.stop(ctx.currentTime+0.35);
+        break;
+      }
+
+      case 'endTurn': { // Drum beat
+        [0, 0.08, 0.16].forEach((t, i) => {
+          const buf = ctx.createBuffer(1, ctx.sampleRate*0.12, ctx.sampleRate);
+          const d = buf.getChannelData(0);
+          for(let j=0;j<d.length;j++) d[j]=(Math.random()*2-1)*Math.exp(-j/(ctx.sampleRate*0.03));
+          const src = ctx.createBufferSource(); src.buffer=buf;
+          const lpf = ctx.createBiquadFilter(); lpf.type='lowpass'; lpf.frequency.value=200;
+          const g = ctx.createGain(); g.gain.setValueAtTime(1-i*0.2, ctx.currentTime+t);
+          src.connect(lpf); lpf.connect(g); g.connect(master);
+          src.start(ctx.currentTime+t); src.stop(ctx.currentTime+t+0.12);
+        });
+        break;
+      }
+
+      case 'win': { // Victory fanfare
+        const notes = [523, 659, 784, 1047];
+        notes.forEach((freq, i) => {
+          const osc = ctx.createOscillator();
+          const g = ctx.createGain();
+          osc.connect(g); g.connect(master);
+          osc.type = 'square';
+          osc.frequency.value = freq;
+          const t = ctx.currentTime + i*0.15;
+          g.gain.setValueAtTime(0, t);
+          g.gain.linearRampToValueAtTime(0.4, t+0.05);
+          g.gain.exponentialRampToValueAtTime(0.001, t+0.35);
+          osc.start(t); osc.stop(t+0.35);
+        });
+        // Long chord
+        [523,659,784].forEach(freq => {
+          const osc = ctx.createOscillator();
+          const g = ctx.createGain();
+          osc.connect(g); g.connect(master);
+          osc.type = 'sine'; osc.frequency.value = freq;
+          g.gain.setValueAtTime(0.2, ctx.currentTime+0.6);
+          g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime+1.8);
+          osc.start(ctx.currentTime+0.6); osc.stop(ctx.currentTime+1.8);
+        });
+        break;
+      }
+
+      case 'lose': { // Sad descent
+        const notes = [392, 330, 294, 196];
+        notes.forEach((freq, i) => {
+          const osc = ctx.createOscillator();
+          const g = ctx.createGain();
+          osc.connect(g); g.connect(master);
+          osc.type = 'sawtooth';
+          osc.frequency.value = freq;
+          const t = ctx.currentTime + i*0.22;
+          g.gain.setValueAtTime(0.35, t);
+          g.gain.exponentialRampToValueAtTime(0.001, t+0.4);
+          osc.start(t); osc.stop(t+0.4);
+        });
+        break;
+      }
+
+      case 'selectCard': { // Soft click
+        const osc = ctx.createOscillator();
+        const g = ctx.createGain();
+        osc.connect(g); g.connect(master);
+        osc.type='sine'; osc.frequency.value=900;
+        g.gain.setValueAtTime(0.2, ctx.currentTime);
+        g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime+0.08);
+        osc.start(); osc.stop(ctx.currentTime+0.08);
+        break;
+      }
+
+      case 'enemyAttack': { // Dark thud
+        const buf = ctx.createBuffer(1, ctx.sampleRate*0.2, ctx.sampleRate);
+        const d = buf.getChannelData(0);
+        for(let i=0;i<d.length;i++) d[i]=(Math.random()*2-1)*Math.exp(-i/(ctx.sampleRate*0.07));
+        const src = ctx.createBufferSource(); src.buffer=buf;
+        const lpf = ctx.createBiquadFilter(); lpf.type='lowpass'; lpf.frequency.value=350;
+        const g = ctx.createGain(); g.gain.setValueAtTime(1.6,ctx.currentTime); g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.25);
+        src.connect(lpf); lpf.connect(g); g.connect(master);
+        src.start(); src.stop(ctx.currentTime+0.25);
+        // Dark tone
+        const osc = ctx.createOscillator();
+        const og = ctx.createGain();
+        osc.connect(og); og.connect(master);
+        osc.type='sawtooth'; osc.frequency.value=120;
+        og.gain.setValueAtTime(0.3,ctx.currentTime); og.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.2);
+        osc.start(); osc.stop(ctx.currentTime+0.2);
+        break;
+      }
+    }
+  } catch(e) { /* ses çalmak opsiyonel */ }
+}
+
+// ===== GAME LOGIC =====
+function playCard(i) {
+  const card = state.playerHand[i];
+  if(card.cost > state.playerMana) return;
+  if(state.playerBattlefield.length >= 5) {
+    addLog('Saha dolu! En fazla 5 kart.');
+    return;
+  }
+  state.playerMana -= card.cost;
+  state.playerHand.splice(i,1);
+  const played = {...card, tapped: false};
+  state.playerBattlefield.push(played);
+  state.selectedCard = null;
+  addLog(`🃏 ${card.name} sahaya çıktı!`);
+  playSound('cardPlay');
+  render();
+}
+
+function startAttack(cardIndex) {
+  if(state.phase !== 'player') return;
+  const attacker = state.playerBattlefield[cardIndex];
+  if(!attacker || attacker.tapped) return;
+  state.attackMode = true;
+  state.attackingCard = cardIndex;
+  playSound('selectCard');
+  render();
+}
+
+function attackTarget(type, targetIndex) {
+  if(!state.attackMode) return;
+  const attacker = state.playerBattlefield[state.attackingCard];
+  if(!attacker) return;
+
+  attacker.tapped = true;
+  state.attackMode = false;
+
+  if(type === 'face') {
+    const dmg = attacker.atk;
+    state.enemyHp -= dmg;
+    addLog(`⚔ ${attacker.name} düşman yüzüne ${dmg} hasar verdi!`);
+    showFloatingDmg(dmg, 'player', '#e74c3c');
+    flashScreen('flash-red');
+    playSound('attack');
+    setTimeout(()=>playSound('damage'), 80);
+  } else {
+    const target = state.enemyBattlefield[targetIndex];
+    if(!target) return;
+    const dmg = attacker.atk;
+    const counterDmg = target.atk;
+    target.hp -= dmg;
+    attacker.hp -= counterDmg;
+    addLog(`⚔ ${attacker.name} → ${target.name}: ${dmg} hasar / ${counterDmg} karşı hasar`);
+    showFloatingDmg(dmg, 'enemy', '#e74c3c');
+    showFloatingDmg(counterDmg, 'player', '#f07e7e');
+    flashScreen('flash-red');
+    playSound('attack');
+    setTimeout(()=>playSound('damage'), 80);
+    // Remove dead cards
+    const prevEnemy = state.enemyBattlefield.length;
+    const prevPlayer = state.playerBattlefield.length;
+    state.enemyBattlefield = state.enemyBattlefield.filter(c=>c.hp>0);
+    state.playerBattlefield = state.playerBattlefield.filter(c=>c.hp>0);
+    if(state.enemyBattlefield.length < prevEnemy || state.playerBattlefield.length < prevPlayer) {
+      setTimeout(()=>playSound('cardDie'), 150);
+    }
+  }
+
+  state.attackingCard = null;
+  checkWin();
+  render();
+}
+
+function endTurn() {
+  if(state.phase !== 'player') return;
+  state.attackMode = false;
+  state.attackingCard = null;
+
+  // Draw card
+  drawCard('player');
+  state.turn++;
+
+  // Increase max mana
+  if(state.playerMaxMana < 10) state.playerMaxMana++;
+  state.playerMana = state.playerMaxMana;
+
+  // Untap player cards
+  state.playerBattlefield.forEach(c=>c.tapped=false);
+
+  addLog(`🔄 Tur ${state.turn} başladı.`);
+  state.phase = 'enemy';
+  playSound('endTurn');
+  render();
+
+  setTimeout(enemyTurn, 800);
+}
+
+function enemyTurn() {
+  if(state.enemyMaxMana < 10) state.enemyMaxMana++;
+  state.enemyMana = state.enemyMaxMana;
+  drawCard('enemy');
+  state.enemyBattlefield.forEach(c=>c.tapped=false);
+
+  // Play cards - enemy only plays cheapest cards to not flood board instantly
+  let mana = state.enemyMana;
+  let played = 0;
+  const maxPlay = Math.min(2, Math.ceil(state.turn / 3) + 1); // ramps up over turns
+  while(state.enemyHand.length>0 && state.enemyBattlefield.length<4 && played<maxPlay) {
+    const playable = state.enemyHand.filter(c=>c.cost<=mana).sort((a,b)=>a.cost-b.cost);
+    if(playable.length===0) break;
+    // Play cheapest available card
+    const card = playable[0];
+    const idx = state.enemyHand.indexOf(card);
+    state.enemyHand.splice(idx,1);
+    mana -= card.cost;
+    state.enemyBattlefield.push({...card, tapped:false});
+    addLog(`👺 Düşman ${card.name} oynadı!`);
+    played++;
+  }
+  state.enemyMana = mana;
+
+  render();
+
+  // Attack - prefers hitting player cards over face, scales aggression by turn
+  setTimeout(() => {
+    let i = 0;
+    function attackNext() {
+      if(i >= state.enemyBattlefield.length || checkWin()) return;
+      const attacker = state.enemyBattlefield[i];
+      if(attacker.tapped) { i++; setTimeout(attackNext, 450); return; }
+
+      attacker.tapped = true;
+
+      // Attack face only if no player cards OR late game (turn > 5) with 40% chance
+      const faceChance = state.turn > 5 ? 0.4 : 0.15;
+      const goFace = state.playerBattlefield.length === 0 || Math.random() < faceChance;
+
+      if(!goFace && state.playerBattlefield.length > 0) {
+        // Target weakest player card (easier to kill)
+        const sorted = [...state.playerBattlefield].sort((a,b)=>a.hp-b.hp);
+        const target = sorted[0];
+        const ti = state.playerBattlefield.indexOf(target);
+        const dmg = attacker.atk;
+        const counter = target.atk;
+        target.hp -= dmg;
+        attacker.hp -= counter;
+        addLog(`💀 ${attacker.name} → ${target.name}: ${dmg} hasar`);
+        flashScreen('flash-red');
+        playSound('enemyAttack');
+        setTimeout(()=>playSound('damage'),80);
+        showFloatingDmg(dmg, 'player-hit', '#f07e7e');
+        const prevE = state.enemyBattlefield.length;
+        const prevP = state.playerBattlefield.length;
+        state.enemyBattlefield = state.enemyBattlefield.filter(c=>c.hp>0);
+        state.playerBattlefield = state.playerBattlefield.filter(c=>c.hp>0);
+        if(state.enemyBattlefield.length<prevE||state.playerBattlefield.length<prevP) setTimeout(()=>playSound('cardDie'),160);
+      } else {
+        const dmg = attacker.atk;
+        state.playerHp -= dmg;
+        addLog(`💀 ${attacker.name} sana ${dmg} hasar verdi!`);
+        flashScreen('flash-red');
+        playSound('enemyAttack');
+        setTimeout(()=>playSound('damage'),80);
+        showFloatingDmg(dmg, 'player-hit', '#f07e7e');
+      }
+      render();
+      if(checkWin()) return;
+      i++;
+      setTimeout(attackNext, 650);
+    }
+    attackNext();
+    setTimeout(() => {
+      if(!checkWin()) {
+        state.phase = 'player';
+        render();
+      }
+    }, state.enemyBattlefield.length * 750 + 600);
+  }, 600);
+}
+
+function checkWin() {
+  if(state.enemyHp <= 0) {
+    addLog('🏆 Zafer! Düşmanı yendin!');
+    playSound('win');
+    setTimeout(() => showResult(true), 800);
+    return true;
+  }
+  if(state.playerHp <= 0) {
+    addLog('💀 Yenildin! Savaş kaybedildi.');
+    playSound('lose');
+    setTimeout(() => showResult(false), 800);
+    return true;
+  }
+  return false;
+}
+
+function showResult(win) {
+  stopMusic();
+  document.getElementById('resultIcon').textContent = win ? '🏆' : '💀';
+  const title = document.getElementById('resultTitle');
+  title.textContent = win ? 'Zafer!' : 'Yenildin!';
+  title.className = 'result-title ' + (win ? 'result-win' : 'result-lose');
+  document.getElementById('resultSubtitle').textContent = win
+    ? 'Efsanevi savaşçı! Düşman yere serildi.'
+    : 'Bir sonraki savaşta daha güçlü dön...';
+  showScreen('resultScreen');
+}
+
+function addLog(msg) {
+  state.log.push(msg);
+  if(state.log.length > 30) state.log.shift();
+}
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function flashScreen(cls) {
+  const el = document.createElement('div');
+  el.className = `attack-flash ${cls}`;
+  document.body.appendChild(el);
+  setTimeout(()=>el.remove(), 500);
+}
+
+function showFloatingDmg(dmg, side, color) {
+  const el = document.createElement('div');
+  el.className = 'floating-dmg';
+  el.textContent = '-'+dmg;
+  el.style.color = color;
+  const x = side === 'player' ? '45%' : '45%';
+  const y = side === 'player' ? '70%' : '30%';
+  el.style.left = x;
+  el.style.top = y;
+  document.body.appendChild(el);
+  setTimeout(()=>el.remove(), 1300);
+}
+
+// Attack face click on enemy area
+document.getElementById('enemyBattlefield').addEventListener('click', function(e) {
+  if(state.attackMode && e.target === this) {
+    attackTarget('face');
+  }
+});
+
+// Enemy area face click
+const enemyArea = document.querySelector('.enemy-area');
+enemyArea.addEventListener('click', function(e) {
+  if(state.attackMode) {
+    const isCard = e.target.closest('.card');
+    if(!isCard) attackTarget('face');
+  }
+});
+</script>
+</body>
+</html>

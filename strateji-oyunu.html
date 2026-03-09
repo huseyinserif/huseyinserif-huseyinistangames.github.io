@@ -1,0 +1,1136 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>İmparatorluk Yükselişi</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;900&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap');
+  :root {
+    --gold:#c9a227; --gold-light:#e8c847; --dark:#060402; --parchment:#f4e8c1;
+    --blood:#8b1a1a; --glow:rgba(201,162,39,0.35); --panel:rgba(14,10,5,0.98);
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{
+    background:var(--dark); color:var(--parchment); font-family:'Crimson Text',serif;
+    min-height:100vh;
+    background-image:
+      radial-gradient(ellipse at 10% 10%,rgba(120,20,20,.07) 0%,transparent 50%),
+      radial-gradient(ellipse at 90% 90%,rgba(10,30,50,.12) 0%,transparent 50%);
+  }
+  #app{max-width:1450px;margin:0 auto;padding:10px 14px;display:flex;flex-direction:column;gap:9px;}
+
+  /* HEADER */
+  header{text-align:center;padding:10px 0 8px;border-bottom:1px solid rgba(201,162,39,.22);position:relative;}
+  header::before,header::after{content:'✦ ⚔ ✦';position:absolute;top:50%;transform:translateY(-50%);color:var(--gold);opacity:.3;font-size:.85rem;letter-spacing:.3em;}
+  header::before{left:16px;}header::after{right:16px;}
+  h1{font-family:'Cinzel',serif;font-size:clamp(1.2rem,3.5vw,1.9rem);font-weight:900;color:var(--gold);text-shadow:0 0 40px rgba(201,162,39,.5),0 2px 8px rgba(0,0,0,.9);letter-spacing:.12em;}
+  .sub{font-size:.65rem;color:rgba(201,162,39,.45);letter-spacing:.25em;margin-top:3px;}
+
+  /* RESOURCES */
+  .res-bar{display:flex;flex-wrap:wrap;gap:5px;justify-content:center;align-items:center;
+    background:linear-gradient(90deg,rgba(14,10,5,.98),rgba(24,18,8,.98),rgba(14,10,5,.98));
+    border:1px solid rgba(201,162,39,.28);border-radius:7px;padding:7px 12px;}
+  .res{display:flex;align-items:center;gap:5px;font-family:'Cinzel',serif;font-size:.7rem;
+    padding:3px 9px;background:rgba(0,0,0,.4);border:1px solid rgba(201,162,39,.16);border-radius:4px;transition:all .3s;}
+  .res .icon{font-size:.95rem;} .res .lbl{color:rgba(244,232,193,.5);} .res .val{color:var(--gold-light);font-weight:700;min-width:24px;text-align:right;}
+  .turn-pill{font-family:'Cinzel',serif;font-size:.75rem;color:var(--gold);padding:4px 14px;border:1px solid rgba(201,162,39,.42);border-radius:4px;background:rgba(201,162,39,.06);margin-left:4px;}
+  .audio-ctrl{display:flex;align-items:center;gap:6px;margin-left:6px;}
+  .audio-btn{background:rgba(0,0,0,.45);border:1px solid rgba(201,162,39,.3);border-radius:4px;
+    color:var(--gold);cursor:pointer;font-size:.85rem;padding:3px 8px;transition:all .2s;line-height:1;}
+  .audio-btn:hover{border-color:var(--gold);box-shadow:0 0 8px var(--glow);}
+  .vol-slider{-webkit-appearance:none;appearance:none;width:60px;height:4px;border-radius:2px;
+    background:rgba(201,162,39,.25);outline:none;cursor:pointer;}
+  .vol-slider::-webkit-slider-thumb{-webkit-appearance:none;width:12px;height:12px;border-radius:50%;
+    background:var(--gold);cursor:pointer;}
+  .music-label{font-family:'Cinzel',serif;font-size:.6rem;color:rgba(201,162,39,.5);letter-spacing:.05em;}
+  /* tension overlay flash */
+  @keyframes tensionFlash{0%,100%{opacity:0}50%{opacity:.04}}
+  .tension-overlay{position:fixed;inset:0;pointer-events:none;z-index:1;
+    background:rgba(180,20,20,1);animation:tensionFlash 2s infinite;opacity:0;}
+
+  /* MAIN */
+  .main{display:grid;grid-template-columns:1fr 290px;gap:10px;align-items:start;}
+  @media(max-width:760px){.main{grid-template-columns:1fr;}}
+
+  /* MAP */
+  .map-wrap{background:linear-gradient(160deg,#08141e 0%,#060d0a 65%,#0a0806 100%);
+    border:1px solid rgba(201,162,39,.26);border-radius:10px;overflow:hidden;}
+  .map-top{display:flex;align-items:center;justify-content:space-between;
+    padding:9px 14px 7px;border-bottom:1px solid rgba(201,162,39,.13);
+    font-family:'Cinzel',serif;font-size:.72rem;color:var(--gold);letter-spacing:.1em;opacity:.8;}
+  .legend{display:flex;gap:9px;}
+  .leg{display:flex;align-items:center;gap:3px;font-size:.62rem;color:rgba(244,232,193,.45);}
+  .ldot{width:9px;height:9px;border-radius:2px;}
+  #map-canvas{display:block;width:100%;cursor:pointer;}
+
+  /* SIDEBAR */
+  .sidebar{display:flex;flex-direction:column;gap:7px;}
+  .panel{background:var(--panel);border:1px solid rgba(201,162,39,.2);border-radius:8px;padding:11px 13px;}
+  .panel h3{font-family:'Cinzel',serif;font-size:.72rem;color:var(--gold);text-transform:uppercase;
+    letter-spacing:.1em;padding-bottom:6px;margin-bottom:8px;border-bottom:1px solid rgba(201,162,39,.16);}
+
+  /* territory */
+  .t-name{font-family:'Cinzel',serif;font-size:.92rem;color:var(--gold-light);margin-bottom:5px;}
+  .t-grid{display:grid;grid-template-columns:1fr 1fr;gap:2px 8px;}
+  .t-row{display:flex;justify-content:space-between;font-size:.76rem;color:rgba(244,232,193,.68);}
+  .t-row span:last-child{color:var(--parchment);font-weight:600;}
+  .t-empty{color:rgba(244,232,193,.3);font-style:italic;font-size:.8rem;}
+
+  /* actions */
+  .actions{display:flex;flex-direction:column;gap:5px;}
+  .btn{font-family:'Cinzel',serif;font-size:.68rem;letter-spacing:.04em;
+    padding:7px 10px;border-radius:5px;border:1px solid;cursor:pointer;transition:all .18s;font-weight:600;width:100%;}
+  .btn:disabled{opacity:.28;cursor:not-allowed;}
+  .btn-red{background:rgba(139,26,26,.14);border-color:rgba(180,50,50,.48);color:#e87070;}
+  .btn-red:hover:not(:disabled){background:rgba(200,50,50,.24);box-shadow:0 0 10px rgba(200,50,50,.28);}
+  .btn-gold{background:rgba(201,162,39,.09);border-color:rgba(201,162,39,.42);color:var(--gold-light);}
+  .btn-gold:hover:not(:disabled){background:rgba(201,162,39,.2);box-shadow:0 0 10px var(--glow);}
+  .btn-blue{background:rgba(30,80,130,.14);border-color:rgba(60,120,200,.38);color:#7ab4e8;}
+  .btn-blue:hover:not(:disabled){background:rgba(60,120,200,.22);box-shadow:0 0 10px rgba(60,120,200,.22);}
+
+  /* tech */
+  .tech-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px;}
+  .tech{background:rgba(0,0,0,.32);border:1px solid rgba(201,162,39,.1);border-radius:5px;
+    padding:5px 6px;font-size:.65rem;text-align:center;cursor:pointer;transition:all .18s;color:rgba(244,232,193,.6);}
+  .tech:hover:not(.done):not(.broke){border-color:rgba(201,162,39,.32);color:var(--parchment);}
+  .tech.done{background:rgba(201,162,39,.08);border-color:rgba(201,162,39,.35);color:var(--gold-light);cursor:default;}
+  .tech.broke{opacity:.28;cursor:not-allowed;}
+  .tech-n{font-family:'Cinzel',serif;font-size:.64rem;margin-bottom:1px;}
+  .tech-c{color:var(--gold);font-size:.6rem;}
+
+  /* log */
+  .log{max-height:120px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:rgba(201,162,39,.22) transparent;}
+  .log li{font-size:.74rem;padding:2px 0;border-bottom:1px solid rgba(255,255,255,.04);
+    color:rgba(244,232,193,.68);line-height:1.4;list-style:none;}
+  .log li.lw{color:var(--gold-light);} .log li.ll{color:#e87070;}
+  .log li.li{color:#7ab4e8;} .log li.le{color:#a8d8a8;font-style:italic;}
+
+  /* end turn */
+  .btn-end{font-family:'Cinzel',serif;font-size:.8rem;font-weight:900;letter-spacing:.1em;
+    width:100%;padding:10px;border-radius:7px;cursor:pointer;transition:all .2s;
+    background:linear-gradient(135deg,rgba(201,162,39,.17),rgba(201,162,39,.06));
+    border:1px solid var(--gold);color:var(--gold);text-shadow:0 1px 3px rgba(0,0,0,.8);}
+  .btn-end:hover{background:linear-gradient(135deg,rgba(201,162,39,.3),rgba(201,162,39,.12));box-shadow:0 0 18px var(--glow);}
+
+  /* overlay */
+  .overlay{position:fixed;inset:0;background:rgba(0,0,0,.88);display:flex;align-items:center;
+    justify-content:center;z-index:100;backdrop-filter:blur(5px);}
+  .overlay-box{background:linear-gradient(135deg,#1a1208,#080604);border:2px solid var(--gold);
+    border-radius:14px;padding:40px 50px;text-align:center;
+    box-shadow:0 0 80px var(--glow),inset 0 0 40px rgba(0,0,0,.5);max-width:420px;}
+  .overlay-box h2{font-family:'Cinzel',serif;font-size:1.9rem;color:var(--gold);margin-bottom:9px;}
+  .overlay-box p{color:rgba(244,232,193,.8);margin-bottom:20px;font-size:.95rem;line-height:1.6;}
+  .hidden{display:none!important;}
+
+  /* tooltip */
+  #tip{position:fixed;pointer-events:none;background:rgba(10,7,3,.97);
+    border:1px solid rgba(201,162,39,.38);border-radius:6px;padding:8px 11px;
+    font-size:.72rem;color:var(--parchment);z-index:50;max-width:175px;
+    box-shadow:0 4px 18px rgba(0,0,0,.6);font-family:'Cinzel',serif;line-height:1.75;
+    transition:opacity .12s;opacity:0;}
+  #tip.show{opacity:1;}
+</style>
+</head>
+<body>
+<div id="app">
+  <header>
+    <h1>İMPARATORLUK YÜKSELİŞİ</h1>
+    <div class="sub">ORTAÇAĞ FETİH STRATEJİSİ</div>
+  </header>
+
+  <div class="res-bar">
+    <div class="res"><span class="icon">👑</span><span class="lbl">ALTIN</span><span class="val" id="r-gold">30</span></div>
+    <div class="res"><span class="icon">🌾</span><span class="lbl">YİYECEK</span><span class="val" id="r-food">25</span></div>
+    <div class="res"><span class="icon">⚒</span><span class="lbl">DEMİR</span><span class="val" id="r-iron">12</span></div>
+    <div class="res"><span class="icon">📜</span><span class="lbl">ARAŞTIRMA</span><span class="val" id="r-res">8</span></div>
+    <div class="res"><span class="icon">⚔</span><span class="lbl">ORDU</span><span class="val" id="r-army">0</span></div>
+    <div class="turn-pill">TUR <span id="turn-num">1</span></div>
+    <div class="audio-ctrl">
+      <button class="audio-btn" id="mute-btn" title="Müziği aç/kapat">🔊</button>
+      <input type="range" class="vol-slider" id="vol-slider" min="0" max="100" value="55" title="Ses seviyesi">
+      <span class="music-label" id="music-label">SAKİN</span>
+    </div>
+  </div>
+  <div class="tension-overlay hidden" id="tension-overlay"></div>
+
+  <div class="main">
+    <div class="map-wrap">
+      <div class="map-top">
+        <span>⚔ DÜNYA HARİTASI — Bölgeye tıkla, sonra düşmana tıkla</span>
+        <div class="legend">
+          <div class="leg"><div class="ldot" style="background:#3a8040"></div>Orman</div>
+          <div class="leg"><div class="ldot" style="background:#6a8820"></div>Ova</div>
+          <div class="leg"><div class="ldot" style="background:#666060"></div>Dağ</div>
+          <div class="leg"><div class="ldot" style="background:#1a4a70"></div>Su</div>
+          <div class="leg"><div class="ldot" style="background:#7a5c20"></div>Çöl</div>
+        </div>
+      </div>
+      <canvas id="map-canvas"></canvas>
+    </div>
+
+    <div class="sidebar">
+      <div class="panel">
+        <h3>🏰 Seçili Bölge</h3>
+        <div id="t-info"><p class="t-empty">Bir bölgeye tıklayın...</p></div>
+      </div>
+      <div class="panel">
+        <h3>⚡ Eylemler</h3>
+        <div class="actions">
+          <button class="btn btn-red"  id="b-atk" disabled>⚔ Saldır (bitişik düşmana)</button>
+          <button class="btn btn-gold" id="b-rec" disabled>🪖 Asker Topla (10🌾)</button>
+          <button class="btn btn-blue" id="b-for" disabled>🛡 Güçlendir (15👑)</button>
+          <button class="btn btn-gold" id="b-bld" disabled>🏗 Yapı İnşa Et (20👑)</button>
+        </div>
+      </div>
+      <div class="panel">
+        <h3>🔬 Teknolojiler</h3>
+        <div class="tech-grid" id="tech-grid"></div>
+      </div>
+      <div class="panel">
+        <h3>📜 Savaş Günlüğü</h3>
+        <ul class="log" id="log-list"></ul>
+      </div>
+      <button class="btn-end" id="b-end">⚜ TUR SONU ⚜</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay hidden" id="overlay">
+  <div class="overlay-box">
+    <h2 id="ov-title">Zafer!</h2>
+    <p id="ov-msg">Tüm topraklar fethedildi!</p>
+    <button class="btn btn-gold" onclick="startGame()" style="width:100%;padding:11px;font-size:.86rem;">⚔ Yeniden Oyna</button>
+  </div>
+</div>
+<div id="tip"></div>
+
+<script>
+// ═══════ CONSTANTS ═══════
+const COLS=10, ROWS=9;
+const TNAMES=['forest','plains','mountain','water','desert'];
+const TICONS={forest:'🌲',plains:'🌾',mountain:'⛰',water:'🌊',desert:'🏜'};
+const TYIELDS={
+  forest:  {gold:1,food:2,iron:2,research:0},
+  plains:  {gold:2,food:4,iron:0,research:0},
+  mountain:{gold:1,food:0,iron:4,research:1},
+  water:   {gold:0,food:0,iron:0,research:0},
+  desert:  {gold:1,food:0,iron:1,research:3},
+};
+const TCOLORS={
+  forest:  {a:'#0f2a10',b:'#1e4a1e',c:'#2e6830',hi:'#4a9450',brd:'rgba(60,160,60,.55)'},
+  plains:  {a:'#182c04',b:'#2a4a08',c:'#3e6610',hi:'#5a8e1a',brd:'rgba(110,180,30,.5)'},
+  mountain:{a:'#1c1818',b:'#302828',c:'#484040',hi:'#686060',brd:'rgba(130,110,110,.5)'},
+  water:   {a:'#040f1a',b:'#0a1f33',c:'#0f2d4a',hi:'#1a4a70',brd:'rgba(30,100,200,.6)'},
+  desert:  {a:'#1a1006',b:'#32240a',c:'#4c3610',hi:'#6e521a',brd:'rgba(180,140,50,.5)'},
+};
+const NAMES=[
+  'Demir Dağı','Kara Orman','Altın Ova','Kuzey Sahili','Gümüş Vadi','Ateş Tepesi','Büyük Bozkır','Ejder Geçidi',
+  'Gölgeli Vadi','Ay Çölü','Taş Kale','Rüzgar Gölü','Çelik Körfez','Kızıl Vadi','Demir Kapı','Bulut Zirvesi',
+  'Zümrüt Orman','Altay Geçidi','Sis Adası','Soluk Tepe','Kırmızı Kum','Buz Körfezi','Şimşek Ovası','Gece Kalesi',
+  'Amber Orman','Kor Ateşi','Kristal Göl','Çürük Bataklık','Yıldız Geçidi','Kara Deniz','Demir Köprü','Beyaz Kule',
+  'Altın Kapı','Ejder Gölü','Rüzgâr Tepesi','Nar Orman','Mor Ova','Demir Şehir','Kuzey Kulesi','Zümrüt Kule',
+  'Güneş Vadisi','Ay Gölü','Kara Geçit','Nar Kalesi','Çelik Dağı','Gümüş Orman','Altın Tepe','Kızıl Orman',
+  'Buz Dağı','Taş Geçidi','Sislerin Vadisi','Ejder Kalesi','Altın Nehri','Kara Köy','Alev Tepesi','Kor Gölü',
+  'Tunç Kalesi','Zümrüt Sahili','Gümüş Nehri','Ateş Çölü','Rüzgâr Geçidi','Kar Dağı','Işık Vadisi','Demir Şehri',
+  'Kara Orman B','Mor Nehir','Pembe Çöl','Tunç Ovası','Sarı Dağ','Yeşil Ada','Lacivert Göl','Altın Kule',
+  'Gümüş Geçidi','Kor Tepesi','Taş Yolu','Demir Köy','Kızıl Çöl','Buz Vadisi','Güneş Dağı','Ay Sahili',
+  'Nar Gölü','Çelik Geçit','Demir Vadisi','Altın Orman','Rüzgâr Sahili','Gece Tepesi','Kor Vadisi','Tunç Nehri',
+];
+const TECHS=[
+  {id:'swords', name:'Kılıç Dövme', icon:'⚔',cost:{research:15},effect:'Saldırı +20%'},
+  {id:'farming',name:'Tarım Sanatı',icon:'🌾',cost:{research:12},effect:'Yiyecek +50%'},
+  {id:'mining', name:'Derin Maden', icon:'⚒',cost:{research:18},effect:'Demir +50%'},
+  {id:'walls',  name:'Surlar',      icon:'🛡',cost:{research:20},effect:'Savunma +30%'},
+  {id:'cavalry',name:'Süvari',      icon:'🐴',cost:{research:25,iron:10},effect:'Saldırı +40%'},
+  {id:'alchemy',name:'Simya',       icon:'⚗',cost:{research:30},effect:'Altın +30%'},
+];
+
+// ═══════ STATE ═══════
+let G={}, sel=null;
+const canvas=document.getElementById('map-canvas');
+const ctx=canvas.getContext('2d');
+let SZ=54; // hex size
+
+function HW(){return Math.sqrt(3)*SZ;}
+function OX(){return HW()*0.6+4;}
+function OY(){return SZ*0.5+4;}
+function hexCenter(col,row){
+  return {
+    x: OX()+col*HW()+(row%2===1?HW()/2:0),
+    y: OY()+row*SZ*1.5
+  };
+}
+function hexCorners(cx,cy,r){
+  const p=[];
+  for(let i=0;i<6;i++){const a=Math.PI/3*i-Math.PI/6;p.push({x:cx+r*Math.cos(a),y:cy+r*Math.sin(a)});}
+  return p;
+}
+function cIdx(col,row){return row*COLS+col;}
+function colRow(i){return{col:i%COLS,row:Math.floor(i/COLS)};}
+function rand(a,b){return Math.floor(Math.random()*(b-a+1))+a;}
+
+// ═══════ INIT ═══════
+function startGame(){
+  document.getElementById('overlay').classList.add('hidden');
+  sel=null;
+  const cells=[];
+  for(let i=0;i<COLS*ROWS;i++){
+    const{col,row}=colRow(i);
+    cells.push({id:i,col,row,name:NAMES[i%NAMES.length],terrain:TNAMES[rand(0,4)],owner:'neutral',troops:0,fortified:false,building:null});
+  }
+  // Water clusters for lakes / coast effect
+  [[1,0],[2,0],[2,1],[8,2],[9,2],[9,3],[8,3],[3,5],[4,5],[4,6],[0,7],[1,7],[5,8],[6,8]].forEach(([c,r])=>{
+    const cell=cells[cIdx(c,r)];if(cell)cell.terrain='water';
+  });
+  cells.forEach(c=>{if(c.terrain!=='water')c.troops=rand(3,10);});
+
+  // Player start
+  cells[cIdx(0,0)].owner='player'; cells[cIdx(0,0)].troops=22; cells[cIdx(0,0)].terrain='plains';
+  // Enemies
+  [[9,8],[9,0],[0,8],[6,4],[3,7],[8,6]].forEach(([c,r])=>{
+    const cell=cells[cIdx(c,r)];
+    if(cell&&cell.terrain!=='water'){cell.owner='enemy';cell.troops=rand(10,22);}
+  });
+
+  G={cells,res:{gold:30,food:25,iron:12,research:8,army:22},turn:1,
+     techs:TECHS.map(t=>({...t,researched:false})),
+     atkMult:1,defMult:1,foodMult:1,ironMult:1,goldMult:1};
+
+  addLog('Krallığınız kuruldu. Fetih başlıyor!','li');
+  sizeCanvas(); renderAll();
+}
+
+function sizeCanvas(){
+  const wrap=canvas.parentElement;
+  const availW=wrap.clientWidth||700;
+  SZ=Math.max(34,Math.min(58,Math.floor((availW-OX()*2)/(COLS*Math.sqrt(3)))));
+  const W=Math.ceil(OX()+COLS*HW()+HW()/2+4);
+  const H=Math.ceil(OY()+ROWS*SZ*1.5+SZ*0.5+4);
+  canvas.width=W; canvas.height=H; canvas.style.height=H+'px';
+}
+
+// ═══════ DRAW ═══════
+let animId=0;
+
+function drawAll(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  // bg
+  ctx.fillStyle='#07050218'; ctx.fillRect(0,0,canvas.width,canvas.height);
+
+  // Attackable set
+  const atk=new Set();
+  if(sel!==null&&G.cells[sel].owner==='player'){
+    adj(sel).forEach(j=>{const c=G.cells[j];if(c&&c.owner!=='player'&&c.terrain!=='water')atk.add(j);});
+  }
+  G.cells.forEach((_,i)=>drawCell(i,i===sel,atk.has(i)));
+}
+
+function drawCell(i,isSel,isAtk){
+  const c=G.cells[i];
+  const{x,y}=hexCenter(c.col,c.row);
+  const r=SZ-1.5;
+  const pts=hexCorners(x,y,r);
+  const tc=TCOLORS[c.terrain];
+
+  // === CLIP & FILL ===
+  ctx.save();
+  ctx.beginPath();
+  pts.forEach((p,pi)=>pi===0?ctx.moveTo(p.x,p.y):ctx.lineTo(p.x,p.y));
+  ctx.closePath();
+  ctx.clip();
+
+  // Layered radial fill for depth
+  const g1=ctx.createRadialGradient(x-r*.25,y-r*.3,r*.05,x,y,r*1.15);
+  g1.addColorStop(0,tc.c); g1.addColorStop(.45,tc.b); g1.addColorStop(1,tc.a);
+  ctx.fillStyle=g1; ctx.fill();
+
+  // Organic noise dots
+  ctx.globalAlpha=.07;
+  for(let di=0;di<18;di++){
+    const nx=x+(Math.random()-.5)*r*1.8, ny=y+(Math.random()-.5)*r*1.8;
+    ctx.beginPath(); ctx.arc(nx,ny,Math.random()*2.5+.5,0,Math.PI*2);
+    ctx.fillStyle=tc.hi; ctx.fill();
+  }
+  ctx.globalAlpha=1;
+
+  // Inner vignette
+  const g2=ctx.createRadialGradient(x,y,r*.3,x,y,r*1.05);
+  g2.addColorStop(0,'rgba(0,0,0,0)');
+  g2.addColorStop(1,'rgba(0,0,0,.38)');
+  ctx.fillStyle=g2; ctx.fill();
+
+  // Owner color wash
+  if(c.owner==='player'){
+    const go=ctx.createRadialGradient(x,y,0,x,y,r);
+    go.addColorStop(0,'rgba(201,162,39,.28)'); go.addColorStop(1,'rgba(201,162,39,.04)');
+    ctx.fillStyle=go; ctx.fill();
+  } else if(c.owner==='enemy'){
+    const go=ctx.createRadialGradient(x,y,0,x,y,r);
+    go.addColorStop(0,'rgba(190,35,35,.28)'); go.addColorStop(1,'rgba(120,20,20,.04)');
+    ctx.fillStyle=go; ctx.fill();
+  } else {
+    ctx.fillStyle='rgba(0,0,0,.22)'; ctx.fill();
+  }
+  ctx.restore();
+
+  // === BORDER ===
+  ctx.beginPath();
+  pts.forEach((p,pi)=>pi===0?ctx.moveTo(p.x,p.y):ctx.lineTo(p.x,p.y));
+  ctx.closePath();
+  ctx.shadowBlur=0;
+
+  if(isSel){
+    ctx.strokeStyle='#e8c847'; ctx.lineWidth=3;
+    ctx.shadowColor='#e8c847'; ctx.shadowBlur=16;
+  } else if(isAtk){
+    const t=Date.now()%1000/1000;
+    const blink=.55+.45*Math.sin(t*Math.PI*2);
+    ctx.strokeStyle=`rgba(230,60,60,${.55+blink*.45})`; ctx.lineWidth=2.5;
+    ctx.shadowColor='rgba(230,60,60,.7)'; ctx.shadowBlur=8+blink*10;
+  } else if(c.owner==='player'){
+    ctx.strokeStyle='rgba(201,162,39,.75)'; ctx.lineWidth=1.8;
+    ctx.shadowColor='rgba(201,162,39,.25)'; ctx.shadowBlur=4;
+  } else if(c.owner==='enemy'){
+    ctx.strokeStyle='rgba(190,40,40,.7)'; ctx.lineWidth=1.8;
+    ctx.shadowColor='rgba(190,40,40,.22)'; ctx.shadowBlur=4;
+  } else {
+    ctx.strokeStyle=tc.brd; ctx.lineWidth=1.2;
+  }
+  ctx.stroke();
+  ctx.shadowBlur=0;
+
+  if(c.terrain==='water'){
+    ctx.globalAlpha=.35; ctx.font=`${SZ*.56}px serif`; ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillText('🌊',x,y); ctx.globalAlpha=1; return;
+  }
+
+  // Terrain icon
+  ctx.globalAlpha=c.owner==='neutral'?.5:.72;
+  ctx.font=`${SZ*.5}px serif`; ctx.textAlign='center'; ctx.textBaseline='middle';
+  ctx.fillText(TICONS[c.terrain],x,y-SZ*.1);
+  ctx.globalAlpha=1;
+
+  // Fortified + building badges
+  if(c.fortified){ctx.font=`${SZ*.22}px serif`;ctx.fillText('🛡',x+r*.5,y-r*.52);}
+  if(c.building) {ctx.font=`${SZ*.22}px serif`;ctx.fillText('🏗',x-r*.5,y-r*.52);}
+
+  // Owner icon (bottom center)
+  if(c.owner==='player'||c.owner==='enemy'){
+    ctx.font=`${SZ*.22}px serif`;
+    ctx.fillText(c.owner==='player'?'👑':'💀',x,y+r*.56);
+  }
+
+  // Troop count pill
+  if(c.troops>0){
+    const txt='⚔'+c.troops;
+    const fs=SZ*.185; ctx.font=`bold ${fs}px 'Cinzel',serif`;
+    const tw=ctx.measureText(txt).width;
+    const pw=tw+SZ*.16, ph=SZ*.26, px=x+r*.3, py=y+r*.25;
+    const pr=ph/2;
+    ctx.fillStyle=c.owner==='player'?'rgba(180,140,20,.92)':c.owner==='enemy'?'rgba(160,25,25,.92)':'rgba(30,28,25,.88)';
+    rrect(ctx,px-pw/2,py-ph/2,pw,ph,pr); ctx.fill();
+    ctx.strokeStyle=c.owner==='player'?'rgba(232,200,71,.6)':c.owner==='enemy'?'rgba(220,70,70,.5)':'rgba(120,110,100,.4)';
+    ctx.lineWidth=.8; ctx.stroke();
+    ctx.fillStyle='#fff'; ctx.font=`bold ${fs}px 'Cinzel',serif`;
+    ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillText(txt,px,py);
+  }
+
+  // Territory name
+  if(SZ>=42){
+    const short=c.name.length>8?c.name.slice(0,7)+'…':c.name;
+    ctx.font=`${SZ*.13}px 'Cinzel',serif`;
+    ctx.fillStyle='rgba(244,232,193,.48)';
+    ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillText(short,x,y-r*.62);
+  }
+}
+
+function rrect(ct,x,y,w,h,r){
+  ct.beginPath();
+  ct.moveTo(x+r,y); ct.lineTo(x+w-r,y); ct.arcTo(x+w,y,x+w,y+h,r);
+  ct.lineTo(x+w,y+h-r); ct.arcTo(x+w,y+h,x,y+h,r);
+  ct.lineTo(x+r,y+h); ct.arcTo(x,y+h,x,y,r);
+  ct.lineTo(x,y+r); ct.arcTo(x,y,x+w,y,r); ct.closePath();
+}
+
+function startAnim(){
+  cancelAnimationFrame(animId);
+  const loop=()=>{
+    if(sel!==null&&G.cells[sel].owner==='player'){drawAll();animId=requestAnimationFrame(loop);}
+  };
+  loop();
+}
+
+// ═══════ HIT TEST ═══════
+function hitCell(mx,my){
+  let best=-1,bd=Infinity;
+  G.cells.forEach((c,i)=>{
+    const{x,y}=hexCenter(c.col,c.row);
+    const d=Math.hypot(mx-x,my-y);
+    if(d<bd&&d<SZ){bd=d;best=i;}
+  });
+  return best;
+}
+
+canvas.addEventListener('click',e=>{
+  const rect=canvas.getBoundingClientRect();
+  const sx=canvas.width/rect.width, sy=canvas.height/rect.height;
+  const mx=(e.clientX-rect.left)*sx, my=(e.clientY-rect.top)*sy;
+  const h=hitCell(mx,my);
+  if(h===-1)return;
+  if(G.cells[h].terrain==='water')return;
+  // Click attackable → attack directly
+  if(sel!==null&&sel!==h&&G.cells[sel].owner==='player'){
+    const cc=G.cells[h];
+    if(cc.owner!=='player'&&areAdj(sel,h)){doAttack(sel,h);return;}
+  }
+  sel=(sel===h)?null:h;
+  cancelAnimationFrame(animId);
+  drawAll();
+  if(sel!==null&&G.cells[sel].owner==='player')startAnim();
+  updateInfo(); updateBtns();
+});
+
+// Tooltip
+canvas.addEventListener('mousemove',e=>{
+  const rect=canvas.getBoundingClientRect();
+  const sx=canvas.width/rect.width,sy=canvas.height/rect.height;
+  const mx=(e.clientX-rect.left)*sx,my=(e.clientY-rect.top)*sy;
+  const h=hitCell(mx,my);
+  const tip=document.getElementById('tip');
+  if(h===-1||G.cells[h].terrain==='water'){tip.classList.remove('show');return;}
+  const c=G.cells[h],y=TYIELDS[c.terrain];
+  const ow={player:'👑 Senin',enemy:'💀 Düşman',neutral:'⚪ Tarafsız'}[c.owner];
+  tip.innerHTML=`<b>${c.name}</b><br>${TICONS[c.terrain]} ${c.terrain}<br>${ow}<br>⚔ ${c.troops} asker<br>+${y.gold}👑 +${y.food}🌾 +${y.iron}⚒ +${y.research}📜`;
+  tip.style.left=(e.clientX+15)+'px'; tip.style.top=(e.clientY-8)+'px'; tip.classList.add('show');
+});
+canvas.addEventListener('mouseleave',()=>document.getElementById('tip').classList.remove('show'));
+
+// ═══════ ADJACENCY ═══════
+function areAdj(a,b){
+  const ca=G.cells[a],cb=G.cells[b];
+  return Math.abs(ca.col-cb.col)<=1&&Math.abs(ca.row-cb.row)<=1&&a!==b;
+}
+function adj(i){
+  const{col,row}=G.cells[i],res=[];
+  for(let dr=-1;dr<=1;dr++)for(let dc=-1;dc<=1;dc++){
+    if(!dr&&!dc)continue;
+    const nc=col+dc,nr=row+dr;
+    if(nc>=0&&nc<COLS&&nr>=0&&nr<ROWS)res.push(cIdx(nc,nr));
+  }
+  return res;
+}
+
+// ═══════ RENDER ═══════
+function renderAll(){
+  const r=G.res;
+  ['gold','food','iron'].forEach(k=>document.getElementById('r-'+k).textContent=r[k]);
+  document.getElementById('r-res').textContent=r.research;
+  document.getElementById('r-army').textContent=r.army;
+  document.getElementById('turn-num').textContent=G.turn;
+  drawAll(); renderTech(); updateInfo(); updateBtns();
+}
+
+function updateInfo(){
+  const el=document.getElementById('t-info');
+  if(sel===null){el.innerHTML='<p class="t-empty">Bir bölgeye tıklayın...</p>';return;}
+  const c=G.cells[sel];
+  const ow={player:'<span style="color:#e8c847">👑 Senin</span>',enemy:'<span style="color:#e87070">💀 Düşman</span>',neutral:'<span style="color:rgba(244,232,193,.45)">⚪ Tarafsız</span>'}[c.owner];
+  const y=TYIELDS[c.terrain];
+  el.innerHTML=`<div class="t-name">${TICONS[c.terrain]} ${c.name}</div>
+  <div class="t-grid">
+    <div class="t-row"><span>Sahip</span><span>${ow}</span></div>
+    <div class="t-row"><span>Asker</span><span>${c.troops}</span></div>
+    <div class="t-row"><span>👑/tur</span><span>${y.gold}</span></div>
+    <div class="t-row"><span>🌾/tur</span><span>${y.food}</span></div>
+    <div class="t-row"><span>⚒/tur</span><span>${y.iron}</span></div>
+    <div class="t-row"><span>📜/tur</span><span>${y.research}</span></div>
+    ${c.fortified?'<div class="t-row"><span>🛡 Surlar</span><span>+30%</span></div>':''}
+    ${c.building?`<div class="t-row"><span>🏗 ${c.building}</span><span>aktif</span></div>`:''}
+  </div>`;
+}
+
+function updateBtns(){
+  const r=G.res; const c=sel!==null?G.cells[sel]:null; const isP=c&&c.owner==='player';
+  const hasAtk=isP&&adj(sel).some(j=>{const cc=G.cells[j];return cc&&cc.owner!=='player'&&cc.terrain!=='water';});
+  document.getElementById('b-atk').disabled=!hasAtk;
+  document.getElementById('b-rec').disabled=!isP||r.food<10;
+  document.getElementById('b-for').disabled=!isP||r.gold<15||(c&&c.fortified);
+  document.getElementById('b-bld').disabled=!isP||r.gold<20||(c&&c.building)||(c&&c.terrain==='water');
+}
+
+function renderTech(){
+  const tg=document.getElementById('tech-grid');tg.innerHTML='';
+  G.techs.forEach(t=>{
+    const d=document.createElement('div');
+    const af=canAfford(t);
+    d.className='tech'+(t.researched?' done':!af?' broke':'');
+    const cs=Object.entries(t.cost).map(([k,v])=>`${v}${k==='research'?'📜':k==='iron'?'⚒':'👑'}`).join(' ');
+    d.innerHTML=`<div class="tech-n">${t.icon} ${t.name}</div><div class="tech-c">${t.researched?'✓ Öğrenildi':cs}</div>`;
+    if(!t.researched)d.addEventListener('click',()=>doTech(t.id));
+    tg.appendChild(d);
+  });
+}
+
+// ═══════ ACTIONS ═══════
+function doAttack(fi,ti){
+  const att=G.cells[fi],def=G.cells[ti];
+  const ap=Math.floor(att.troops*G.atkMult*(0.7+Math.random()*.6));
+  const dm=def.fortified?G.defMult*1.3:G.defMult;
+  const dp=Math.floor(def.troops*dm*(0.55+Math.random()*.65));
+  if(ap>dp){
+    att.troops=Math.max(1,Math.floor(att.troops*(1-dp/(ap+dp+1)*.9))-rand(1,3));
+    def.troops=Math.max(1,rand(1,Math.max(1,Math.floor(att.troops*.35))));
+    def.owner='player';def.fortified=false;
+    addLog(`⚔ ${att.name} → ${def.name} FETHEDİLDİ! (${ap} vs ${dp})`,'lw');
+    G.res.army+=def.troops; Audio.sfxAttackWin(); checkVic();
+  } else {
+    att.troops=Math.max(1,att.troops-rand(2,Math.max(2,Math.floor(att.troops*.4))));
+    addLog(`⚔ Saldırı püskürtüldü! ${att.name} (${ap} vs ${dp})`,'ll');
+    Audio.sfxAttackLoss();
+  }
+  sel=null; cancelAnimationFrame(animId); checkAndPlayMusic(); renderAll();
+}
+
+function btnAtk(){
+  if(sel===null)return;
+  const ts=adj(sel).filter(j=>{const c=G.cells[j];return c&&c.owner!=='player'&&c.terrain!=='water';});
+  if(!ts.length)return;
+  const t=ts.reduce((a,b)=>G.cells[a].troops<=G.cells[b].troops?a:b);
+  doAttack(sel,t);
+}
+function btnRec(){
+  if(sel===null)return;const c=G.cells[sel];
+  if(c.owner!=='player'||G.res.food<10)return;
+  G.res.food-=10;const n=rand(3,9);c.troops+=n;G.res.army+=n;
+  addLog(`🪖 ${c.name}'da ${n} asker toplandı.`);Audio.sfxRecruit();renderAll();
+}
+function btnFor(){
+  if(sel===null)return;const c=G.cells[sel];
+  if(c.owner!=='player'||G.res.gold<15||c.fortified)return;
+  G.res.gold-=15;c.fortified=true;addLog(`🛡 ${c.name} güçlendirildi.`,'li');Audio.sfxBuild();renderAll();
+}
+function btnBld(){
+  if(sel===null)return;const c=G.cells[sel];
+  if(c.owner!=='player'||G.res.gold<20||c.building)return;
+  const m={forest:'Kereste Ocağı',plains:'Çiftlik',mountain:'Maden',desert:'Ticaret Yolu'};
+  const b=m[c.terrain];if(!b)return;
+  G.res.gold-=20;c.building=b;addLog(`🏗 ${c.name}'da ${b} inşa edildi.`,'li');Audio.sfxBuild();renderAll();
+}
+function canAfford(t){return Object.entries(t.cost).every(([k,v])=>G.res[k]>=v);}
+function doTech(id){
+  const t=G.techs.find(x=>x.id===id);if(!t||t.researched||!canAfford(t))return;
+  Object.entries(t.cost).forEach(([k,v])=>G.res[k]-=v);t.researched=true;
+  if(id==='swords') G.atkMult+=.2;if(id==='walls')  G.defMult+=.3;
+  if(id==='cavalry')G.atkMult+=.4;if(id==='farming')G.foodMult=1.5;
+  if(id==='mining') G.ironMult=1.5;if(id==='alchemy')G.goldMult=1.3;
+  addLog(`📜 "${t.name}" araştırıldı: ${t.effect}`,'li');renderAll();
+}
+
+// ═══════ END TURN ═══════
+function endTurn(){
+  enemyAI();
+  let e={gold:0,food:0,iron:0,research:0};
+  G.cells.filter(c=>c.owner==='player').forEach(c=>{
+    const y=TYIELDS[c.terrain];
+    e.gold+=y.gold;e.food+=y.food;e.iron+=y.iron;e.research+=y.research;
+    if(c.building==='Çiftlik')     e.food+=3;
+    if(c.building==='Maden')       e.iron+=3;
+    if(c.building==='Ticaret Yolu')e.gold+=3;
+    if(c.building==='Kereste Ocağı')e.iron+=1;
+    e.food-=Math.floor(c.troops*.25);
+  });
+  e.gold=Math.floor(e.gold*G.goldMult);
+  e.food=Math.floor(e.food*G.foodMult);
+  e.iron=Math.floor(e.iron*G.ironMult);
+  Object.keys(e).forEach(k=>G.res[k]=Math.max(0,G.res[k]+e[k]));
+  G.cells.filter(c=>c.owner==='enemy').forEach(c=>{if(c.terrain!=='water')c.troops+=rand(1,3);});
+  if(Math.random()<.2)rndEvent();
+  G.turn++;sel=null;cancelAnimationFrame(animId);
+  addLog(`── Tur ${G.turn} ──`,'li');Audio.sfxEndTurn();checkAndPlayMusic();renderAll();checkDef();
+}
+
+function enemyAI(){
+  G.cells.forEach((cell,ci)=>{
+    if(cell.owner!=='enemy'||cell.troops<6)return;
+    const ts=adj(ci).filter(j=>{const c=G.cells[j];return c&&c.owner!=='enemy'&&c.terrain!=='water';});
+    if(!ts.length)return;
+    const ti=ts[Math.floor(Math.random()*ts.length)],tgt=G.cells[ti];
+    const ap=Math.floor(cell.troops*.9*(0.6+Math.random()*.6));
+    const dp=Math.floor((tgt.troops||0)*(tgt.fortified?1.3:1)*(.5+Math.random()*.5));
+    if(ap>dp){cell.troops=Math.max(1,Math.floor(cell.troops*.5));tgt.owner='enemy';tgt.troops=Math.max(1,rand(3,9));tgt.fortified=false;addLog(`💀 Düşman ${tgt.name}'ı fethetti!`,'ll');}
+  });
+}
+
+function rndEvent(){
+  const evs=[
+    ()=>{G.res.gold+=20;addLog('💰 Hazine bulundu! +20 Altın','le');},
+    ()=>{G.res.food=Math.max(0,G.res.food-14);addLog('🌧 Kuraklık! -14 Yiyecek','le');},
+    ()=>{G.res.iron+=14;addLog('⚒ Yeni maden keşfi! +14 Demir','le');},
+    ()=>{G.res.research+=12;addLog('📜 Kadim bilgi bulundu! +12 Araştırma','le');},
+    ()=>{const pc=G.cells.filter(c=>c.owner==='player');if(pc.length){const c=pc[rand(0,pc.length-1)];c.troops+=rand(5,10);addLog(`🪖 ${c.name}'a takviye geldi!`,'le');}},
+    ()=>{G.res.gold=Math.max(0,G.res.gold-12);addLog('🦠 Veba! -12 Altın','le');},
+  ];
+  evs[rand(0,evs.length-1)]();
+}
+
+function checkVic(){
+  if(G.cells.filter(c=>c.owner==='enemy').length===0)
+    setTimeout(()=>{Audio.stopAll();Audio.sfxVictory();document.getElementById('ov-title').textContent='⚔ ZAFER! ⚔';document.getElementById('ov-msg').textContent=`${G.turn} turda tüm düşmanlar yenildi!`;document.getElementById('overlay').classList.remove('hidden');},300);
+}
+function checkDef(){
+  if(G.cells.filter(c=>c.owner==='player').length===0)
+    setTimeout(()=>{Audio.stopAll();Audio.sfxDefeat();document.getElementById('ov-title').textContent='💀 YENİLGİ';document.getElementById('ov-msg').textContent='İmparatorluğunuz çöktü.';document.getElementById('overlay').classList.remove('hidden');},300);
+}
+
+function addLog(msg,cls=''){
+  const l=document.getElementById('log-list'),li=document.createElement('li');
+  if(cls)li.className=cls;li.textContent=msg;l.insertBefore(li,l.firstChild);
+  while(l.children.length>40)l.removeChild(l.lastChild);
+}
+
+// ═══════ EVENTS ═══════
+document.getElementById('b-atk').addEventListener('click',btnAtk);
+document.getElementById('b-rec').addEventListener('click',btnRec);
+document.getElementById('b-for').addEventListener('click',btnFor);
+document.getElementById('b-bld').addEventListener('click',btnBld);
+document.getElementById('b-end').addEventListener('click',endTurn);
+window.addEventListener('resize',()=>{sizeCanvas();drawAll();});
+
+// ═══════════════════════════════════════════════
+//  ORCHESTRAL AUDIO ENGINE  (Web Audio API)
+//  Layers: strings · brass · choir · lute · drums
+//  Two full compositions: CALM & TENSION
+// ═══════════════════════════════════════════════
+const Audio = (() => {
+  let ac=null, masterGain=null, reverb=null;
+  let muted=false, volVal=0.52;
+  let currentMode=null;
+  let loopTimer=null;
+  let nodes=[]; // all active nodes to clean up
+
+  // ─── CONTEXT & FX CHAIN ───────────────────────
+  function init(){
+    if(ac) return;
+    ac = new (window.AudioContext||window.webkitAudioContext)();
+    masterGain = ac.createGain();
+    masterGain.gain.value = volVal;
+
+    // Convolution reverb (impulse response synthesized)
+    reverb = ac.createConvolver();
+    const len = ac.sampleRate * 2.2;
+    const buf = ac.createBuffer(2, len, ac.sampleRate);
+    for(let ch=0;ch<2;ch++){
+      const d=buf.getChannelData(ch);
+      for(let i=0;i<len;i++) d[i]=(Math.random()*2-1)*Math.pow(1-i/len,2.5);
+    }
+    reverb.buffer = buf;
+
+    const reverbGain = ac.createGain(); reverbGain.gain.value=0.28;
+    masterGain.connect(reverb); reverb.connect(reverbGain); reverbGain.connect(ac.destination);
+    masterGain.connect(ac.destination);
+  }
+
+  // ─── LOW-LEVEL BUILDERS ──────────────────────
+  function note(freq, type, t0, dur, vol=0.08, detune=0, attack=0.06, release=0.18){
+    init();
+    const o=ac.createOscillator(), g=ac.createGain();
+    o.type=type; o.frequency.value=freq; o.detune.value=detune;
+    g.gain.setValueAtTime(0,t0);
+    g.gain.linearRampToValueAtTime(vol, t0+attack);
+    g.gain.setValueAtTime(vol, t0+dur-release);
+    g.gain.linearRampToValueAtTime(0, t0+dur);
+    o.connect(g); g.connect(masterGain);
+    o.start(t0); o.stop(t0+dur+0.05);
+    nodes.push(o);
+  }
+
+  // String-like sound: sawtooth + filter sweep
+  function str(freq, t0, dur, vol=0.06, vib=true){
+    init();
+    const o=ac.createOscillator(), flt=ac.createBiquadFilter(), g=ac.createGain();
+    o.type='sawtooth'; o.frequency.value=freq;
+    flt.type='lowpass'; flt.frequency.setValueAtTime(freq*3, t0); flt.frequency.linearRampToValueAtTime(freq*8, t0+dur*0.4);
+    flt.Q.value=1.2;
+    if(vib){
+      // Vibrato via LFO
+      const lfo=ac.createOscillator(), lfoG=ac.createGain();
+      lfo.frequency.value=5.5; lfoG.gain.value=freq*0.012;
+      lfo.connect(lfoG); lfoG.connect(o.frequency);
+      lfo.start(t0+0.15); lfo.stop(t0+dur+0.05); nodes.push(lfo);
+    }
+    g.gain.setValueAtTime(0,t0);
+    g.gain.linearRampToValueAtTime(vol,t0+0.08);
+    g.gain.setValueAtTime(vol*0.85, t0+dur-0.2);
+    g.gain.linearRampToValueAtTime(0, t0+dur);
+    o.connect(flt); flt.connect(g); g.connect(masterGain);
+    o.start(t0); o.stop(t0+dur+0.05); nodes.push(o);
+  }
+
+  // Brass stab: square + formant filter
+  function brass(freq, t0, dur, vol=0.07){
+    init();
+    const o=ac.createOscillator(), flt=ac.createBiquadFilter(), g=ac.createGain();
+    o.type='square'; o.frequency.value=freq;
+    flt.type='bandpass'; flt.frequency.value=freq*2.2; flt.Q.value=3;
+    g.gain.setValueAtTime(0,t0);
+    g.gain.linearRampToValueAtTime(vol, t0+0.02);
+    g.gain.exponentialRampToValueAtTime(vol*0.6, t0+dur*0.5);
+    g.gain.linearRampToValueAtTime(0, t0+dur);
+    o.connect(flt); flt.connect(g); g.connect(masterGain);
+    o.start(t0); o.stop(t0+dur+0.05); nodes.push(o);
+  }
+
+  // Plucked lute/harp: triangle + quick decay
+  function pluck(freq, t0, vol=0.055){
+    init();
+    const o=ac.createOscillator(), g=ac.createGain();
+    o.type='triangle'; o.frequency.value=freq;
+    g.gain.setValueAtTime(vol,t0);
+    g.gain.exponentialRampToValueAtTime(0.0001, t0+1.1);
+    o.connect(g); g.connect(masterGain);
+    o.start(t0); o.stop(t0+1.2); nodes.push(o);
+  }
+
+  // Choir "aah" — sine with chorus
+  function choir(freq, t0, dur, vol=0.04){
+    init();
+    [-8,0,8].forEach(det=>{
+      const o=ac.createOscillator(), g=ac.createGain();
+      o.type='sine'; o.frequency.value=freq; o.detune.value=det;
+      g.gain.setValueAtTime(0,t0);
+      g.gain.linearRampToValueAtTime(vol/3, t0+0.4);
+      g.gain.setValueAtTime(vol/3, t0+dur-0.5);
+      g.gain.linearRampToValueAtTime(0, t0+dur);
+      o.connect(g); g.connect(masterGain);
+      o.start(t0); o.stop(t0+dur+0.05); nodes.push(o);
+    });
+  }
+
+  // Drum: kick, snare, cymbal
+  function kick(t0, vol=0.18){
+    init();
+    const o=ac.createOscillator(), g=ac.createGain();
+    o.type='sine';
+    o.frequency.setValueAtTime(180,t0); o.frequency.exponentialRampToValueAtTime(45,t0+0.12);
+    g.gain.setValueAtTime(vol,t0); g.gain.exponentialRampToValueAtTime(0.001,t0+0.35);
+    o.connect(g); g.connect(masterGain);
+    o.start(t0); o.stop(t0+0.4); nodes.push(o);
+  }
+  function snare(t0, vol=0.09){
+    init();
+    const buf=ac.createBuffer(1,ac.sampleRate*0.22,ac.sampleRate);
+    const d=buf.getChannelData(0); for(let i=0;i<d.length;i++) d[i]=(Math.random()*2-1);
+    const src=ac.createBufferSource(), flt=ac.createBiquadFilter(), g=ac.createGain();
+    flt.type='bandpass'; flt.frequency.value=2800; flt.Q.value=0.9;
+    g.gain.setValueAtTime(vol,t0); g.gain.exponentialRampToValueAtTime(0.001,t0+0.2);
+    src.buffer=buf; src.connect(flt); flt.connect(g); g.connect(masterGain);
+    src.start(t0); nodes.push(src);
+    // tone body
+    const o=ac.createOscillator(), og=ac.createGain();
+    o.type='triangle'; o.frequency.value=200;
+    og.gain.setValueAtTime(vol*0.5,t0); og.gain.exponentialRampToValueAtTime(0.001,t0+0.09);
+    o.connect(og); og.connect(masterGain); o.start(t0); o.stop(t0+0.1); nodes.push(o);
+  }
+  function cymbal(t0, vol=0.035, long=false){
+    init();
+    const dur=long?1.4:0.25;
+    const buf=ac.createBuffer(1,ac.sampleRate*dur,ac.sampleRate);
+    const d=buf.getChannelData(0); for(let i=0;i<d.length;i++) d[i]=(Math.random()*2-1);
+    const src=ac.createBufferSource(), flt=ac.createBiquadFilter(), g=ac.createGain();
+    flt.type='highpass'; flt.frequency.value=7000;
+    g.gain.setValueAtTime(vol,t0); g.gain.exponentialRampToValueAtTime(0.001,t0+dur);
+    src.buffer=buf; src.connect(flt); flt.connect(g); g.connect(masterGain);
+    src.start(t0); nodes.push(src);
+  }
+  function timpani(freq, t0, vol=0.14){
+    init();
+    const o=ac.createOscillator(), g=ac.createGain();
+    o.type='sine'; o.frequency.setValueAtTime(freq*1.6,t0); o.frequency.exponentialRampToValueAtTime(freq,t0+0.08);
+    g.gain.setValueAtTime(vol,t0); g.gain.exponentialRampToValueAtTime(0.001,t0+1.1);
+    o.connect(g); g.connect(masterGain); o.start(t0); o.stop(t0+1.2); nodes.push(o);
+    const n=ac.createBufferSource(),nb=ac.createBuffer(1,ac.sampleRate*0.08,ac.sampleRate),nd=nb.getChannelData(0);
+    for(let i=0;i<nd.length;i++) nd[i]=(Math.random()*2-1)*0.6;
+    const ng=ac.createGain(); ng.gain.setValueAtTime(vol*0.4,t0); ng.gain.exponentialRampToValueAtTime(0.001,t0+0.08);
+    n.buffer=nb; n.connect(ng); ng.connect(masterGain); n.start(t0); nodes.push(n);
+  }
+
+  // ─── CALM COMPOSITION ────────────────────────
+  // "The King's Realm" — D Dorian, 72bpm (0.833s/beat)
+  // Layers: lute melody · string pad · choir · soft drums
+  const B = 0.833; // beat duration
+  // D Dorian: D E F G A B C D  (hz at octave 3/4)
+  const D3=146.8, E3=164.8, F3=174.6, G3=196, A3=220, B3=246.9, C4=261.6, D4=293.7, E4=329.6, F4=349.2, G4=392, A4=440;
+
+  function playCalm(t0){
+    const bar=B*8; // 8-beat bar
+
+    // === LUTE MELODY (2 bars) ===
+    // Bar 1: D pentatonic ascending motif
+    const mel1=[[D4,0],[F4,.5],[G4,1],[A4,1.5],[G4,2],[F4,2.5],[D4,3],[E4,3.5],
+                [F4,4],[A4,4.5],[G4,5],[F4,5.5],[E4,6],[D4,6.5],[C4,7],[D4,7.5]];
+    mel1.forEach(([f,b])=>pluck(f, t0+b*B, 0.055+Math.random()*0.01));
+
+    // === STRING PADS (long sustains) ===
+    // Chord I: Dm (D F A)
+    [[D3,0,bar],[F3,B*.5,bar-B*.5],[A3,0,bar]].forEach(([f,off,d])=>str(f,t0+off,d,0.042));
+    // Chord IV: Gm at halfway
+    [[G3,bar*.5,bar*.5],[B3,bar*.5+B*.5,bar*.45],[D4,bar*.5,bar*.5]].forEach(([f,off,d])=>str(f,t0+off,d,0.038));
+
+    // === BASS STRING (cello-like) ===
+    [[D3*.5,0,B*2],[G3*.5,B*2,B*2],[A3*.5,B*4,B*2],[D3*.5,B*6,B*2]].forEach(([f,off,d])=>str(f,t0+off,d,0.055,false));
+
+    // === CHOIR PADS ===
+    choir(D4,t0,B*4,0.038); choir(A4,t0+B*4,B*4,0.033);
+    choir(F4,t0+B*2,B*2,0.028); choir(C4,t0+B*6,B*2,0.025);
+
+    // === SOFT FRAME DRUM (every 2 beats, gentle) ===
+    for(let b=0;b<8;b++){
+      if(b%2===0){ kick(t0+b*B, 0.06); cymbal(t0+b*B,0.018); }
+      if(b%2===1){ snare(t0+b*B, 0.03); }
+    }
+
+    // === HORN ACCENT on downbeat ===
+    brass(D3, t0, B*1.5, 0.04);
+    brass(A3, t0+B*4, B*1.5, 0.035);
+
+    // Second bar — variation
+    const mel2=[[A4,0],[G4,.5],[F4,1],[E4,1.5],[D4,2],[F4,2.5],[G4,3],[A4,3.5],
+                [B3,4],[C4,4.5],[D4,5],[E4,5.5],[F4,6],[G4,6.5],[A4,7],[D4,7.5]];
+    mel2.forEach(([f,b])=>pluck(f, t0+bar+b*B, 0.052+Math.random()*0.01));
+
+    [[D3,0,bar],[F3,0,bar],[A3,B*.3,bar-B*.3]].forEach(([f,off,d])=>str(f,t0+bar+off,d,0.04));
+    choir(F4,t0+bar,B*8,0.03);
+    for(let b=0;b<8;b++){
+      if(b%2===0) kick(t0+bar+b*B,0.055);
+      if(b===3||b===7) cymbal(t0+bar+b*B,0.022,true);
+    }
+    brass(F3,t0+bar+B*2,B*1.2,0.036);
+  }
+
+  // ─── TENSION COMPOSITION ─────────────────────
+  // "Blood & Iron" — E Phrygian, 140bpm (0.429s/beat)
+  // Layers: driving strings · war drums · brass fanfare · choir dissonance
+  const TB = 0.429; // beat at 140bpm
+  // E Phrygian: E F G A B C D E
+  const E2=82.4, F2=87.3, G2=98, A2=110, B2=123.5, C3=130.8, D3t=146.8, E3t=164.8,
+        F3t=174.6, G3t=196, A3t=220, B3t=246.9, E4t=329.6;
+
+  function playTension(t0){
+    const bar=TB*8;
+
+    // === WAR DRUMS — relentless pulse ===
+    for(let b=0;b<8;b++){
+      const t=t0+b*TB;
+      kick(t, 0.16);
+      if(b%2===1) snare(t,0.10);
+      if(b%4===0) timpani(E2,t,0.15);
+      cymbal(t,0.025);
+    }
+    // Off-beat triplet snare fill at bar end
+    [6.33,6.66,7,7.33,7.66].forEach(b=>snare(t0+b*TB,0.06));
+
+    // === DRIVING LOW STRINGS — ostinato ===
+    // "da-da-DUM" pattern repeating
+    const ostPattern=[E2,E2,F2,E2,E2,G2,F2,E2];
+    ostPattern.forEach((f,i)=>{
+      str(f, t0+i*TB, TB*0.9, 0.055, false);
+      str(f*2, t0+i*TB+TB*0.5, TB*0.4, 0.025, false);
+    });
+
+    // === MIDDLE STRINGS — tension melody ===
+    const tens=[[E3t,0,TB*2],[F3t,TB*2,TB*1.5],[G3t,TB*4,TB],[F3t,TB*5,TB],[E3t,TB*6,TB*2]];
+    tens.forEach(([f,off,d])=>str(f,t0+off,d,0.048));
+
+    // === BRASS STABS — accented hits ===
+    [[E2,0,TB*0.5],[B2,TB*2,TB*0.5],[G2,TB*4,TB*0.8],[F2,TB*6,TB*0.6]].forEach(([f,off,d])=>brass(f,t0+off,d,0.065));
+    // High brass call
+    brass(E3t,t0+TB*3,TB*1.2,0.06); brass(B3t,t0+TB*7,TB*0.8,0.055);
+
+    // === CHOIR — dissonant cluster ===
+    choir(E3t,t0,bar,0.032); choir(F3t,t0+TB,bar-TB,0.025); // dissonant m2
+    choir(B2,t0+TB*4,TB*4,0.028);
+
+    // === BASS DRONE ===
+    str(E2*.5,t0,bar,0.065,false); // sub-bass E
+
+    // Second bar — escalation
+    for(let b=0;b<8;b++){
+      const t=t0+bar+b*TB;
+      kick(t,0.18);
+      snare(t+TB*0.5,0.08); // double-time feel
+      if(b%2===1) snare(t,0.12);
+      if(b%2===0) timpani(E2,t,0.18);
+      cymbal(t,0.03);
+    }
+    ostPattern.forEach((f,i)=>{
+      str(f,t0+bar+i*TB,TB*0.85,0.06,false);
+    });
+    // Rising brass fanfare
+    [[E2,0,TB],[G2,TB,TB],[B2,TB*2,TB],[E3t,TB*3,TB*1.5]].forEach(([f,off,d])=>brass(f,t0+bar+off,d,0.07));
+    choir(E3t,t0+bar,bar,0.035); choir(C3,t0+bar+TB*2,TB*4,0.028);
+    str(E2*.5,t0+bar,bar,0.07,false);
+  }
+
+  // ─── LOOP SCHEDULERS ─────────────────────────
+  let _loopT=0;
+
+  function startCalm(){
+    if(currentMode==='calm') return;
+    _fadeOut(()=>{
+      currentMode='calm';
+      document.getElementById('music-label').textContent='⚔ SAKİN';
+      document.getElementById('tension-overlay').classList.add('hidden');
+      init(); _loopT=ac.currentTime+0.12;
+      _schedCalm();
+    });
+  }
+
+  function _schedCalm(){
+    if(currentMode!=='calm') return;
+    playCalm(_loopT);
+    const barLen=B*8*2; // two bars
+    const msUntilNext=(barLen-0.5)*1000;
+    _loopT+=barLen;
+    loopTimer=setTimeout(_schedCalm, msUntilNext);
+  }
+
+  function startTension(){
+    if(currentMode==='tension') return;
+    _fadeOut(()=>{
+      currentMode='tension';
+      document.getElementById('music-label').textContent='🔥 GERİLİM';
+      document.getElementById('tension-overlay').classList.remove('hidden');
+      init(); _loopT=ac.currentTime+0.05;
+      _schedTension();
+    });
+  }
+
+  function _schedTension(){
+    if(currentMode!=='tension') return;
+    playTension(_loopT);
+    const barLen=TB*8*2;
+    const msUntilNext=(barLen-0.3)*1000;
+    _loopT+=barLen;
+    loopTimer=setTimeout(_schedTension, msUntilNext);
+  }
+
+  function _fadeOut(cb){
+    clearTimeout(loopTimer);
+    if(!ac){ currentMode=null; cb(); return; }
+    const now=ac.currentTime;
+    masterGain.gain.linearRampToValueAtTime(0,now+0.4);
+    setTimeout(()=>{
+      nodes.forEach(n=>{try{n.stop();}catch(e){}});
+      nodes=[];
+      currentMode=null;
+      if(!muted) masterGain.gain.setValueAtTime(volVal,ac.currentTime);
+      cb();
+    },420);
+  }
+
+  function stopAll(){
+    clearTimeout(loopTimer);
+    nodes.forEach(n=>{try{n.stop();}catch(e){}});
+    nodes=[]; currentMode=null;
+  }
+
+  // ─── SFX ─────────────────────────────────────
+  function sfxAttackWin(){
+    init(); const t=ac.currentTime;
+    // Triumphant ascending fanfare
+    [[D4,0],[F4,.08],[A4,.16],[D4*2,.24]].forEach(([f,off])=>brass(f,t+off,0.35,0.09));
+    [[D4*2,0],[A4,.05],[F4,.1]].forEach(([f,off])=>pluck(f,t+off,0.07));
+    cymbal(t+0.05,0.06,false); kick(t,0.12); snare(t+0.18,0.08);
+  }
+  function sfxAttackLoss(){
+    init(); const t=ac.currentTime;
+    // Descending defeated sound
+    [[E3t,0],[D3t,.1],[C3,.2],[B2,.32],[A2,.46]].forEach(([f,off])=>str(f,t+off,0.35,0.05,false));
+    timpani(E2,t+0.1,0.1); snare(t,0.07);
+  }
+  function sfxRecruit(){
+    init(); const t=ac.currentTime;
+    [A3,E4t,A4].forEach((f,i)=>pluck(f,t+i*0.07,0.06));
+    snare(t+0.05,0.04); snare(t+0.1,0.035);
+  }
+  function sfxBuild(){
+    init(); const t=ac.currentTime;
+    // Hammering metallic sound
+    [[220,.0],[330,.07],[440,.14],[550,.21]].forEach(([f,off])=>{
+      note(f,'square',t+off,0.12,0.04);
+      cymbal(t+off,0.02);
+    });
+    kick(t+0.3,0.08);
+  }
+  function sfxEndTurn(){
+    init(); const t=ac.currentTime;
+    // Soft horn call — "end of day"
+    brass(D3,t,0.4,0.05); brass(F3t,t+0.12,0.3,0.04); brass(A3t,t+0.24,0.5,0.045);
+    pluck(D4,t+0.4,0.04);
+  }
+  function sfxVictory(){
+    init(); const t=ac.currentTime;
+    // Grand fanfare
+    const fanfare=[[D3,0],[A3,.1],[D4,.2],[F4,.3],[A4,.4],[D4*2,.55],[A4,.7],[F4,.85],[D4,1.0]];
+    fanfare.forEach(([f,off])=>{ brass(f,t+off,0.6,0.1); pluck(f,t+off+.02,0.06); });
+    choir(D4,t+0.4,2.0,0.055); choir(A4,t+0.6,1.8,0.045); choir(F4,t+0.8,1.6,0.04);
+    for(let i=0;i<4;i++){ kick(t+i*0.22,0.16); cymbal(t+i*0.22,0.05,i===3); }
+    timpani(D3*.5,t+0.9,0.18);
+  }
+  function sfxDefeat(){
+    init(); const t=ac.currentTime;
+    // Tragic minor descent
+    [[E3t,0,1.2,0.07],[D3t,.3,1.0,0.06],[C3,.65,.9,0.055],[B2,1.0,.8,0.05],[A2,1.4,1.2,0.06],[E2,1.9,1.8,0.07]].forEach(([f,off,d,v])=>str(f,t+off,d,v,false));
+    choir(E3t,t,1.5,0.04); choir(C3,t+0.5,1.5,0.035);
+    timpani(E2,t+0.2,0.12); timpani(A2*.5,t+1.0,0.10);
+    snare(t,0.08); snare(t+0.6,0.06);
+  }
+
+  // ─── VOLUME / MUTE ────────────────────────────
+  function setMute(m){
+    muted=m; init();
+    masterGain.gain.linearRampToValueAtTime(muted?0:volVal, ac.currentTime+0.3);
+    document.getElementById('mute-btn').textContent=muted?'🔇':'🔊';
+  }
+  function setVol(v){
+    volVal=v/100; init();
+    if(!muted) masterGain.gain.linearRampToValueAtTime(volVal,ac.currentTime+0.1);
+  }
+
+  return { startCalm, startTension, stopAll, sfxAttackWin, sfxAttackLoss,
+           sfxRecruit, sfxBuild, sfxEndTurn, sfxVictory, sfxDefeat,
+           setMute, setVol, getMuted:()=>muted, init };
+})();
+
+// ── Wire up audio controls ──
+document.getElementById('mute-btn').addEventListener('click',()=>{
+  Audio.init(); Audio.setMute(!Audio.getMuted());
+});
+document.getElementById('vol-slider').addEventListener('input',e=>{
+  Audio.init(); Audio.setVol(+e.target.value);
+});
+
+// ── Start music on first interaction ──
+let audioStarted=false;
+function ensureAudio(){
+  if(audioStarted)return; audioStarted=true;
+  checkAndPlayMusic();
+}
+document.addEventListener('click',ensureAudio,{once:true});
+
+function checkAndPlayMusic(){
+  // Danger = any player territory lost OR less than 3 territories, OR enemy is adjacent to all your land
+  const playerCells=G.cells?G.cells.filter(c=>c.owner==='player'):[];
+  const totalCells=G.cells?G.cells.filter(c=>c.terrain!=='water').length:1;
+  const ratio=playerCells.length/Math.max(1,totalCells);
+  const danger=ratio<0.15||playerCells.length<=2;
+  if(danger) Audio.startTension(); else Audio.startCalm();
+}
+
+startGame();
+</script>
+</body>
+</html>
