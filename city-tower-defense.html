@@ -310,6 +310,7 @@
     padding: 2px;
   }
 </style>
+
 </head>
 <body>
 
@@ -391,7 +392,7 @@
           <div class="tower-cost">180 G</div>
         </div>
       </div>
-      <div class="tower-stats"><span>DMG:40</span><span>RNG:130</span><span>ZİNCİR</span></div>
+      <div class="tower-stats"><span>DMG:40</span><span>RNG:130</span><span><span data-tr="ZİNCİR" data-en="CHAIN">ZİNCİR</span></span></div>
     </div>
 
     <div class="sidebar-title" style="margin-top:4px;">// SAT</div>
@@ -411,9 +412,9 @@
 
     <div id="overlay">
       <h2>URBAN SIEGE</h2>
-      <p>Şehri düşman dalgalarından koru!<br>Yola kule dikilemez — boş alanlara yerleştir.</p>
+      <p><span data-tr="Şehri düşman dalgalarından koru!" data-en="Protect the city from enemy waves!">Şehri düşman dalgalarından koru!</span><br>Yola kule dikilemez — boş alanlara yerleştir.</p>
       <p style="font-size:11px;color:rgba(0,245,255,0.35);margin-top:4px">🔫 Temel | 🎯 Uzak | 🚀 AoE | 💜 Hızlı | ❄️ Yavaşlat | ⚡ Zincir</p>
-      <button class="big-btn" onclick="startGame()">▶ BAŞLAT</button>
+      <button class="big-btn" onclick="startGame()"><span data-tr="▶ BAŞLAT" data-en="▶ START">▶ BAŞLAT</span></button>
     </div>
 
     <div id="gameoverOverlay" class="hidden">
@@ -427,9 +428,9 @@
   <div id="right-panel">
     <div class="panel-section">
       <div class="sidebar-title">// KONTROL</div>
-      <button class="btn success" id="waveBtn" onclick="sendWave()">▶ YENİ DALGA</button>
+      <button class="btn success" id="waveBtn" onclick="sendWave()"><span data-tr="▶ YENİ DALGA" data-en="▶ NEXT WAVE">▶ YENİ DALGA</span></button>
       <button class="btn" onclick="toggleSpeed()">⏩ HIZ: <span id="speedLabel">1x</span></button>
-      <button class="btn" id="musicBtn" onclick="toggleMusic()">🎵 MÜZİK: ON</button>
+      <button class="btn" id="musicBtn" onclick="toggleMusic()"><span data-tr="🎵 MÜZİK: ON" data-en="🎵 MUSIC: ON">🎵 MÜZİK: ON</span></button>
     </div>
 
     <div class="panel-section">
@@ -437,7 +438,7 @@
       <div id="tower-detail">
         <div class="detail-title" id="detailName">GUN POST</div>
         <div class="detail-row"><span class="detail-label">HASAR</span><span class="detail-val" id="detailDmg">15</span></div>
-        <div class="detail-row"><span class="detail-label">MENZİL</span><span class="detail-val" id="detailRng">120</span></div>
+        <div class="detail-row"><span class="detail-label"><span data-tr="MENZİL" data-en="RANGE">MENZİL</span></span><span class="detail-val" id="detailRng">120</span></div>
         <div class="detail-row"><span class="detail-label">HIZA</span><span class="detail-val" id="detailSpd">1.2s</span></div>
         <div class="detail-row"><span class="detail-label">MALİYET</span><span class="detail-val" id="detailCost" style="color:#ffd700">80💰</span></div>
         <div id="detailSpecial" style="margin-top:5px;font-size:10px;color:rgba(0,245,255,0.5);font-family:'Share Tech Mono',monospace;"></div>
@@ -447,7 +448,7 @@
     <div class="panel-section">
       <div class="sidebar-title">// DALGA</div>
       <div id="wave-info">
-        <div class="wave-title">DALGA İLERLEMESİ</div>
+        <div class="wave-title"><span data-tr="DALGA İLERLEMESİ" data-en="WAVE PROGRESS">DALGA İLERLEMESİ</span></div>
         <div id="waveInfoText" style="font-size:12px;color:#fff;font-family:'Share Tech Mono',monospace;">—</div>
         <div class="wave-bar-wrap"><div class="wave-bar" id="waveBar" style="width:0%"></div></div>
         <div id="enemyCount" style="font-size:10px;color:rgba(200,232,240,0.35);margin-top:4px;font-family:'Share Tech Mono',monospace;">Hazır</div>
@@ -484,7 +485,7 @@ const TOWER_DEFS = {
   gun:     { name:'GUN POST', cost:80,  dmg:15, range:120, rate:1.2, color:'#00f5ff', icon:'🔫', special:null,     specTxt:'Temel savunma kulesi' },
   sniper:  { name:'SNIPER',   cost:120, dmg:60, range:220, rate:2.5, color:'#ff6b00', icon:'🎯', special:null,     specTxt:'Uzun menzil, yüksek hasar' },
   missile: { name:'MISSILE',  cost:160, dmg:90, range:150, rate:2.0, color:'#ff2244', icon:'🚀', special:'splash', specTxt:'★ AoE patlama r:60' },
-  laser:   { name:'LASER',    cost:200, dmg:30, range:140, rate:0.4, color:'#aa00ff', icon:'💜', special:'laser',  specTxt:'★ Sürekli hızlı ateş' },
+  laser:   { name:'LASER',    cost:200, dmg:30, range:140, rate:0.4, color:'#aa00ff', icon:'💜', special:'laser',  specTxt:(__LANG==='en'?'★ Rapid fire':'★ Sürekli hızlı ateş') },
   freeze:  { name:'FREEZE',   cost:140, dmg:5,  range:110, rate:1.0, color:'#00ccff', icon:'❄️', special:'slow',   specTxt:'★ Düşmanları %60 yavaşlatır' },
   tesla:   { name:'TESLA',    cost:180, dmg:40, range:130, rate:1.5, color:'#ffdd00', icon:'⚡', special:'chain',  specTxt:'★ 3 düşmana zincir hasar' },
 };
@@ -568,7 +569,7 @@ function selectTower(type) {
     document.getElementById('detailRng').textContent = '—';
     document.getElementById('detailSpd').textContent = '—';
     document.getElementById('detailCost').textContent = '%50 geri';
-    document.getElementById('detailSpecial').textContent = 'Yola tıkla';
+    document.getElementById('detailSpecial').textContent = (__LANG==='en'?'Click on road':'Yola tıkla');
   }
 }
 
@@ -582,7 +583,7 @@ function placeTower(row, col) {
   const def = TOWER_DEFS[G.selectedTower];
   if (!def) return;
   if (G.gold < def.cost) {
-    showFloat(col * G.CELL + G.CELL/2, row * G.CELL + 10, '❌ Yetersiz altın!', '#ff4466');
+    showFloat(col * G.CELL + G.CELL/2, row * G.CELL + 10, (__LANG==='en'?'❌ Not enough gold!':'❌ Yetersiz altın!'), '#ff4466');
     return;
   }
   G.gold -= def.cost;
@@ -777,7 +778,7 @@ function stopMusic() {
 
 function toggleMusic() {
   musicOn = !musicOn;
-  document.getElementById('musicBtn').textContent = '🎵 MÜZİK: ' + (musicOn ? 'ON' : 'OFF');
+  document.getElementById('musicBtn').textContent = (__LANG==='en'?'🎵 MUSIC: ':'🎵 MÜZİK: ') + (musicOn ? 'ON' : 'OFF');
   if (musicOn) startMusic(); else stopMusic();
 }
 
@@ -1059,7 +1060,7 @@ function update() {
   if (G.totalEnemiesInWave > 0) {
     const pct = 100 - (G.enemiesLeft / G.totalEnemiesInWave * 100);
     document.getElementById('waveBar').style.width = Math.min(pct, 100) + '%';
-    document.getElementById('enemyCount').textContent = G.enemiesLeft + ' düşman kaldı';
+    document.getElementById('enemyCount').textContent = G.enemiesLeft + (__LANG==='en'?' enemies left':' düşman kaldı');
   }
 }
 
@@ -1349,7 +1350,7 @@ function updateUI() {
   document.getElementById('hpVal').textContent = G.hp;
   document.getElementById('waveVal').textContent = G.wave;
   document.getElementById('scoreVal').textContent = G.score;
-  document.getElementById('waveInfoText').textContent = G.waveActive ? 'DALGA ' + G.wave : 'Hazır';
+  document.getElementById('waveInfoText').textContent = G.waveActive ? 'DALGA ' + G.wave : (__LANG==='en'?'Ready':'Hazır');
   if (!G.waveActive) {
     document.getElementById('waveBar').style.width = '0%';
     document.getElementById('enemyCount').textContent = 'Dalga bekleniyor...';
@@ -1380,7 +1381,7 @@ function restartGame() {
   document.getElementById('waveBtn').disabled = false;
   document.getElementById('speedLabel').textContent = '1x';
   musicOn = true; musicNodes = [];
-  document.getElementById('musicBtn').textContent = '🎵 MÜZİK: ON';
+  document.getElementById('musicBtn').textContent = (__LANG==='en'?'🎵 MUSIC: ON':'🎵 MÜZİK: ON');
   updateUI();
   selectTower('gun');
   startMusic();
@@ -1428,6 +1429,15 @@ initState();
 setupGrid();
 updateUI();
 selectTower('gun');
+</script>
+
+<script>
+(function(){
+  var L=localStorage.getItem('huseyinistan_lang')||'tr';
+  document.querySelectorAll('[data-tr]').forEach(function(el){
+    el.textContent=L==='en'?el.dataset.en:el.dataset.tr;
+  });
+})();
 </script>
 </body>
 </html>
