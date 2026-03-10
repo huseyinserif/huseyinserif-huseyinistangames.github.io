@@ -213,13 +213,14 @@ h1{
 #musicBtn.on{border-color:#ffb800;box-shadow:0 0 10px rgba(255,184,0,.3);}
 
 </style>
+
 </head>
 <body>
 
 <button id="muteBtn" title="Ses aç/kapat">🔊</button>
 <div style="text-align:center">
   <h1>NONOGRAm</h1>
-  <div class="sub">Satır ve sütun ipuçlarıyla piksel resim çiz</div>
+  <div class="sub"><span data-tr="Satır ve sütun ipuçlarıyla piksel resim çiz" data-en="Draw pixel art with row and column clues">Satır ve sütun ipuçlarıyla piksel resim çiz</span></div>
 </div>
 
 <div class="puzzle-tabs" id="puzzleTabs"></div>
@@ -227,32 +228,33 @@ h1{
 <div class="stats">
   <div class="stat"><div class="stat-v" id="errVal">0</div><div class="stat-l">Hata</div></div>
   <div class="sep"></div>
-  <div class="stat"><div class="stat-v" id="timeVal">0:00</div><div class="stat-l">Süre</div></div>
+  <div class="stat"><div class="stat-v" id="timeVal">0:00</div><div class="stat-l"><span data-tr="Süre" data-en="Time">Süre</span></div></div>
   <div class="sep"></div>
-  <div class="stat"><div class="stat-v" id="pctVal">0%</div><div class="stat-l">Tamamlandı</div></div>
+  <div class="stat"><div class="stat-v" id="pctVal">0%</div><div class="stat-l"><span data-tr="Tamamlandı" data-en="Completed">Tamamlandı</span></div></div>
 </div>
 
 <div class="mode-bar">
-  <button class="mode-btn active" id="modeColor" onclick="setMode('fill')">■ Doldur</button>
-  <button class="mode-btn" id="modeCross" onclick="setMode('cross')">✕ Çarpı</button>
+  <button class="mode-btn active" id="modeColor" onclick="setMode('fill')"><span data-tr="■ Doldur" data-en="■ Fill">■ Doldur</span></button>
+  <button class="mode-btn" id="modeCross" onclick="setMode('cross')"><span data-tr="✕ Çarpı" data-en="✕ Cross">✕ Çarpı</span></button>
 </div>
 
 <div class="board-wrap"><table id="ngTable"></table></div>
 
 <div class="controls">
-  <button class="ctrl" id="btnReset" onclick="resetGrid()">↺ Sıfırla</button>
+  <button class="ctrl" id="btnReset" onclick="resetGrid()"><span data-tr="↺ Sıfırla" data-en="↺ Reset">↺ Sıfırla</span></button>
   <button class="ctrl" id="btnCheck" onclick="checkSolution()">✓ Kontrol</button>
-  <button class="ctrl" id="btnReveal" onclick="revealSolution()">💡 Çöz</button>
+  <button class="ctrl" id="btnReveal" onclick="revealSolution()"><span data-tr="💡 Çöz" data-en="💡 Solve">💡 Çöz</span></button>
 </div>
 
 <div class="win-overlay" id="winOverlay">
   <canvas class="preview-canvas" id="previewCanvas" width="100" height="100"></canvas>
-  <div class="win-title">MÜKEMMEL! 🎉</div>
+  <div class="win-title"><span data-tr="MÜKEMMEL! 🎉" data-en="PERFECT! 🎉">MÜKEMMEL! 🎉</span></div>
   <div class="win-desc" id="winDesc"></div>
   <button id="btnWinNew" onclick="nextPuzzle()">Sonraki Bulmaca ➜</button>
 </div>
 
 <script>
+var __LANG=localStorage.getItem('huseyinistan_lang')||'tr';
 
 // ── MUSIC ENGINE ─────────────────────────────────────────────────────────────
 const MUSIC = (() => {
@@ -550,7 +552,7 @@ const PUZZLES = [
     ]
   },
   {
-    name:"⭐ Yıldız", size:10,
+    name:(__LANG==="en"?"⭐ Star":"⭐ Yıldız"), size:10,
     grid:[
       [0,0,0,0,1,1,0,0,0,0],
       [0,0,0,1,1,1,1,0,0,0],
@@ -565,7 +567,7 @@ const PUZZLES = [
     ]
   },
   {
-    name:"🐟 Balık", size:10,
+    name:(__LANG==="en"?"🐟 Fish":"🐟 Balık"), size:10,
     grid:[
       [0,0,0,0,0,0,0,1,0,0],
       [0,0,0,0,0,0,1,1,1,0],
@@ -580,7 +582,7 @@ const PUZZLES = [
     ]
   },
   {
-    name:"🌲 Ağaç", size:10,
+    name:(__LANG==="en"?"🌲 Tree":"🌲 Ağaç"), size:10,
     grid:[
       [0,0,0,0,1,1,0,0,0,0],
       [0,0,0,1,1,1,1,0,0,0],
@@ -640,7 +642,7 @@ const PUZZLES = [
     ]
   },
   {
-    name:"⚡ Şimşek", size:10,
+    name:(__LANG==="en"?"⚡ Lightning":"⚡ Şimşek"), size:10,
     grid:[
       [0,0,0,1,1,1,1,1,0,0],
       [0,0,1,1,1,1,1,0,0,0],
@@ -848,7 +850,7 @@ function onWin(){
   clearInterval(timerInterval);
   const m=Math.floor(seconds/60),s=seconds%60;
   document.getElementById('winDesc').innerHTML=
-    `<span>${puzzle.name}</span> tamamlandı!<br>Süre: <span>${m}:${s.toString().padStart(2,'0')}</span> · Hata: <span>${errors}</span>`;
+    `<span>${puzzle.name}</span> ${__LANG==="en"?"completed!":"tamamlandı!"}<br>${__LANG==="en"?"Time":"Süre"}: <span>${m}:${s.toString().padStart(2,'0')}</span> · Hata: <span>${errors}</span>`;
   drawPreview();
   SFX.win(); setTimeout(()=>document.getElementById('winOverlay').classList.add('show'),200);
 }
@@ -919,7 +921,7 @@ document.getElementById('musicBtn').addEventListener('click', () => {
   const btn = document.getElementById('musicBtn');
   btn.classList.toggle('on', on);
   btn.textContent = on ? '🎵' : '🔇';
-  btn.title = on ? 'Müziği kapat' : 'Müziği aç';
+  btn.title = on ? (__LANG==='en'?'Music Off':'Müziği kapat') : (__LANG==='en'?'Music On':'Müziği aç');
 });
 // Auto-start music on first interaction
 document.addEventListener('click', function startMusic() {
@@ -933,5 +935,14 @@ document.addEventListener('click', function startMusic() {
 
 </script>
 <button id="musicBtn" title="Müzik aç/kapat">🎵</button>
+
+<script>
+(function(){
+  var L=localStorage.getItem('huseyinistan_lang')||'tr';
+  document.querySelectorAll('[data-tr]').forEach(function(el){
+    el.textContent=L==='en'?el.dataset.en:el.dataset.tr;
+  });
+})();
+</script>
 </body>
 </html>
