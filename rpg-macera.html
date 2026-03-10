@@ -386,11 +386,12 @@
     display: none;
   }
 </style>
+
 </head>
 <body>
 
-<h1>⚔ RPG METİN MACERASI ⚔</h1>
-<p class="subtitle">— KARANLIĞA ADIM AT —</p>
+<h1><span data-tr="⚔ RPG METİN MACERASI ⚔" data-en="⚔ RPG TEXT ADVENTURE ⚔">⚔ RPG METİN MACERASI ⚔</span></h1>
+<p class="subtitle"><span data-tr="— KARANLIĞA ADIM AT —" data-en="— STEP INTO THE DARKNESS —">— KARANLIĞA ADIM AT —</span></p>
 <div id="quest-notify"></div>
 
 <!-- ════════════════════════════════════ -->
@@ -398,9 +399,9 @@
 <!-- ════════════════════════════════════ -->
 <div id="screen-intro" class="screen active">
   <div class="intro-box">
-    <p>Eski bir kaleye dönüşmüş zindan seni bekliyor.<br>
-    Canavarları yen, hazineleri topla, efsane ol.</p>
-    <input class="name-input" id="player-name-input" type="text" placeholder="Kahraman adını gir..." maxlength="20">
+    <p><span data-tr="Eski bir kaleye dönüşmüş zindan seni bekliyor." data-en="A dungeon-turned-castle awaits you.">Eski bir kaleye dönüşmüş zindan seni bekliyor.</span><br>
+    <span data-tr="Canavarları yen, hazineleri topla, efsane ol." data-en="Slay monsters, collect treasures, become legend.">Canavarları yen, hazineleri topla, efsane ol.</span></p>
+    <input class="name-input" id="player-name-input" type="text" placeholder="" maxlength="20">
     <button class="btn-start" onclick="startGame()" style="margin-bottom:10px;">⚔ YENİ OYUN BAŞLAT ⚔</button>
     <div id="save-slots-intro" style="margin-top:8px;"></div>
   </div>
@@ -456,17 +457,17 @@
       <div id="view-main">
         <div class="save-bar">
           <button onclick="saveGame()">💾 Kaydet</button>
-          <button onclick="showSaveMenu()">📂 Kayıtlar</button>
-          <button id="music-btn" onclick="toggleMusic()" title="Müzik Aç/Kapat">🎵</button>
-          <button id="sfx-btn" onclick="toggleSfx()" title="Ses Efekti Aç/Kapat">🔊</button>
+          <button onclick="showSaveMenu()"><span data-tr="📂 Kayıtlar" data-en="📂 Save Files">📂 Kayıtlar</span></button>
+          <button id="music-btn" onclick="toggleMusic()" title="">🎵</button>
+          <button id="sfx-btn" onclick="toggleSfx()" title="">🔊</button>
         </div>
         <div class="btn-grid btn-grid-2" style="margin-bottom:6px;">
           <button onclick="showDungeon()">🏚 Zindana Gir</button>
           <button onclick="startCombat('Orman')">🌲 Ormana Git</button>
-          <button onclick="startCombat('Kale')">🏰 Kale Baskını</button>
-          <button onclick="showShop('pazar')">🏪 Köy Pazarı</button>
-          <button onclick="showShop('simyaci')">⚗ Simyacı</button>
-          <button onclick="showShop('silahci_plus')">⚔ Silahçı & Zırhçı</button>
+          <button onclick="startCombat('Kale')"><span data-tr="🏰 Kale Baskını" data-en="🏰 Castle Raid">🏰 Kale Baskını</span></button>
+          <button onclick="showShop('pazar')"><span data-tr="🏪 Köy Pazarı" data-en="🏪 Village Market">🏪 Köy Pazarı</span></button>
+          <button onclick="showShop('simyaci')"><span data-tr="⚗ Simyacı" data-en="⚗ Alchemist">⚗ Simyacı</span></button>
+          <button onclick="showShop('silahci_plus')"><span data-tr="⚔ Silahçı & Zırhçı" data-en="⚔ Blacksmith & Armorer">⚔ Silahçı & Zırhçı</span></button>
         </div>
         <button onclick="showShop('sifaci')" style="width:100%;margin-bottom:6px;">🏥 Şifacı</button>
         <button onclick="showQuestView()" style="width:100%;border-color:#4060a0;color:#8090d0;">📜 Görev Panosu <span id="quest-count-badge" style="color:var(--gold);"></span></button>
@@ -740,7 +741,7 @@ function renderSaveSlots(containerId, mode) {
 }
 
 function loadSlot(slot) {
-  if (!loadGame(slot)) { alert('Bu slot boş!'); return; }
+  if (!loadGame(slot)) { alert((__LANG==='en'?'This slot is empty!':(__LANG==='en'?'This slot is empty!':'Bu slot boş!'))); return; }
   // transition to game
   document.getElementById('screen-intro').classList.remove('active');
   document.getElementById('screen-game').classList.add('active');
@@ -1074,7 +1075,7 @@ function renderQuests() {
       const div = document.createElement('div');
       div.className = `quest-item ${q.status}`;
       const pct = Math.min(100, (q.progress / q.target) * 100);
-      const badgeLabel = { active:'AKTİF', claimable:'ÖDÜL AL!', done:'TAMAM' }[q.status] || q.status;
+      const badgeLabel = { active:(__LANG==='en'?'ACTIVE':'AKTİF'), claimable:'ÖDÜL AL!', done:'TAMAM' }[q.status] || q.status;
       const rewardStr = [
         q.reward.altin   ? `${q.reward.altin}💰` : '',
         q.reward.exp     ? `+${q.reward.exp}EXP` : '',
