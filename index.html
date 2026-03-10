@@ -185,14 +185,7 @@
   .contact-wrapper { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: start; }
   .contact-info h3 { font-family: 'Orbitron', monospace; font-size: 1.2rem; color: var(--neon-pink); margin-bottom: 16px; text-shadow: 0 0 20px rgba(255,0,128,0.3); }
   .contact-info p { color: rgba(255,255,255,0.5); line-height: 1.8; margin-bottom: 32px; }
-  .social-links { display: flex; gap: 16px; flex-wrap: wrap; }
-  .social-link {
-    font-family: 'Orbitron', monospace; font-size: 0.65rem; letter-spacing: 2px;
-    padding: 10px 24px; border: 1px solid var(--card-border); color: rgba(255,255,255,0.6);
-    text-decoration: none; text-transform: uppercase; transition: all 0.3s;
-    clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%); cursor: none;
-  }
-  .social-link:hover { border-color: var(--neon-pink); color: var(--neon-pink); box-shadow: 0 0 20px rgba(255,0,128,0.2); }
+
   .contact-form { display: flex; flex-direction: column; gap: 16px; }
   .form-group { display: flex; flex-direction: column; gap: 8px; }
   .form-group label { font-size: 0.7rem; letter-spacing: 2px; color: rgba(255,255,255,0.4); text-transform: uppercase; }
@@ -1053,7 +1046,7 @@ header{
 <div class="hero">
   <div class="corner-deco tl"></div><div class="corner-deco tr"></div>
   <div class="corner-deco bl"></div><div class="corner-deco br"></div>
-  <div class="hero-badge">⬡ 15 Oyun Koleksiyonu ⬡</div>
+  <div class="hero-badge">⬡ 16 Oyun Koleksiyonu ⬡</div>
   <h1>
     <span class="line1">HÜSEYİNİSTAN</span>
     <span class="line2">GAMES</span>
@@ -1259,7 +1252,21 @@ header{
       </div>
     </div>
 
-    <div class="game-card" onclick="openGame('survivor.html','Survivor')">
+    <div class="game-card" onclick="openGame('galactic-war.html','Galactic War')">
+      <div class="game-thumbnail" style="background:linear-gradient(135deg,#000510,#001a10);">
+        <div class="game-thumb-glow" style="background:#00ff88;top:30%;left:35%;"></div>
+        <div class="game-thumb-glow" style="background:#0088ff;top:55%;left:60%;opacity:0.5;"></div>
+        🚀
+      </div>
+      <div class="game-info">
+        <div class="game-tag">⬡ Aksiyon / Uzay</div>
+        <div class="game-name">GALAKTİK SAVAŞ</div>
+        <div class="game-desc">Uzayda düşman gemilere karşı savaş! Güçlü silahlar, boss savaşları ve epik uzay macerası.</div>
+        <div class="game-footer"><button class="btn-play">Oyna ▶</button></div>
+      </div>
+    </div>
+
+        <div class="game-card" onclick="openGame('survivor.html','Survivor')">
       <div class="game-thumbnail" style="background:linear-gradient(135deg,#020408,#0e0a1a);">
         <div class="game-thumb-glow" style="background:#a29bfe;top:30%;left:35%;"></div>
         <div class="game-thumb-glow" style="background:#fd79a8;top:55%;left:60%;opacity:0.5;"></div>
@@ -1277,222 +1284,6 @@ header{
 </section>
 
 
-<section id="embedded-games">
-  <div class="section-header">
-    <span class="section-number">01b</span>
-    <h2 class="section-title">GÖMÜLÜ OYUNLAR</h2>
-    <div class="section-line"></div>
-  </div>
-  <div class="embed-tabs">
-    <button class="embed-tab" data-target="g2048" onclick="showEmbedGame('g2048')">🔥 2048</button>
-<button class="embed-tab" data-target="gbulmaca" onclick="showEmbedGame('gbulmaca')">🔢 Kayar Bulmaca</button>
-<button class="embed-tab" data-target="gwordle" onclick="showEmbedGame('gwordle')">🟩 Wordle TR</button>
-<button class="embed-tab" data-target="gmastermind" onclick="showEmbedGame('gmastermind')">🔵 Mastermind</button>
-<button class="embed-tab" data-target="gnonogram" onclick="showEmbedGame('gnonogram')">🟪 Nonogram</button>
-
-  </div>
-  <div class="embed-container">
-    <div class="embed-placeholder" id="embed-placeholder">
-      <div class="embed-ph-icon">🎮</div>
-      <div class="embed-ph-text">Yukarıdan bir oyun seç</div>
-    </div>
-
-    <div class="embedded-game-panel" id="ep_g2048" style="display:none;">
-      <div class="embedded-game-wrap">
-        <div class="top">
-  <h1>2048</h1>
-  <div class="scores">
-    <div class="score-box"><div class="score-lbl">Skor</div><div class="score-val" id="g2048_score">0</div></div>
-    <div class="score-box"><div class="score-lbl">En İyi</div><div class="score-val" id="g2048_best">0</div></div>
-  </div>
-</div>
-
-<div class="row2">
-  <div class="size-bar">
-    <button class="sz-btn" data-s="3">3×3</button>
-    <button class="sz-btn active" data-s="4">4×4</button>
-    <button class="sz-btn" data-s="5">5×5</button>
-    <button class="sz-btn" data-s="6">6×6</button>
-  </div>
-  <button class="btn" onclick="newGame()">↺ Yeni Oyun</button>
-</div>
-
-<div class="grid-wrap"><div id="g2048_grid"></div></div>
-<div id="g2048_msg">← → ↑ ↓ tuşları veya kaydır</div>
-
-<div class="overlay" id="g2048_overlay">
-  <div class="ov-em" id="g2048_ovEm"></div>
-  <div class="ov-title" id="g2048_ovTitle"></div>
-  <div class="ov-info" id="g2048_ovInfo"></div>
-  <button class="ov-btn" onclick="newGame()">▶ Tekrar Oyna</button>
-</div>
-
-
-</div>
-    </div>
-
-    <div class="embedded-game-panel" id="ep_gbulmaca" style="display:none;">
-      <div class="embedded-game-wrap">
-        <div class="container">
-  <header>
-    <h1>KAYAR BULMACA</h1>
-    <p>Sayıları sıralaya bilir misin?</p>
-  </header>
-
-  <div class="stats">
-    <div class="stat">
-      <div class="stat-value" id="gbulmaca_moveCount">0</div>
-      <div class="stat-label">Hamle</div>
-    </div>
-    <div class="stat-divider"></div>
-    <div class="stat">
-      <div class="stat-value" id="gbulmaca_timer">0:00</div>
-      <div class="stat-label">Süre</div>
-    </div>
-  </div>
-
-  <div class="board-wrap">
-    <div id="gbulmaca_board"></div>
-  </div>
-
-  <div class="controls">
-    <button id="gbulmaca_btnShuffle">🔀 Karıştır</button>
-    <button id="gbulmaca_btnSize">4×4 ▾</button>
-  </div>
-  <div class="size-hint" id="gbulmaca_sizeHint">Boyutu değiştirmek için tıkla</div>
-</div>
-
-<div class="win-overlay" id="gbulmaca_winOverlay">
-  <div class="win-title">🎉 TEBRIKLER!</div>
-  <div class="win-stats" id="gbulmaca_winStats"></div>
-  <button id="gbulmaca_btnPlay" onclick="newGame()">Tekrar Oyna</button>
-</div>
-
-
-</div>
-    </div>
-
-    <div class="embedded-game-panel" id="ep_gwordle" style="display:none;">
-      <div class="embedded-game-wrap">
-        <header>
-  <h1>WORDLE</h1>
-  <div class="header-sub">5 harfli Türkçe kelimeyi bul · 6 hakkın var</div>
-</header>
-
-<div class="stats">
-  <div class="stat"><span class="stat-v" id="gwordle_sWin">0</span><span class="stat-l">KAZANMA</span></div>
-  <div class="stat"><span class="stat-v" id="gwordle_sPlay">0</span><span class="stat-l">OYNANAN</span></div>
-  <div class="stat"><span class="stat-v" id="gwordle_sStreak">0</span><span class="stat-l">SERİ</span></div>
-</div>
-
-<div id="gwordle_message">_</div>
-<div id="gwordle_grid"></div>
-<div id="gwordle_keyboard"></div>
-<button id="gwordle_btnNew">[ YENİ KELİME ]</button>
-
-<div class="overlay" id="gwordle_overlay">
-  <div class="ov-title" id="gwordle_ovTitle"></div>
-  <div class="ov-word" id="gwordle_ovWord"></div>
-  <div class="ov-stats">
-    <div><span class="ov-stat-v" id="gwordle_ovGuess">-</span>TAHMİN</div>
-    <div><span class="ov-stat-v" id="gwordle_ovTime">-</span>SÜRE</div>
-  </div>
-  <button id="gwordle_btnOvNew" onclick="startNew()">▶ YENİ OYUN</button>
-</div>
-
-
-</div>
-    </div>
-
-    <div class="embedded-game-panel" id="ep_gmastermind" style="display:none;">
-      <div class="embedded-game-wrap">
-        <header>
-  <div class="logo">MASTERMIND</div>
-  <div class="tagline">Gizli kodu kır · Renk sırasını bul</div>
-</header>
-
-<div class="diff-bar">
-  <button class="diff-btn" data-d="4,6,8">🟢 Kolay (4 renk)</button>
-  <button class="diff-btn active" data-d="4,6,10">🟡 Orta (6 renk)</button>
-  <button class="diff-btn" data-d="5,6,10">🔴 Zor (5 konum)</button>
-</div>
-
-<div class="stats">
-  <div class="stat"><span class="stat-v" id="gmastermind_sWin">0</span><span>KAZANMA</span></div>
-  <div class="stat"><span class="stat-v" id="gmastermind_sPlay">0</span><span>OYNANAN</span></div>
-  <div class="stat"><span class="stat-v" id="gmastermind_sBest">-</span><span>EN İYİ</span></div>
-</div>
-
-<div id="gmastermind_msg">// Renk seç, pozisyona tıkla, onayla</div>
-
-<div id="gmastermind_board"></div>
-
-<div class="pal-label">— RENK PALETİ —</div>
-<div id="gmastermind_palette"></div>
-
-<div class="controls">
-  <button class="ctrl" id="gmastermind_btnClear" onclick="clearRow()">✕ Temizle</button>
-  <button class="ctrl" id="gmastermind_btnConfirm" disabled onclick="confirmRow()">▶ ONAYLA</button>
-  <button class="ctrl" id="gmastermind_btnNew" onclick="newGame()">↺ Yeni</button>
-</div>
-
-<div id="gmastermind_secretRow"></div>
-
-<div class="overlay" id="gmastermind_overlay">
-  <div class="ov-icon" id="gmastermind_ovIcon"></div>
-  <div class="ov-title" id="gmastermind_ovTitle"></div>
-  <div class="ov-secret" id="gmastermind_ovSecret"></div>
-  <div class="ov-info" id="gmastermind_ovInfo"></div>
-  <button id="gmastermind_btnOvNew" onclick="newGame()">▶ YENİ OYUN</button>
-</div>
-
-
-</div>
-    </div>
-
-    <div class="embedded-game-panel" id="ep_gnonogram" style="display:none;">
-      <div class="embedded-game-wrap">
-        <div style="text-align:center">
-  <h1>NONOGRAm</h1>
-  <div class="sub">Satır ve sütun ipuçlarıyla piksel resim çiz</div>
-</div>
-
-<div class="puzzle-tabs" id="gnonogram_puzzleTabs"></div>
-
-<div class="stats">
-  <div class="stat"><div class="stat-v" id="gnonogram_errVal">0</div><div class="stat-l">Hata</div></div>
-  <div class="sep"></div>
-  <div class="stat"><div class="stat-v" id="gnonogram_timeVal">0:00</div><div class="stat-l">Süre</div></div>
-  <div class="sep"></div>
-  <div class="stat"><div class="stat-v" id="gnonogram_pctVal">0%</div><div class="stat-l">Tamamlandı</div></div>
-</div>
-
-<div class="mode-bar">
-  <button class="mode-btn active" id="gnonogram_modeColor" onclick="setMode('fill')">■ Doldur</button>
-  <button class="mode-btn" id="gnonogram_modeCross" onclick="setMode('cross')">✕ Çarpı</button>
-</div>
-
-<div class="board-wrap"><table id="gnonogram_ngTable"></table></div>
-
-<div class="controls">
-  <button class="ctrl" id="gnonogram_btnReset" onclick="resetGrid()">↺ Sıfırla</button>
-  <button class="ctrl" id="gnonogram_btnCheck" onclick="checkSolution()">✓ Kontrol</button>
-  <button class="ctrl" id="gnonogram_btnReveal" onclick="revealSolution()">💡 Çöz</button>
-</div>
-
-<div class="win-overlay" id="gnonogram_winOverlay">
-  <canvas class="preview-canvas" id="gnonogram_previewCanvas" width="100" height="100"></canvas>
-  <div class="win-title">MÜKEMMEL! 🎉</div>
-  <div class="win-desc" id="gnonogram_winDesc"></div>
-  <button id="gnonogram_btnWinNew" onclick="nextPuzzle()">Sonraki Bulmaca ➜</button>
-</div>
-
-
-</div>
-    </div>
-
-  </div>
-</section>
 
 <section id="about">
   <div class="section-header">
@@ -1507,8 +1298,8 @@ header{
       <p>Aksiyon'dan strateji oyunlarına, tower defense'ten metin RPG'lerine kadar her türden deneyim burada seni bekliyor.</p>
     </div>
     <div class="about-stats">
-      <div class="about-stat-card"><div class="stat-value">15</div><div class="stat-label">Oyun</div></div>
-      <div class="about-stat-card"><div class="stat-value">4</div><div class="stat-label">Tür</div></div>
+      <div class="about-stat-card"><div class="stat-value">16</div><div class="stat-label">Oyun</div></div>
+      <div class="about-stat-card"><div class="stat-value">6</div><div class="stat-label">Tür</div></div>
       <div class="about-stat-card"><div class="stat-value">AI</div><div class="stat-label">Destekli</div></div>
       <div class="about-stat-card"><div class="stat-value">100%</div><div class="stat-label">Ücretsiz</div></div>
     </div>
@@ -1525,17 +1316,13 @@ header{
     <div class="contact-info">
       <h3>Bana Ulaş</h3>
       <p>Bir oyun hakkında fikrin mi var? Öneri, geri bildirim veya sadece merhaba demek için yazabilirsin.</p>
-      <div class="social-links">
-        <a href="#" class="social-link">Discord</a>
-        <a href="#" class="social-link">Twitter</a>
-        <a href="#" class="social-link">YouTube</a>
-      </div>
+
     </div>
     <div class="contact-form">
-      <div class="form-group"><label>Adın</label><input type="text" placeholder="Adını gir..."></div>
-      <div class="form-group"><label>E-posta</label><input type="email" placeholder="eposta@ornek.com"></div>
-      <div class="form-group"><label>Mesaj</label><textarea placeholder="Mesajını yaz..."></textarea></div>
-      <button class="btn-primary" style="width:100%;text-align:center;">Gönder</button>
+      <div class="form-group"><label>Adın</label><input type="text" id="cf-name" placeholder="Adını gir..."></div>
+      <div class="form-group"><label>E-posta</label><input type="email" id="cf-email" placeholder="eposta@ornek.com"></div>
+      <div class="form-group"><label>Mesaj</label><textarea id="cf-msg" placeholder="Mesajını yaz..."></textarea></div>
+      <button class="btn-primary" style="width:100%;text-align:center;" onclick="sendMail()">Gönder</button>
     </div>
   </div>
 </section>
@@ -2140,6 +1927,16 @@ function showEmbedGame(prefix) {
   const panel = document.getElementById("ep_"+prefix);
   if(panel) panel.style.display="block";
   document.querySelectorAll(".embed-tab").forEach(t => t.classList.toggle("active", t.dataset.target===prefix));
+}
+
+function sendMail() {
+  const name = document.getElementById('cf-name').value.trim();
+  const email = document.getElementById('cf-email').value.trim();
+  const msg = document.getElementById('cf-msg').value.trim();
+  if (!name || !email || !msg) { alert('Lütfen tüm alanları doldur!'); return; }
+  const subject = encodeURIComponent('Hüseyinistan Games - ' + name + ' mesaj gönderdi');
+  const body = encodeURIComponent('Ad: ' + name + '\nE-posta: ' + email + '\n\nMesaj:\n' + msg);
+  window.location.href = 'mailto:keleshusein3@gmail.com?subject=' + subject + '&body=' + body;
 }
 </script>
 </body>
