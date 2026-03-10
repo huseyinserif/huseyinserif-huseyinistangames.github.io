@@ -94,6 +94,7 @@ canvas{display:block;}
 #pause-screen .ovl-title{font-family:'Orbitron',sans-serif;font-size:48px;font-weight:900;letter-spacing:10px;color:white;margin-bottom:8px;}
 #pause-screen .ovl-sub{font-size:13px;letter-spacing:4px;color:rgba(255,255,255,.3);margin-bottom:32px;}
 </style>
+
 </head>
 <body>
 <canvas id="c"></canvas>
@@ -108,7 +109,7 @@ canvas{display:block;}
     </div>
     <div id="score-block">
       <div id="score-val">0</div>
-      <div id="score-lbl">SKOR</div>
+      <div id="score-lbl"><span data-tr="SKOR" data-en="SCORE">SKOR</span></div>
     </div>
     <div id="right-block">
       <div id="wave-val">1/100</div>
@@ -133,33 +134,34 @@ canvas{display:block;}
 </div>
 <div class="overlay show" id="start-screen">
   <div class="logo">SURVIVOR</div>
-  <div class="tagline">HAYATTA KAL · GÜÇLEN · 100 DALGA</div>
-  <button class="btn btn-primary" id="start-btn">▶ OYNA</button>
-  <div style="margin-top:14px;font-size:11px;letter-spacing:2px;color:rgba(255,255,255,.18)">WASD / OK TUŞLARI · OTOMATİK ATEŞ</div>
+  <div class="tagline"><span data-tr="HAYATTA KAL · GÜÇLEN · 100 DALGA" data-en="SURVIVE · GROW STRONGER · 100 WAVES">HAYATTA KAL · GÜÇLEN · 100 DALGA</span></div>
+  <button class="btn btn-primary" id="start-btn"><span data-tr="▶ OYNA" data-en="▶ PLAY">▶ OYNA</span></button>
+  <div style="margin-top:14px;font-size:11px;letter-spacing:2px;color:rgba(255,255,255,.18)"><span data-tr="WASD / OK TUŞLARI · OTOMATİK ATEŞ" data-en="WASD / ARROW KEYS · AUTO FIRE">WASD / OK TUŞLARI · OTOMATİK ATEŞ</span></div>
 </div>
 <div class="overlay" id="end-screen">
-  <div id="end-title">ÖLDÜN</div>
+  <div id="end-title"><span data-tr="ÖLDÜN" data-en="YOU DIED">ÖLDÜN</span></div>
   <div id="end-sub"></div>
   <div class="stats-grid">
     <div class="stat-box"><div class="sv" id="st-score">0</div><div class="sl">SKOR</div></div>
-    <div class="stat-box"><div class="sv" id="st-kills">0</div><div class="sl">ÖLDÜRME</div></div>
-    <div class="stat-box"><div class="sv" id="st-wave">0</div><div class="sl">SON DALGA</div></div>
-    <div class="stat-box"><div class="sv" id="st-time">0s</div><div class="sl">SÜRE</div></div>
+    <div class="stat-box"><div class="sv" id="st-kills">0</div><div class="sl"><span data-tr="ÖLDÜRME" data-en="KILLS">ÖLDÜRME</span></div></div>
+    <div class="stat-box"><div class="sv" id="st-wave">0</div><div class="sl"><span data-tr="SON DALGA" data-en="LAST WAVE">SON DALGA</span></div></div>
+    <div class="stat-box"><div class="sv" id="st-time">0s</div><div class="sl"><span data-tr="SÜRE" data-en="TIME">SÜRE</span></div></div>
   </div>
-  <button class="btn btn-primary" id="restart-btn">↺ TEKRAR OYNA</button>
+  <button class="btn btn-primary" id="restart-btn"><span data-tr="↺ TEKRAR OYNA" data-en="↺ PLAY AGAIN">↺ TEKRAR OYNA</span></button>
 </div>
 <div id="lvlup">
-  <div id="lvlup-title">⬆ SEVİYE ATLADIN!</div>
-  <div id="lvlup-sub">BİR GÜÇLENDİRME SEÇ</div>
+  <div id="lvlup-title"><span data-tr="⬆ SEVİYE ATLADIN!" data-en="⬆ LEVEL UP!">⬆ SEVİYE ATLADIN!</span></div>
+  <div id="lvlup-sub"><span data-tr="BİR GÜÇLENDİRME SEÇ" data-en="CHOOSE AN UPGRADE">BİR GÜÇLENDİRME SEÇ</span></div>
   <div class="cards" id="cards-row"></div>
 </div>
 <div class="overlay" id="pause-screen">
-  <div class="ovl-title">DURAKLATILDI</div>
-  <div class="ovl-sub">DEVAM ETMEK İÇİN TIKLA</div>
-  <button class="btn btn-outline" id="resume-btn">▶ DEVAM</button>
+  <div class="ovl-title"><span data-tr="DURAKLATILDI" data-en="PAUSED">DURAKLATILDI</span></div>
+  <div class="ovl-sub"><span data-tr="DEVAM ETMEK İÇİN TIKLA" data-en="CLICK TO CONTINUE">DEVAM ETMEK İÇİN TIKLA</span></div>
+  <button class="btn btn-outline" id="resume-btn"><span data-tr="▶ DEVAM" data-en="▶ RESUME">▶ DEVAM</span></button>
 </div>
 <div id="joy-zone"><div id="joy-base"><div id="joy-knob"></div></div></div>
 <script>
+var __LANG = localStorage.getItem('huseyinistan_lang') || 'tr';
 const AC=new(window.AudioContext||window.webkitAudioContext)();
 let muted=false;
 const MV=AC.createGain();MV.connect(AC.destination);MV.gain.value=.5;
@@ -181,28 +183,28 @@ jZone.addEventListener('touchmove',e=>{if(!jA)return;const t=e.touches[0];const 
 ['touchend','touchcancel'].forEach(ev=>jZone.addEventListener(ev,()=>{jA=false;jDX=0;jDY=0;jBase.style.display='none';},{passive:true}));
 function getMD(){let dx=0,dy=0;if(K['ArrowLeft']||K['a']||K['A'])dx-=1;if(K['ArrowRight']||K['d']||K['D'])dx+=1;if(K['ArrowUp']||K['w']||K['W'])dy-=1;if(K['ArrowDown']||K['s']||K['S'])dy+=1;dx+=jDX;dy+=jDY;const l=Math.hypot(dx,dy);if(l>0){dx/=l;dy/=l;}return{dx,dy};}
 const UPGRADES=[
-  {id:'dmg',icon:'⚔️',name:'HASAR',desc:'Mermi hasarı +14',max:10,rarity:'common',apply(p){p.dmgBonus+=14;}},
-  {id:'spd',icon:'💨',name:'HIZ',desc:'Hareket hızı +22',max:8,rarity:'common',apply(p){p.spdBonus+=22;}},
-  {id:'maxhp',icon:'❤️',name:'SAĞLIK',desc:'Maks can +40',max:10,rarity:'common',apply(p){p.maxHp+=40;p.hp=Math.min(p.maxHp,p.hp+40);}},
-  {id:'rapid',icon:'⚡',name:'HIZLI ATIŞ',desc:'Ateş hızı %28 artar',max:6,rarity:'common',apply(p){for(const w of p.weapons)w.maxCd=Math.max(.09,w.maxCd*.72);}},
-  {id:'multishot',icon:'🔫',name:'ÇİFT ATIŞ',desc:'+1 mermi sayısı',max:5,rarity:'rare',apply(p){for(const w of p.weapons)w.count++;}},
-  {id:'pierce',icon:'🔩',name:'DELİCİ',desc:'Mermiler +1 düşman deler',max:4,rarity:'rare',apply(p){for(const w of p.weapons)w.pierce++;}},
-  {id:'range',icon:'🎯',name:'MENZİL',desc:'Mermi menzili +130',max:5,rarity:'common',apply(p){for(const w of p.weapons)w.range+=130;}},
-  {id:'magnet',icon:'🧲',name:'XP MIKNATIS',desc:'XP çekim menzili +85',max:5,rarity:'common',apply(p){p.magnetRange+=85;}},
+  {id:'dmg',icon:'⚔️',name:'HASAR',desc:(__LANG==='en'?'Bullet damage +14':'Mermi hasarı +14'),max:10,rarity:'common',apply(p){p.dmgBonus+=14;}},
+  {id:'spd',icon:'💨',name:'HIZ',desc:(__LANG==='en'?'Move speed +22':'Hareket hızı +22'),max:8,rarity:'common',apply(p){p.spdBonus+=22;}},
+  {id:'maxhp',icon:'❤️',name:(__LANG==='en'?'HEALTH':'SAĞLIK'),desc:'Maks can +40',max:10,rarity:'common',apply(p){p.maxHp+=40;p.hp=Math.min(p.maxHp,p.hp+40);}},
+  {id:'rapid',icon:'⚡',name:(__LANG==='en'?'RAPID FIRE':'HIZLI ATIŞ'),desc:(__LANG==='en'?'Fire rate +28%':'Ateş hızı %28 artar'),max:6,rarity:'common',apply(p){for(const w of p.weapons)w.maxCd=Math.max(.09,w.maxCd*.72);}},
+  {id:'multishot',icon:'🔫',name:(__LANG==='en'?'DOUBLE SHOT':'ÇİFT ATIŞ'),desc:(__LANG==='en'?'+1 bullet count':'+1 mermi sayısı'),max:5,rarity:'rare',apply(p){for(const w of p.weapons)w.count++;}},
+  {id:'pierce',icon:'🔩',name:(__LANG==='en'?'PIERCING':'DELİCİ'),desc:(__LANG==='en'?'Bullets pierce +1 enemy':'Mermiler +1 düşman deler'),max:4,rarity:'rare',apply(p){for(const w of p.weapons)w.pierce++;}},
+  {id:'range',icon:'🎯',name:(__LANG==='en'?'RANGE':'MENZİL'),desc:'Mermi menzili +130',max:5,rarity:'common',apply(p){for(const w of p.weapons)w.range+=130;}},
+  {id:'magnet',icon:'🧲',name:'XP MIKNATIS',desc:(__LANG==='en'?'XP pickup range +85':'XP çekim menzili +85'),max:5,rarity:'common',apply(p){p.magnetRange+=85;}},
   {id:'bomb',icon:'💣',name:'BOMBA',desc:'Patlayan roket atar',max:5,rarity:'rare',apply(p){}},
-  {id:'sword',icon:'🌀',name:'DÖNEN KILIÇ',desc:'+1 orbital kılıç',max:6,rarity:'rare',apply(p){G.orbitals.push({angle:Math.random()*Math.PI*2,dt:0});}},
-  {id:'freeze',icon:'❄️',name:'DONDURMA',desc:'Mermiler yavaşlatır %40',max:4,rarity:'rare',apply(p){}},
-  {id:'lightning',icon:'⚡',name:'ŞİMŞEK ZİNCİRİ',desc:'Zincir şimşek çakar',max:5,rarity:'epic',apply(p){}},
+  {id:'sword',icon:'🌀',name:(__LANG==='en'?'ORBITAL SWORD':'DÖNEN KILIÇ'),desc:(__LANG==='en'?'+1 orbital sword':'+1 orbital kılıç'),max:6,rarity:'rare',apply(p){G.orbitals.push({angle:Math.random()*Math.PI*2,dt:0});}},
+  {id:'freeze',icon:'❄️',name:'DONDURMA',desc:(__LANG==='en'?'Bullets slow 40%':'Mermiler yavaşlatır %40'),max:4,rarity:'rare',apply(p){}},
+  {id:'lightning',icon:'⚡',name:(__LANG==='en'?'LIGHTNING CHAIN':'ŞİMŞEK ZİNCİRİ'),desc:(__LANG==='en'?'Lightning chain strikes':'Zincir şimşek çakar'),max:5,rarity:'epic',apply(p){}},
   {id:'shield',icon:'🛡️',name:'KALKAN',desc:'Hasar azaltma +7%',max:5,rarity:'rare',apply(p){p.shield+=7;}},
-  {id:'lifesteal',icon:'🩸',name:'CAN ÇALMA',desc:"Hasarın %1'i can olur",max:4,rarity:'epic',apply(p){p.lifesteal+=1;}},
-  {id:'burn',icon:'🔥',name:'YANMA',desc:'Düşmanlar yanar (DoT)',max:5,rarity:'rare',apply(p){}},
-  {id:'regen',icon:'💚',name:'REJENERASYON',desc:'Saniyede +1 can kazanırsın',max:5,rarity:'common',apply(p){}},
+  {id:'lifesteal',icon:'🩸',name:(__LANG==='en'?'LIFESTEAL':'CAN ÇALMA'),desc:"Hasarın %1'i can olur",max:4,rarity:'epic',apply(p){p.lifesteal+=1;}},
+  {id:'burn',icon:'🔥',name:'YANMA',desc:(__LANG==='en'?'Enemies burn (DoT)':'Düşmanlar yanar (DoT)'),max:5,rarity:'rare',apply(p){}},
+  {id:'regen',icon:'💚',name:'REJENERASYON',desc:(__LANG==='en'?'+1 HP per second':'Saniyede +1 can kazanırsın'),max:5,rarity:'common',apply(p){}},
   {id:'aoe',icon:'💥',name:'ALAN HASARI',desc:'Mermi patlar, +60 AoE',max:4,rarity:'rare',apply(p){}},
-  {id:'dash',icon:'🌪️',name:'KRİTİK',desc:'%15 kritik şans +hasar x2',max:5,rarity:'rare',apply(p){p.critChance=(p.critChance||0)+.15;}},
-  {id:'ghost',icon:'👻',name:'HAYALETİ ÇAĞIR',desc:'+1 sizi koruyan hayalet',max:3,rarity:'epic',apply(p){G.ghosts.push({angle:Math.random()*Math.PI*2,hp:60,maxHp:60,r:10,dt:0});}},
-  {id:'turret',icon:'🤖',name:'TARET',desc:'Bağımsız taret konuşlanır',max:3,rarity:'epic',apply(p){G.turrets.push({x:p.x,y:p.y,cd:0,maxCd:1.2,r:12});}},
-  {id:'poison',icon:'☠️',name:'ZEHİR',desc:'Öldürülen düşmanlar zehir bırakır',max:4,rarity:'rare',apply(p){}},
-  {id:'bulkup',icon:'💪',name:'GÜÇLENDİRME',desc:'Tüm silah hasarı +20%',max:5,rarity:'epic',apply(p){for(const w of p.weapons)w.dmg=Math.round(w.dmg*1.2);}},
+  {id:'dash',icon:'🌪️',name:(__LANG==='en'?'CRITICAL':'KRİTİK'),desc:(__LANG==='en'?'15% crit chance, dmg x2':'%15 kritik şans +hasar x2'),max:5,rarity:'rare',apply(p){p.critChance=(p.critChance||0)+.15;}},
+  {id:'ghost',icon:'👻',name:(__LANG==='en'?'SUMMON GHOST':'HAYALETİ ÇAĞIR'),desc:'+1 sizi koruyan hayalet',max:3,rarity:'epic',apply(p){G.ghosts.push({angle:Math.random()*Math.PI*2,hp:60,maxHp:60,r:10,dt:0});}},
+  {id:'turret',icon:'🤖',name:'TARET',desc:(__LANG==='en'?'Autonomous turret deploys':'Bağımsız taret konuşlanır'),max:3,rarity:'epic',apply(p){G.turrets.push({x:p.x,y:p.y,cd:0,maxCd:1.2,r:12});}},
+  {id:'poison',icon:'☠️',name:(__LANG==='en'?'POISON':'ZEHİR'),desc:(__LANG==='en'?'Killed enemies leave poison':'Öldürülen düşmanlar zehir bırakır'),max:4,rarity:'rare',apply(p){}},
+  {id:'bulkup',icon:'💪',name:(__LANG==='en'?'POWER UP':'GÜÇLENDİRME'),desc:(__LANG==='en'?'All weapon damage +20%':'Tüm silah hasarı +20%'),max:5,rarity:'epic',apply(p){for(const w of p.weapons)w.dmg=Math.round(w.dmg*1.2);}},
 ];
 const ETYPES=[
   {name:'Zombie',r:14,hp:50,spd:75,dmg:12,xp:8,score:10,col:'#00b894',col2:'#55efc4'},
@@ -216,11 +218,11 @@ const ETYPES=[
   {name:'Golem',r:28,hp:380,spd:32,dmg:35,xp:55,score:75,col:'#7f8c8d',col2:'#bdc3c7'},
 ];
 const BOSS_DEFS=[
-  {name:'👁 DEV GÖZ',col:'#a29bfe',col2:'#6c5ce7',glow:'rgba(108,92,231,.7)',r:55,baseHp:9000,spd:55,dmg:45,pattern:'eye',lazerAngle:0,lazerActive:false,lazerTimer:0,lazerCD:2.2,lazerDur:3.2,lazerSweep:0,pupilDilate:0},
-  {name:'🕷 ÖRÜMCEK KRAL',col:'#2d3436',col2:'#636e72',glow:'rgba(99,110,114,.6)',r:52,baseHp:14000,spd:80,dmg:38,pattern:'spider',webTimer:0,webCD:1.4,spawnTimer:0,spawnCD:3.2,legs:[]},
-  {name:'💀 İSKELET LORD',col:'#dfe6e9',col2:'#b2bec3',glow:'rgba(178,190,195,.5)',r:50,baseHp:20000,spd:65,dmg:42,pattern:'skeleton',boneTimer:0,boneCD:1.0,armyTimer:0,armyCD:4.5,skullRing:[],skullAngle:0},
-  {name:'🌋 VOLKAN DEVİ',col:'#e17055',col2:'#d63031',glow:'rgba(225,112,85,.7)',r:62,baseHp:30000,spd:48,dmg:58,pattern:'volcano',lavaTimer:0,lavaCD:.42,lavaOrbs:[],eruptTimer:0,eruptCD:5.5},
-  {name:'🤖 SİBORG',col:'#74b9ff',col2:'#0984e3',glow:'rgba(116,185,255,.6)',r:58,baseHp:45000,spd:90,dmg:50,pattern:'cyborg',missileTimer:0,missileCD:.18,missileCount:0,missileMax:14,volleyTimer:0,volleyCD:3.2,shieldAngle:0,shieldActive:false,shieldTimer:0,shieldCD:10,shieldSegments:[]},
+  {name:(__LANG==='en'?'👁 GIANT EYE':'👁 DEV GÖZ'),col:'#a29bfe',col2:'#6c5ce7',glow:'rgba(108,92,231,.7)',r:55,baseHp:9000,spd:55,dmg:45,pattern:'eye',lazerAngle:0,lazerActive:false,lazerTimer:0,lazerCD:2.2,lazerDur:3.2,lazerSweep:0,pupilDilate:0},
+  {name:(__LANG==='en'?'🕷 SPIDER KING':'🕷 ÖRÜMCEK KRAL'),col:'#2d3436',col2:'#636e72',glow:'rgba(99,110,114,.6)',r:52,baseHp:14000,spd:80,dmg:38,pattern:'spider',webTimer:0,webCD:1.4,spawnTimer:0,spawnCD:3.2,legs:[]},
+  {name:(__LANG==='en'?'💀 SKELETON LORD':'💀 İSKELET LORD'),col:'#dfe6e9',col2:'#b2bec3',glow:'rgba(178,190,195,.5)',r:50,baseHp:20000,spd:65,dmg:42,pattern:'skeleton',boneTimer:0,boneCD:1.0,armyTimer:0,armyCD:4.5,skullRing:[],skullAngle:0},
+  {name:(__LANG==='en'?'🌋 VOLCANO GIANT':'🌋 VOLKAN DEVİ'),col:'#e17055',col2:'#d63031',glow:'rgba(225,112,85,.7)',r:62,baseHp:30000,spd:48,dmg:58,pattern:'volcano',lavaTimer:0,lavaCD:.42,lavaOrbs:[],eruptTimer:0,eruptCD:5.5},
+  {name:(__LANG==='en'?'🤖 CYBORG':'🤖 SİBORG'),col:'#74b9ff',col2:'#0984e3',glow:'rgba(116,185,255,.6)',r:58,baseHp:45000,spd:90,dmg:50,pattern:'cyborg',missileTimer:0,missileCD:.18,missileCount:0,missileMax:14,volleyTimer:0,volleyCD:3.2,shieldAngle:0,shieldActive:false,shieldTimer:0,shieldCD:10,shieldSegments:[]},
 ];
 let bossIdx=0,G,running=false,paused=false,cam={x:0,y:0};
 function initG(){G={t:0,score:0,wave:1,maxWave:100,waveTimer:28,waveLen:28,spawnTimer:0,spawnRate:1.5,maxEnemies:40,bossAlive:false,boss:null,bossWave:false,player:{x:WORLD/2,y:WORLD/2,hp:100,maxHp:100,spd:215,radius:15,lv:1,xp:0,xpNext:50,kills:0,iframes:0,dmgBonus:0,spdBonus:0,shield:0,lifesteal:0,magnetRange:90,critChance:0,weapons:[{type:'gun',cd:0,maxCd:.42,dmg:30,spd:590,range:530,count:1,pierce:1}],upgrades:{}},enemies:[],bullets:[],bossBullets:[],xpOrbs:[],particles:[],floatTexts:[],poisonPools:[],orbitals:[],ghosts:[],turrets:[],bombCD:0,lightningCD:0,eid:0};}
@@ -249,7 +251,7 @@ if(b.pattern==='eye'){if(dist>130)mvBoss(b,adx,ady,dist,spdMul*dt);b.pupilDilate
 else if(b.pattern==='spider'){if(dist>110)mvBoss(b,adx,ady,dist,spdMul*dt);for(const lg of b.legs){lg.angle+=.8*dt;lg.ext=Math.sin(G.t*4+lg.angle)*8;}b.webTimer-=dt;if(b.webTimer<=0){b.webTimer=b.webCD*(phase2?.6:1);const count=phase2?3:1;for(let i=0;i<count;i++){const a=Math.atan2(ady,adx)+(i-(count-1)/2)*.35;G.bossBullets.push({x:b.x,y:b.y,vx:Math.cos(a)*260,vy:Math.sin(a)*260,dmg:b.dmg,r:9,life:3,type:'web',col:'rgba(100,100,100,.8)'});}}b.spawnTimer-=dt;if(b.spawnTimer<=0){b.spawnTimer=b.spawnCD*(phase2?.6:1);for(let i=0;i<(phase2?6:3);i++)spawnEnemy(5);}}
 else if(b.pattern==='skeleton'){if(dist>140)mvBoss(b,adx,ady,dist,spdMul*dt);b.skullAngle+=.5*dt*(phase2?1.6:1);b.boneTimer-=dt;if(b.boneTimer<=0){b.boneTimer=b.boneCD*(phase2?.5:1);const spread=phase2?5:3;for(let i=0;i<spread;i++){const a=Math.atan2(ady,adx)+(i-(spread-1)/2)*.3+(Math.random()-.5)*.3;G.bossBullets.push({x:b.x,y:b.y,vx:Math.cos(a)*400,vy:Math.sin(a)*400,dmg:b.dmg,r:7,life:2.2,type:'bone',col:'#dfe6e9'});}}b.armyTimer-=dt;if(b.armyTimer<=0){b.armyTimer=b.armyCD;for(let i=0;i<(phase2?8:5);i++)spawnEnemy(0);}}
 else if(b.pattern==='volcano'){if(dist>170)mvBoss(b,adx,ady,dist,spdMul*dt);b.lavaTimer-=dt;if(b.lavaTimer<=0){b.lavaTimer=b.lavaCD*(phase2?.55:1);const count=phase2?3:1;for(let i=0;i<count;i++){const tx=p.x+(Math.random()-.5)*260,ty=p.y+(Math.random()-.5)*260;b.lavaOrbs.push({x:b.x,y:b.y,tx,ty,life:2.2,r:30,active:false,timer:.5});}}b.eruptTimer-=dt;if(b.eruptTimer<=0){b.eruptTimer=b.eruptCD*(phase2?.6:1);for(let i=0;i<8;i++){const a=(i/8)*Math.PI*2;G.bossBullets.push({x:b.x,y:b.y,vx:Math.cos(a)*310,vy:Math.sin(a)*310,dmg:b.dmg*.8,r:12,life:2.5,type:'lava',col:'#e17055'});}pfx(b.x,b.y,'#ffd700',20,300,8);SFX.explosion();}for(let i=b.lavaOrbs.length-1;i>=0;i--){const lo=b.lavaOrbs[i];lo.timer-=dt;lo.life-=dt;if(lo.timer<=0)lo.active=true;if(lo.active){const dx2=lo.tx-lo.x,dy2=lo.ty-lo.y,d2=Math.hypot(dx2,dy2);if(d2>5){lo.x+=dx2/d2*340*dt;lo.y+=dy2/d2*340*dt;}}if(lo.active&&p.iframes<=0&&Math.hypot(lo.x-p.x,lo.y-p.y)<lo.r+p.radius){const rd=Math.max(1,Math.round(b.dmg*1.2*(1-p.shield/100)));p.hp-=rd;p.iframes=.7;updateHP();SFX.hurt();flashDmg();ft(p.x,p.y-32,'−'+rd,'#e17055');if(p.hp<=0){gameOver();return;}}if(lo.life<=0)b.lavaOrbs.splice(i,1);}}
-else if(b.pattern==='cyborg'){if(dist>100)mvBoss(b,adx,ady,dist,spdMul*dt);b.shieldAngle+=1.2*dt;b.shieldTimer-=dt;if(!b.shieldActive&&b.shieldTimer<=0){b.shieldActive=true;b.shieldTimer=5;for(const s of b.shieldSegments)s.alive=true;ft(b.x,b.y-b.r-20,'🛡 KALKAN AKTİF','#74b9ff',16);}if(b.shieldActive&&b.shieldTimer<=0){b.shieldActive=false;b.shieldTimer=b.shieldCD;}b.volleyTimer-=dt;if(b.volleyTimer<=0){b.volleyTimer=b.volleyCD*(phase2?.55:1);b.missileCount=0;}if(b.missileCount<b.missileMax){b.missileTimer-=dt;if(b.missileTimer<=0){b.missileTimer=b.missileCD;b.missileCount++;const spread=(Math.random()-.5)*.8;const a=Math.atan2(ady,adx)+spread;G.bossBullets.push({x:b.x,y:b.y,vx:Math.cos(a)*490,vy:Math.sin(a)*490,dmg:b.dmg,r:7,life:2.2,type:'missile',col:'#74b9ff'});SFX.shoot();}}}
+else if(b.pattern==='cyborg'){if(dist>100)mvBoss(b,adx,ady,dist,spdMul*dt);b.shieldAngle+=1.2*dt;b.shieldTimer-=dt;if(!b.shieldActive&&b.shieldTimer<=0){b.shieldActive=true;b.shieldTimer=5;for(const s of b.shieldSegments)s.alive=true;ft(b.x,b.y-b.r-20,(__LANG==='en'?'🛡 SHIELD ACTIVE':'🛡 KALKAN AKTİF'),'#74b9ff',16);}if(b.shieldActive&&b.shieldTimer<=0){b.shieldActive=false;b.shieldTimer=b.shieldCD;}b.volleyTimer-=dt;if(b.volleyTimer<=0){b.volleyTimer=b.volleyCD*(phase2?.55:1);b.missileCount=0;}if(b.missileCount<b.missileMax){b.missileTimer-=dt;if(b.missileTimer<=0){b.missileTimer=b.missileCD;b.missileCount++;const spread=(Math.random()-.5)*.8;const a=Math.atan2(ady,adx)+spread;G.bossBullets.push({x:b.x,y:b.y,vx:Math.cos(a)*490,vy:Math.sin(a)*490,dmg:b.dmg,r:7,life:2.2,type:'missile',col:'#74b9ff'});SFX.shoot();}}}
 for(let i=G.bossBullets.length-1;i>=0;i--){const bb=G.bossBullets[i];bb.x+=bb.vx*dt;bb.y+=bb.vy*dt;bb.life-=dt;if(bb.life<=0){G.bossBullets.splice(i,1);continue;}if(p.iframes<=0&&Math.hypot(bb.x-p.x,bb.y-p.y)<bb.r+p.radius){const rd=Math.max(1,Math.round((bb.dmg||20)*(1-p.shield/100)));p.hp-=rd;p.iframes=.65;updateHP();SFX.hurt();flashDmg();ft(p.x,p.y-30,'−'+rd,'#ff4444');if(p.hp<=0){gameOver();return;}G.bossBullets.splice(i,1);}}
 document.getElementById('boss-hp-fill').style.width=Math.max(0,b.hp/b.maxHp*100)+'%';b.x=Math.max(b.r,Math.min(WORLD-b.r,b.x));b.y=Math.max(b.r,Math.min(WORLD-b.r,b.y));}
 function mvBoss(b,adx,ady,dist,dtSpdMul){b.x+=adx/dist*b.spd*dtSpdMul;b.y+=ady/dist*b.spd*dtSpdMul;}
@@ -258,7 +260,7 @@ if(has('regen')){p.hp=Math.min(p.maxHp,p.hp+(1+ulv('regen')*.5)*dt);updateHP();}
 if(p.iframes>0)p.iframes-=dt;
 const{dx,dy}=getMD();const spd=p.spd+p.spdBonus;p.x+=dx*spd*dt;p.y+=dy*spd*dt;p.x=Math.max(p.radius,Math.min(WORLD-p.radius,p.x));p.y=Math.max(p.radius,Math.min(WORLD-p.radius,p.y));
 updateWeapons(dt);
-for(let i=G.bullets.length-1;i>=0;i--){const b=G.bullets[i];b.x+=b.vx*dt;b.y+=b.vy*dt;b.traveled+=Math.hypot(b.vx,b.vy)*dt;if(b.traveled>b.range||b.hits>=b.pierce){if(b.isBomb)explodeBomb(b);G.bullets.splice(i,1);continue;}const targets=[...G.enemies,...(G.bossAlive&&G.boss?[G.boss]:[])].filter(Boolean);let rem=false;for(const e of targets){if(!e||e.hp<=0)continue;const cyShield=e===G.boss&&G.boss.pattern==='cyborg'&&G.boss.shieldActive;if(Math.hypot(b.x-e.x,b.y-e.y)<b.r+e.r){if(cyShield){const segs=G.boss.shieldSegments.filter(s=>s.alive);if(segs.length>0){segs[0].alive=false;ft(G.boss.x,G.boss.y-G.boss.r-20,'🛡 HASARLANDI','#74b9ff',13);}else{G.boss.shieldActive=false;ft(G.boss.x,G.boss.y-G.boss.r-20,'🛡 KALDI!','#ff4757',16);}G.bullets.splice(i,1);rem=true;break;}if(b.isBomb){explodeBomb(b);G.bullets.splice(i,1);rem=true;break;}dmgEnemy(e,b.dmg);b.hits++;if(b.hits>=b.pierce){G.bullets.splice(i,1);rem=true;break;}}}if(rem)continue;}
+for(let i=G.bullets.length-1;i>=0;i--){const b=G.bullets[i];b.x+=b.vx*dt;b.y+=b.vy*dt;b.traveled+=Math.hypot(b.vx,b.vy)*dt;if(b.traveled>b.range||b.hits>=b.pierce){if(b.isBomb)explodeBomb(b);G.bullets.splice(i,1);continue;}const targets=[...G.enemies,...(G.bossAlive&&G.boss?[G.boss]:[])].filter(Boolean);let rem=false;for(const e of targets){if(!e||e.hp<=0)continue;const cyShield=e===G.boss&&G.boss.pattern==='cyborg'&&G.boss.shieldActive;if(Math.hypot(b.x-e.x,b.y-e.y)<b.r+e.r){if(cyShield){const segs=G.boss.shieldSegments.filter(s=>s.alive);if(segs.length>0){segs[0].alive=false;ft(G.boss.x,G.boss.y-G.boss.r-20,(__LANG==='en'?'🛡 DAMAGED':'🛡 HASARLANDI'),'#74b9ff',13);}else{G.boss.shieldActive=false;ft(G.boss.x,G.boss.y-G.boss.r-20,'🛡 KALDI!','#ff4757',16);}G.bullets.splice(i,1);rem=true;break;}if(b.isBomb){explodeBomb(b);G.bullets.splice(i,1);rem=true;break;}dmgEnemy(e,b.dmg);b.hits++;if(b.hits>=b.pierce){G.bullets.splice(i,1);rem=true;break;}}}if(rem)continue;}
 const allE=[...G.enemies,...(G.bossAlive&&G.boss?[G.boss]:[])].filter(Boolean);
 for(const e of allE){if(e.iframes>0)e.iframes-=dt;if(e.burnTimer>0){e.burnTimer-=dt;dmgEnemy(e,e.burnDmg*dt,{isDot:true,noCrit:true});}if(e.frozen>0)e.frozen-=dt;const fz=e.frozen>0?.35:1;const adx=p.x-e.x,ady=p.y-e.y,dist=Math.hypot(adx,ady);if(dist>0&&e!==G.boss){e.x+=adx/dist*e.spd*fz*dt;e.y+=ady/dist*e.spd*fz*dt;}e.angle=Math.atan2(ady,adx);e.x=Math.max(e.r,Math.min(WORLD-e.r,e.x));e.y=Math.max(e.r,Math.min(WORLD-e.r,e.y));if(e!==G.boss&&p.iframes<=0&&dist<p.radius+e.r-4){const rd=Math.max(1,Math.round(e.dmg*(1-p.shield/100)));p.hp-=rd;p.iframes=.7;SFX.hurt();flashDmg();ft(p.x,p.y-30,'−'+rd,'#ff4444');updateHP();if(p.hp<=0){gameOver();return;}}}
 if(G.bossAlive&&G.boss)updateBoss(dt);
@@ -328,10 +330,10 @@ function updateUpgBar(){const p=G.player;const bar=document.getElementById('upg-
 function nextWave(){if(G.wave>=G.maxWave){victory();return;}G.wave++;G.spawnRate=Math.max(.18,G.spawnRate*.88);G.maxEnemies=Math.min(110,G.maxEnemies+4);G.waveLen=Math.max(16,G.waveLen*.97);if(G.wave%5===0){G.bossWave=true;G.waveTimer=999;G.enemies=[];G.bossBullets=[];showWaveAnn(G.wave,true);setTimeout(()=>spawnBoss(),2000);}else{G.waveTimer=G.waveLen;showWaveAnn(G.wave,false);}document.getElementById('wave-val').textContent=G.wave+'/100';}
 function updateHP(){const p=G.player,pct=Math.max(0,p.hp/p.maxHp);document.getElementById('hp-fill').style.width=(pct*100)+'%';document.getElementById('hp-num').textContent=Math.max(0,Math.ceil(p.hp))+'/'+p.maxHp;document.getElementById('hp-fill').style.background=pct>.5?'linear-gradient(90deg,#27ae60,#2ecc71)':pct>.25?'linear-gradient(90deg,#e67e22,#fdcb6e)':'linear-gradient(90deg,#c0392b,#ff4757)';}
 function updateXPBar(){const p=G.player;document.getElementById('xp-fill').style.width=(p.xp/p.xpNext*100)+'%';}
-function showWaveAnn(wave,isBoss){const el=document.getElementById('wave-ann');el.innerHTML=`<div class="wa-txt">${isBoss?'⚠ BOSS DALGASI':'DALGA '+wave}</div><div class="wa-sub">${isBoss?'Savaşa hazırlan...':'Düşmanlar güçlendi!'}</div>`;el.style.display='block';setTimeout(()=>el.style.display='none',1800);}
-function showBossAnnounce(name){const el=document.getElementById('boss-ann');el.innerHTML=`<div class="ba-title">⚠ TEHLİKE ⚠</div><div class="ba-name">${name}</div><div class="ba-sub">BOSS ÇIKTI</div>`;el.style.display='flex';setTimeout(()=>el.style.display='none',3500);}
-function gameOver(){running=false;paused=false;SFX.death();document.getElementById('end-title').textContent='💀 ÖLDÜN';document.getElementById('end-title').style.color='#ff4757';finishScreen();}
-function victory(){running=false;paused=false;SFX.lvlup();document.getElementById('end-title').textContent='🏆 KAZANDIN!';document.getElementById('end-title').style.color='#ffd700';finishScreen();}
+function showWaveAnn(wave,isBoss){const el=document.getElementById('wave-ann');el.innerHTML=`<div class="wa-txt">${isBoss?'⚠ BOSS DALGASI':'DALGA '+wave}</div><div class="wa-sub">${isBoss?(__LANG==='en'?'Prepare for battle...':'Savaşa hazırlan...'):(__LANG==='en'?'Enemies got stronger!':'Düşmanlar güçlendi!')}</div>`;el.style.display='block';setTimeout(()=>el.style.display='none',1800);}
+function showBossAnnounce(name){const el=document.getElementById('boss-ann');el.innerHTML=`<div class="ba-title">${__LANG==='en'?'⚠ DANGER ⚠':'⚠ TEHLİKE ⚠'}</div><div class="ba-name">${name}</div><div class="ba-sub">${__LANG==='en'?'BOSS APPEARED':'BOSS ÇIKTI'}</div>`;el.style.display='flex';setTimeout(()=>el.style.display='none',3500);}
+function gameOver(){running=false;paused=false;SFX.death();document.getElementById('end-title').textContent=(__LANG==='en'?'💀 YOU DIED':'💀 ÖLDÜN');document.getElementById('end-title').style.color='#ff4757';finishScreen();}
+function victory(){running=false;paused=false;SFX.lvlup();document.getElementById('end-title').textContent=(__LANG==='en'?'🏆 YOU WIN!':'🏆 KAZANDIN!');document.getElementById('end-title').style.color='#ffd700';finishScreen();}
 function finishScreen(){document.getElementById('end-sub').textContent='DALGA '+G.wave+' · SKOR '+Math.floor(G.score);document.getElementById('st-score').textContent=Math.floor(G.score);document.getElementById('st-kills').textContent=G.player.kills;document.getElementById('st-wave').textContent=G.wave;document.getElementById('st-time').textContent=Math.floor(G.t)+'s';setTimeout(()=>document.getElementById('end-screen').classList.add('show'),600);}
 function togglePause(){if(!running)return;paused=!paused;document.getElementById('pause-screen').classList.toggle('show',paused);}
 document.getElementById('pause-btn').onclick=togglePause;
@@ -341,6 +343,15 @@ function loop(ts){const dt=Math.min((ts-last)/1000,.055);last=ts;if(running&&!pa
 document.getElementById('start-btn').onclick=()=>{AC.resume();document.getElementById('start-screen').classList.remove('show');initG();running=true;updateHP();updateXPBar();showWaveAnn(1,false);};
 document.getElementById('restart-btn').onclick=()=>{AC.resume();document.getElementById('end-screen').classList.remove('show');document.getElementById('upg-bar').innerHTML='';document.getElementById('boss-bar-wrap').style.display='none';bossIdx=0;initG();running=true;paused=false;updateHP();updateXPBar();document.getElementById('wave-val').textContent='1/100';document.getElementById('kill-val').textContent='💀 0';document.getElementById('score-val').textContent='0';document.getElementById('xp-lv').textContent='LV 1';showWaveAnn(1,false);};
 requestAnimationFrame(loop);
+</script>
+
+<script>
+(function(){
+  var L=localStorage.getItem('huseyinistan_lang')||'tr';
+  document.querySelectorAll('[data-tr]').forEach(function(el){
+    el.textContent=L==='en'?el.dataset.en:el.dataset.tr;
+  });
+})();
 </script>
 </body>
 </html>
