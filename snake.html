@@ -82,6 +82,7 @@
   @keyframes pulse { 0%,100%{box-shadow:0 0 12px var(--accent)88} 50%{box-shadow:0 0 28px var(--accent)} }
   .dead-text { color:var(--red)!important; text-shadow:0 0 12px var(--red),0 0 30px #ff336655!important; }
 </style>
+
 </head>
 <body>
 <div class="topbar">
@@ -93,9 +94,9 @@
   <h1>SNAKE</h1>
   <div class="hud">
     <div><span>SKOR </span><strong id="score">0</strong></div>
-    <div><span>EN İYİ </span><strong id="best">0</strong></div>
-    <div><span>SEVİYE </span><strong id="level">1</strong></div>
-    <div id="modeTag">KLASİK</div>
+    <div><span><span data-tr="EN İYİ" data-en="BEST">EN İYİ</span> </span><strong id="best">0</strong></div>
+    <div><span><span data-tr="SEVİYE" data-en="LEVEL">SEVİYE</span> </span><strong id="level">1</strong></div>
+    <div id="modeTag"><span data-tr="KLASİK" data-en="CLASSIC"><span data-tr="KLASİK" data-en="CLASSIC"><span data-tr="KLASİK" data-en="CLASSIC">KLASİK</span></span></span></div>
   </div>
 
   <div id="timerWrap"><div id="timerBar"></div></div>
@@ -105,30 +106,30 @@
 
     <!-- MODE SELECT -->
     <div class="overlay" id="modeScreen">
-      <h2>OYUN MODU SEÇ</h2>
+      <h2><span data-tr="OYUN MODU SEÇ" data-en="SELECT GAME MODE">OYUN MODU SEÇ</span></h2>
       <div class="mode-grid">
         <div class="mode-card selected" data-mode="classic">
           <div class="mc-icon">🐍</div>
           <div class="mc-title">KLASİK</div>
-          <div class="mc-desc">Duvara çarparsan biter.<br>Seviyeyle hızlanır.</div>
+          <div class="mc-desc"><span data-tr="Duvara çarparsan biter." data-en="Hits wall = game over.">Duvara çarparsan biter.</span><br><span data-tr="Seviyeyle hızlanır." data-en="Speeds up with level.">Seviyeyle hızlanır.</span></div>
         </div>
         <div class="mode-card" data-mode="portal">
           <div class="mc-icon">🌀</div>
           <div class="mc-title">PORTAL</div>
-          <div class="mc-desc">Duvardan geçip karşı<br>taraftan çıkarsın!</div>
+          <div class="mc-desc"><span data-tr="Duvardan geçip karşı taraftan çıkarsın!" data-en="Pass through walls and exit the other side!">Duvardan geçip karşı<br>taraftan çıkarsın!</span></div>
         </div>
         <div class="mode-card" data-mode="timeattack">
           <div class="mc-icon">⏱️</div>
-          <div class="mc-title">SÜRE YARIŞI</div>
-          <div class="mc-desc">30 sn'de max skor!<br>Elma süreyi uzatır.</div>
+          <div class="mc-title"><span data-tr="SÜRE YARIŞI" data-en="TIME TRIAL"><span data-tr="SÜRE YARIŞI" data-en="TIME TRIAL">SÜRE YARIŞI</span></span></div>
+          <div class="mc-desc"><span data-tr="30 sn'de max skor! Elma süreyi uzatır." data-en="Max score in 30s! Apples extend time.">30 sn'de max skor!<br>Elma süreyi uzatır.</span></div>
         </div>
         <div class="mode-card" data-mode="chaos">
           <div class="mc-icon">💥</div>
           <div class="mc-title">KAOS</div>
-          <div class="mc-desc">Engeller + portal açık<br>+ çoklu yiyecek!</div>
+          <div class="mc-desc"><span data-tr="Engeller + portal açık + çoklu yiyecek!" data-en="Obstacles + portals + multiple food!">Engeller + portal açık<br>+ çoklu yiyecek!</span></div>
         </div>
       </div>
-      <button class="start-btn" id="modeStartBtn">BAŞLAT ▶</button>
+      <button class="start-btn" id="modeStartBtn"><span data-tr="BAŞLAT ▶" data-en="START ▶">BAŞLAT ▶</span></button>
     </div>
 
     <!-- GAME OVER -->
@@ -146,10 +147,11 @@
     <button class="btn-down"  id="bD">▼</button>
     <button class="btn-right" id="bR">►</button>
   </div>
-  <p class="hint">YÖN TUŞLARI · WASD · DOKUNMATİK</p>
+  <p class="hint"><span data-tr="YÖN TUŞLARI · WASD · DOKUNMATİK" data-en="ARROW KEYS · WASD · TOUCH">YÖN TUŞLARI · WASD · DOKUNMATİK</span></p>
 </div>
 
 <script>
+var __LANG=localStorage.getItem('huseyinistan_lang')||'tr';
 // ══════════════════════════════════════════════════════
 //  AUDIO
 // ══════════════════════════════════════════════════════
@@ -316,7 +318,7 @@ const overlayTitle=document.getElementById('overlay-title'),overlayMsg=document.
 const timerWrap=document.getElementById('timerWrap'),timerBar=document.getElementById('timerBar');
 
 const ACCENTS={classic:'#00ff88',portal:'#00eeff',timeattack:'#ffe066',chaos:'#cc44ff'};
-const MNAMES={classic:'KLASİK',portal:'PORTAL',timeattack:'SÜRE YARIŞI',chaos:'KAOS'};
+const MNAMES=__LANG==='en'?{classic:'CLASSIC',portal:'PORTAL',timeattack:'TIME TRIAL',chaos:'CHAOS'}:{classic:'KLASİK',portal:'PORTAL',timeattack:'SÜRE YARIŞI',chaos:'KAOS'};
 
 function setAccent(c){ document.documentElement.style.setProperty('--accent',c); }
 
@@ -568,6 +570,15 @@ musicBtn.addEventListener('click',()=>{
 
 // Init
 initGame(); draw();
+</script>
+
+<script>
+(function(){
+  var L=localStorage.getItem('huseyinistan_lang')||'tr';
+  document.querySelectorAll('[data-tr]').forEach(function(el){
+    el.textContent=L==='en'?el.dataset.en:el.dataset.tr;
+  });
+})();
 </script>
 </body>
 </html>
