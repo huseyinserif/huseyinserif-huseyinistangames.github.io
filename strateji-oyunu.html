@@ -131,19 +131,20 @@
     transition:opacity .12s;opacity:0;}
   #tip.show{opacity:1;}
 </style>
+
 </head>
 <body>
 <div id="app">
   <header>
-    <h1>İMPARATORLUK YÜKSELİŞİ</h1>
-    <div class="sub">ORTAÇAĞ FETİH STRATEJİSİ</div>
+    <h1><span data-tr="İMPARATORLUK YÜKSELİŞİ" data-en="RISE OF EMPIRE">İMPARATORLUK YÜKSELİŞİ</span></h1>
+    <div class="sub"><span data-tr="ORTAÇAĞ FETİH STRATEJİSİ" data-en="MEDIEVAL CONQUEST STRATEGY">ORTAÇAĞ FETİH STRATEJİSİ</span></div>
   </header>
 
   <div class="res-bar">
     <div class="res"><span class="icon">👑</span><span class="lbl">ALTIN</span><span class="val" id="r-gold">30</span></div>
-    <div class="res"><span class="icon">🌾</span><span class="lbl">YİYECEK</span><span class="val" id="r-food">25</span></div>
-    <div class="res"><span class="icon">⚒</span><span class="lbl">DEMİR</span><span class="val" id="r-iron">12</span></div>
-    <div class="res"><span class="icon">📜</span><span class="lbl">ARAŞTIRMA</span><span class="val" id="r-res">8</span></div>
+    <div class="res"><span class="icon">🌾</span><span class="lbl"><span data-tr="YİYECEK" data-en="FOOD">YİYECEK</span></span><span class="val" id="r-food">25</span></div>
+    <div class="res"><span class="icon">⚒</span><span class="lbl"><span data-tr="DEMİR" data-en="IRON">DEMİR</span></span><span class="val" id="r-iron">12</span></div>
+    <div class="res"><span class="icon">📜</span><span class="lbl"><span data-tr="ARAŞTIRMA" data-en="RESEARCH">ARAŞTIRMA</span></span><span class="val" id="r-res">8</span></div>
     <div class="res"><span class="icon">⚔</span><span class="lbl">ORDU</span><span class="val" id="r-army">0</span></div>
     <div class="turn-pill">TUR <span id="turn-num">1</span></div>
     <div class="audio-ctrl">
@@ -157,7 +158,7 @@
   <div class="main">
     <div class="map-wrap">
       <div class="map-top">
-        <span>⚔ DÜNYA HARİTASI — Bölgeye tıkla, sonra düşmana tıkla</span>
+        <span><span data-tr="⚔ DÜNYA HARİTASI — Bölgeye tıkla, sonra düşmana tıkla" data-en="⚔ WORLD MAP — Click a region, then click an enemy">⚔ DÜNYA HARİTASI — Bölgeye tıkla, sonra düşmana tıkla</span></span>
         <div class="legend">
           <div class="leg"><div class="ldot" style="background:#3a8040"></div>Orman</div>
           <div class="leg"><div class="ldot" style="background:#6a8820"></div>Ova</div>
@@ -206,6 +207,7 @@
 <div id="tip"></div>
 
 <script>
+var __LANG=localStorage.getItem('huseyinistan_lang')||'tr';
 // ═══════ CONSTANTS ═══════
 const COLS=10, ROWS=9;
 const TNAMES=['forest','plains','mountain','water','desert'];
@@ -1131,6 +1133,15 @@ function checkAndPlayMusic(){
 }
 
 startGame();
+</script>
+
+<script>
+(function(){
+  var L=localStorage.getItem('huseyinistan_lang')||'tr';
+  document.querySelectorAll('[data-tr]').forEach(function(el){
+    el.textContent=L==='en'?el.dataset.en:el.dataset.tr;
+  });
+})();
 </script>
 </body>
 </html>
