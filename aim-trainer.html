@@ -76,29 +76,30 @@
   .toast { position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%) translateY(100px); background: rgba(0,212,255,0.15); border: 1px solid var(--accent); color: var(--accent); font-family: 'Orbitron', monospace; font-size: 0.7rem; letter-spacing: 0.15em; padding: 0.6rem 1.5rem; border-radius: 100px; backdrop-filter: blur(10px); transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1); z-index: 100; }
   .toast.show { transform: translateX(-50%) translateY(0); }
 </style>
+
 </head>
 <body>
 
 <header>
   <div>
     <div class="logo">AIM<span>LAB</span></div>
-    <div class="tagline">Refleks Yarışması</div>
+    <div class="tagline"><span data-tr="Refleks Yarışması" data-en="Reflex Challenge">Refleks Yarışması</span></div>
   </div>
-  <button class="music-btn" id="music-btn" onclick="toggleMusic()">🎵 MÜZİK: AÇIK</button>
+  <button class="music-btn" id="music-btn" onclick="toggleMusic()"><span data-tr="🎵 MÜZİK: AÇIK" data-en="🎵 MUSIC: ON">🎵 MÜZİK: AÇIK</span></button>
 </header>
 
 <main>
   <div class="stats-row">
     <div class="stat-card"><span class="label">Skor</span><div class="value" id="stat-score">0</div></div>
-    <div class="stat-card danger"><span class="label">Süre</span><div class="value" id="stat-time">30</div></div>
-    <div class="stat-card good"><span class="label">İsabet</span><div class="value" id="stat-acc">—</div></div>
+    <div class="stat-card danger"><span class="label"><span data-tr="Süre" data-en="Time">Süre</span></span><div class="value" id="stat-time">30</div></div>
+    <div class="stat-card good"><span class="label"><span data-tr="İsabet" data-en="Accuracy">İsabet</span></span><div class="value" id="stat-acc">—</div></div>
     <div class="stat-card"><span class="label">Ort. ms</span><div class="value" id="stat-avg">—</div></div>
   </div>
 
   <div class="mode-row">
     <button class="mode-btn active" onclick="setMode('classic')">🎯 Klasik</button>
     <button class="mode-btn" onclick="setMode('precision')">🔬 Hassas</button>
-    <button class="mode-btn" onclick="setMode('speed')">⚡ Hız</button>
+    <button class="mode-btn" onclick="setMode('speed')"><span data-tr="⚡ Hız" data-en="⚡ Speed">⚡ Hız</span></button>
     <button class="mode-btn" onclick="setMode('moving')">🌀 Hareketli</button>
   </div>
 
@@ -106,13 +107,13 @@
     <canvas id="gameCanvas"></canvas>
     <div class="overlay" id="overlay-start">
       <h2>AIM LAB</h2>
-      <p>HEDEFLERE TIKLA — ZAMANIN DOLMADAN<br>EN YÜKSEK SKORU YAKALA</p>
+      <p><span data-tr="HEDEFLERE TIKLA — ZAMANIN DOLMADAN" data-en="CLICK TARGETS — BEFORE TIME RUNS OUT">HEDEFLERE TIKLA — ZAMANIN DOLMADAN</span><br><span data-tr="EN YÜKSEK SKORU YAKALA" data-en="GET THE HIGHEST SCORE">EN YÜKSEK SKORU YAKALA</span></p>
       <div id="start-best" class="best-disp" style="display:none"></div>
-      <button class="btn" onclick="startGame()">BAŞLAT</button>
+      <button class="btn" onclick="startGame()"><span data-tr="BAŞLAT" data-en="START">BAŞLAT</span></button>
       <p style="font-size:0.7rem;margin-top:-0.2rem">MOD SEÇ → BAŞLAT</p>
     </div>
     <div class="overlay" id="overlay-result" style="display:none">
-      <h2 id="res-title">SÜRE DOLDU</h2>
+      <h2 id="res-title"><span data-tr="SÜRE DOLDU" data-en="TIME UP">SÜRE DOLDU</span></h2>
       <div class="result-grid">
         <div class="result-item"><div class="r-label">Skor</div><div class="r-value" id="res-score">0</div></div>
         <div class="result-item"><div class="r-label">İsabet</div><div class="r-value" id="res-acc">0%</div></div>
@@ -393,7 +394,7 @@ function startMusic() {
   musicGain.gain.setValueAtTime(0, ac.currentTime);
   musicGain.gain.linearRampToValueAtTime(0.38, ac.currentTime + 0.8);
   musicLoop();
-  document.getElementById('vis-status').textContent = 'çalıyor ♪';
+  document.getElementById('vis-status').textContent = (__LANG==='en'?'playing ♪':'çalıyor ♪');
 }
 
 function stopMusic() {
@@ -413,10 +414,10 @@ function toggleMusic() {
   musicEnabled = !musicEnabled;
   const btn = document.getElementById('music-btn');
   if (musicEnabled) {
-    btn.textContent = '🎵 MÜZİK: AÇIK'; btn.classList.remove('muted');
+    btn.textContent = (__LANG==='en'?'🎵 MUSIC: ON':'🎵 MÜZİK: AÇIK'); btn.classList.remove('muted');
     if (gameActive) startMusic();
   } else {
-    btn.textContent = '🔇 MÜZİK: KAPALI'; btn.classList.add('muted');
+    btn.textContent = (__LANG==='en'?'🔇 MUSIC: OFF':'🔇 MÜZİK: KAPALI'); btn.classList.add('muted');
     stopMusic();
   }
 }
@@ -608,11 +609,11 @@ function endGame() {
   const prev = parseInt(localStorage.getItem('aimlab-best') || '0');
   if (score > prev) {
     localStorage.setItem('aimlab-best', score);
-    document.getElementById('res-title').textContent = '🏆 YENİ REKOR!';
+    document.getElementById('res-title').textContent = (__LANG==='en'?'🏆 NEW RECORD!':'🏆 YENİ REKOR!');
     document.getElementById('res-best').textContent = `KİŞİSEL REKOR: ${score}`;
     updateBestDisplay(); playNewRecord();
   } else {
-    document.getElementById('res-title').textContent = 'SÜRE DOLDU';
+    document.getElementById('res-title').textContent = (__LANG==='en'?'TIME UP':'SÜRE DOLDU');
     document.getElementById('res-best').textContent = `EN İYİ: ${prev}`;
     playGameOver();
   }
@@ -734,6 +735,15 @@ updateBestDisplay();
 buildVisualizer();
 animateVisualizer();
 gameLoop();
+</script>
+
+<script>
+(function(){
+  var L=localStorage.getItem('huseyinistan_lang')||'tr';
+  document.querySelectorAll('[data-tr]').forEach(function(el){
+    el.textContent=L==='en'?el.dataset.en:el.dataset.tr;
+  });
+})();
 </script>
 </body>
 </html>
