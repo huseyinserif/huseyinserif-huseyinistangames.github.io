@@ -100,6 +100,7 @@ canvas{display:block;border:2px solid #0ff;box-shadow:0 0 30px #0ff,0 0 60px #0f
 @keyframes blink{0%,100%{opacity:1;}50%{opacity:0;}}
 @keyframes shieldPulse{0%,100%{box-shadow:0 0 8px #44f;}50%{box-shadow:0 0 20px #88f;}}
 </style>
+
 </head>
 <body>
 <div id="gameWrapper">
@@ -115,16 +116,16 @@ canvas{display:block;border:2px solid #0ff;box-shadow:0 0 30px #0ff,0 0 60px #0f
 
   <!-- MENU -->
   <div class="overlay active" id="menuOverlay">
-    <h1>KAÇIŞ</h1>
-    <div class="sub">MERMİLERDEN KAÇMAYA ÇALIŞ<br>HAYATINI KORU</div>
+    <h1><span data-tr="KAÇIŞ" data-en="ESCAPE">KAÇIŞ</span><h1>
+    <div class="sub"><span data-tr="MERMİLERDEN KAÇMAYA ÇALIŞ" data-en="DODGE THE BULLETS">MERMİLERDEN KAÇMAYA ÇALIŞ</span><br>HAYATINI KORU</div>
     <div class="best" id="bestDisplay"></div>
-    <button class="btn btn-blink" id="startBtn">BAŞLA</button>
-    <div class="controls"><b>WASD</b> / <b>OK TUŞLARI</b> = hareket&nbsp;&nbsp;<b>SHIFT</b> = yavaş mod<br><b>MOBİL</b>: Dokunup sürükle</div>
+    <button class="btn btn-blink" id="startBtn"><span data-tr="BAŞLA" data-en="START">BAŞLA</span></button>
+    <div class="controls"><b>WASD</b> / <b>ARROW KEYS</b> = <span data-tr="hareket" data-en="move">hareket</span>&nbsp;&nbsp;<b>SHIFT</b> = yavaş mod<br><b>MOBİL</b>: Dokunup sürükle</div>
   </div>
 
   <!-- LEVEL COMPLETE / DÜKKAN -->
   <div class="overlay" id="shopOverlay">
-    <h2>⚔ DÜKKAN ⚔</h2>
+    <h2><span data-tr="⚔ DÜKKAN ⚔" data-en="⚔ SHOP ⚔">⚔ DÜKKAN ⚔</span></h2>
     <div class="shop-level" id="shopLevelTxt"></div>
     <div class="coins-display">🪙 <span id="shopCoins">0</span> ALTIN</div>
     <div id="shopGrid"></div>
@@ -133,10 +134,10 @@ canvas{display:block;border:2px solid #0ff;box-shadow:0 0 30px #0ff,0 0 60px #0f
 
   <!-- DEATH -->
   <div class="overlay" id="deathOverlay">
-    <h1>☠ ÖLDÜN</h1>
+    <h1><span data-tr="☠ ÖLDÜN" data-en="☠ YOU DIED">☠ ÖLDÜN</span></h1>
     <div class="death-stats" id="deathStats"></div>
     <div class="best" id="deathBest"></div>
-    <button class="btn btn-blink" id="retryBtn">YENİDEN</button>
+    <button class="btn btn-blink" id="retryBtn"><span data-tr="YENİDEN" data-en="RETRY">YENİDEN</span></button>
   </div>
 </div>
 
@@ -414,12 +415,12 @@ let frame=0,score=0,level=1,coins=0,bestScore=0;
 
 // UPGRADES
 const UPGRADES={
-  maxHp:   {name:'Ekstra Can',    icon:'❤️',  desc:'Maksimum canı\n+1 artır',   cost:[15,30,55],  max:3, val:0},
-  heal:    {name:'Can İçi',       icon:'💊',  desc:'Anında 1 can\ntazele',       cost:[10,20,40],  max:3, val:0, oneshot:true},
-  shield:  {name:'Kalkan',        icon:'🛡️',  desc:'Hasar yutacak\nkalkan katı', cost:[18,35,70],  max:3, val:0},
-  speed:   {name:'Hız Arttır',    icon:'⚡',  desc:'Hareket hızını\nyükselt',    cost:[12,25,45],  max:3, val:0},
-  magnet:  {name:'Altın Mıknatıs',icon:'🧲',  desc:'Altın toplama\nalanı genişler',cost:[15,30],  max:2, val:0},
-  bomb:    {name:'Bomba',         icon:'💣',  desc:'Tüm mermileri\npatlat!',     cost:[20,40,70],  max:3, val:0, oneshot:true},
+  maxHp:   {name:(__LANG==='en'?'Extra HP':'Ekstra Can'),    icon:'❤️',  desc:(__LANG==='en'?'Max HP\n+1':'Maksimum canı\n+1 artır'),   cost:[15,30,55],  max:3, val:0},
+  heal:    {name:(__LANG==='en'?'Heal':'Can İçi'),       icon:'💊',  desc:(__LANG==='en'?'Restore\n1 HP':'Anında 1 can\ntazele'),       cost:[10,20,40],  max:3, val:0, oneshot:true},
+  shield:  {name:(__LANG==='en'?'Shield':'Kalkan'),        icon:'🛡️',  desc:(__LANG==='en'?'Add damage-\nabsorbing layer':'Hasar yutacak\nkalkan katı'), cost:[18,35,70],  max:3, val:0},
+  speed:   {name:(__LANG==='en'?'Speed Up':'Hız Arttır'),    icon:'⚡',  desc:'Hareket hızını\nyükselt',    cost:[12,25,45],  max:3, val:0},
+  magnet:  {name:(__LANG==='en'?'Gold Magnet':'Altın Mıknatıs'),icon:'🧲',  desc:(__LANG==='en'?'Wider gold\npickup range':'Altın toplama\nalanı genişler'),cost:[15,30],  max:2, val:0},
+  bomb:    {name:(__LANG==='en'?'Bomb':'Bomba'),         icon:'💣',  desc:(__LANG==='en'?'Blast all\nbullets!':'Tüm mermileri\npatlat!'),     cost:[20,40,70],  max:3, val:0, oneshot:true},
 };
 
 // PLAYER
@@ -522,7 +523,7 @@ function gameOver(){
   SFX.death();
   setTimeout(()=>{
     deathStatsEl.innerHTML=`SKOR: <span>${score}</span>&nbsp;&nbsp;SEVİYE: <span style="color:#ff0">${level}</span><br>TOPLANAN ALTIN: <span style="color:#ff0">${coins}</span>`;
-    deathBestEl.textContent=bestScore>0?`🏆 EN İYİ: ${bestScore}`:'';
+    deathBestEl.textContent=bestScore>0?`${__LANG==="en"?"🏆 BEST":"🏆 EN İYİ"}: ${bestScore}`:'';
     showOverlay('deathOverlay');
   },800);
 }
@@ -532,7 +533,7 @@ let levelFrameTarget=0;
 function openShop(){
   gameState='shop';
   stopMusic();
-  shopLevelTxt.textContent=`SEVİYE ${level} TAMAMLANDI!`;
+  shopLevelTxt.textContent=`${__LANG==="en"?"LEVEL "+level+" COMPLETE!":"SEVİYE "+level+" TAMAMLANDI!"}`;
   shopCoinsEl.textContent=coins;
   buildShopGrid();
   showOverlay('shopOverlay');
@@ -840,10 +841,10 @@ function loop(){
   // Level bar label
   ctx.fillStyle='rgba(0,255,255,0.5)';
   ctx.font='6px "Press Start 2P"';
-  ctx.fillText(`SEVİYE ${level}`,6,H-10);
+  ctx.fillText(`${__LANG==="en"?"LEVEL":"SEVİYE"} ${level}`,6,H-10);
   ctx.fillStyle='rgba(0,255,255,0.5)';
   ctx.textAlign='right';
-  ctx.fillText(`→ DÜKKAN`,W-6,H-10);
+  ctx.fillText(__LANG==="en"?"→ SHOP":"→ DÜKKAN",W-6,H-10);
   ctx.textAlign='left';
 
   requestAnimationFrame(loop);
@@ -863,6 +864,15 @@ function menuLoop(){
 menuLoop();
 updateHud();
 bestEl.textContent='';
+</script>
+
+<script>
+(function(){
+  var L=localStorage.getItem('huseyinistan_lang')||'tr';
+  document.querySelectorAll('[data-tr]').forEach(function(el){
+    el.textContent=L==='en'?el.dataset.en:el.dataset.tr;
+  });
+})();
 </script>
 </body>
 </html>
