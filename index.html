@@ -1,0 +1,1943 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hüseyinistan Games</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --neon-cyan: #00f5ff;
+    --neon-purple: #bf00ff;
+    --neon-pink: #ff0080;
+    --neon-green: #00ff88;
+    --dark-bg: #050510;
+    --card-bg: #0a0a1f;
+    --card-border: #1a1a3e;
+  }
+  html { scroll-behavior: smooth; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Rajdhani', sans-serif;
+    background: var(--dark-bg);
+    color: #fff;
+    overflow-x: hidden;
+    overflow-y: auto;
+    cursor: none;
+  }
+  .cursor {
+    width: 12px; height: 12px;
+    background: var(--neon-cyan);
+    border-radius: 50%;
+    position: fixed; pointer-events: none; z-index: 9999;
+    transform: translate(-50%, -50%);
+    transition: transform 0.1s;
+    box-shadow: 0 0 10px var(--neon-cyan), 0 0 20px var(--neon-cyan);
+  }
+  .cursor-ring {
+    width: 36px; height: 36px;  border-radius: 50%;
+    position: fixed; pointer-events: none; z-index: 9998;
+    transform: translate(-50%, -50%); transition: all 0.15s ease; opacity: 0.6;
+  }
+  .grid-bg {
+    position: fixed; inset: 0;
+    background-image: linear-gradient(rgba(0,245,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(0,245,255,0.03) 1px, transparent 1px);
+    background-size: 60px 60px; z-index: 0;
+    animation: gridMove 20s linear infinite;
+  }
+  @keyframes gridMove { 0% { background-position: 0 0; } 100% { background-position: 60px 60px; } }
+  .particles { position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; }
+  .particle { position: absolute; width: 2px; height: 2px; border-radius: 50%; animation: floatUp linear infinite; opacity: 0; }
+  @keyframes floatUp {
+    0% { transform: translateY(100vh); opacity: 0; } 10% { opacity: 1; } 90% { opacity: 1; }
+    100% { transform: translateY(-100px) translateX(40px); opacity: 0; }
+  }
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    padding: 20px 60px; display: flex; justify-content: space-between; align-items: center;
+    background: linear-gradient(180deg, rgba(5,5,16,0.95) 0%, transparent 100%);
+    backdrop-filter: blur(10px);
+  }
+  .logo { font-family: 'Orbitron', monospace; font-size: 1.4rem; font-weight: 900; letter-spacing: 2px; }
+  .logo .c1 { color: var(--neon-cyan); text-shadow: 0 0 20px var(--neon-cyan); }
+  .logo .c2 { color: var(--neon-purple); text-shadow: 0 0 20px var(--neon-purple); }
+  .nav-links { display: flex; gap: 40px; list-style: none; }
+  .nav-links a {
+    color: rgba(255,255,255,0.6); text-decoration: none;
+    font-size: 0.9rem; letter-spacing: 2px; text-transform: uppercase;
+    transition: all 0.3s; position: relative;
+  }
+  .nav-links a::after { content: ''; position: absolute; bottom: -4px; left: 0; right: 0; height: 1px; background: var(--neon-cyan); transform: scaleX(0); transition: transform 0.3s; }
+  .nav-links a:hover { color: var(--neon-cyan); text-shadow: 0 0 10px var(--neon-cyan); }
+  .nav-links a:hover::after { transform: scaleX(1); }
+  .hero {
+    position: relative; min-height: 100vh;
+    display: flex; flex-direction: column; justify-content: center; align-items: center;
+    text-align: center; z-index: 1; padding: 100px 20px 60px;
+  }
+  .hero-badge {
+    font-family: 'Orbitron', monospace; font-size: 0.7rem; letter-spacing: 6px; color: var(--neon-green);
+    text-transform: uppercase; margin-bottom: 24px; opacity: 0; animation: fadeUp 0.8s 0.2s forwards;
+    border: 1px solid rgba(0,255,136,0.3); padding: 6px 20px; border-radius: 20px; background: rgba(0,255,136,0.05);
+  }
+  .hero h1 { font-family: 'Orbitron', monospace; font-size: clamp(3rem, 8vw, 7rem); font-weight: 900; line-height: 1; opacity: 0; animation: fadeUp 0.8s 0.4s forwards; }
+  .hero h1 .line1 { display: block; color: #fff; text-shadow: 0 0 40px rgba(255,255,255,0.3); }
+  .hero h1 .line2 {
+    display: block;
+    background: linear-gradient(90deg, var(--neon-cyan), var(--neon-purple), var(--neon-pink));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    filter: drop-shadow(0 0 20px rgba(0,245,255,0.5));
+  }
+  .hero-sub { margin-top: 24px; font-size: 1.1rem; color: rgba(255,255,255,0.5); letter-spacing: 3px; text-transform: uppercase; opacity: 0; animation: fadeUp 0.8s 0.6s forwards; }
+  .hero-cta { margin-top: 48px; opacity: 0; animation: fadeUp 0.8s 0.8s forwards; }
+  .btn-primary {
+    font-family: 'Orbitron', monospace; font-size: 0.85rem; letter-spacing: 3px; text-transform: uppercase;
+    padding: 16px 48px; border: none; background: linear-gradient(135deg, var(--neon-cyan), var(--neon-purple));
+    color: #000; font-weight: 700; cursor: none;
+    clip-path: polygon(12px 0%, 100% 0%, calc(100% - 12px) 100%, 0% 100%); transition: all 0.3s;
+  }
+  .btn-primary:hover { transform: scale(1.05); box-shadow: 0 0 30px rgba(0,245,255,0.5); }
+  .scroll-indicator {
+    position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%);
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+    opacity: 0; animation: fadeIn 1s 1.5s forwards;
+  }
+  .scroll-indicator span { font-size: 0.7rem; letter-spacing: 3px; color: rgba(255,255,255,0.3); text-transform: uppercase; }
+  .scroll-line { width: 1px; height: 40px; background: linear-gradient(180deg, var(--neon-cyan), transparent); animation: sPulse 2s ease-in-out infinite; }
+  @keyframes sPulse { 0%,100%{opacity:0.3;} 50%{opacity:1;} }
+  .corner-deco { position: absolute; width: 20px; height: 20px; border-color: var(--neon-cyan); border-style: solid; opacity: 0.4; }
+  .corner-deco.tl { top:10px;left:10px;border-width:1px 0 0 1px; }
+  .corner-deco.tr { top:10px;right:10px;border-width:1px 1px 0 0; }
+  .corner-deco.bl { bottom:10px;left:10px;border-width:0 0 1px 1px; }
+  .corner-deco.br { bottom:10px;right:10px;border-width:0 1px 1px 0; }
+  section { position: relative; z-index: 1; padding: 100px 60px; max-width: 1400px; margin: 0 auto; }
+  .section-header { display: flex; align-items: center; gap: 24px; margin-bottom: 60px; }
+  .section-number { font-family: 'Orbitron', monospace; font-size: 0.7rem; color: var(--neon-cyan); letter-spacing: 2px; opacity: 0.6; }
+  .section-title { font-family: 'Orbitron', monospace; font-size: clamp(1.5rem, 3vw, 2.5rem); font-weight: 700; letter-spacing: 2px; }
+  .section-line { flex: 1; height: 1px; background: linear-gradient(90deg, var(--neon-cyan), transparent); opacity: 0.3; }
+  .games-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 24px; }
+  .game-card {
+    background: var(--card-bg); border: 1px solid var(--card-border);
+    position: relative; overflow: hidden; transition: all 0.4s;
+    clip-path: polygon(0 0, calc(100% - 20px) 0, 100% 20px, 100% 100%, 20px 100%, 0 calc(100% - 20px));
+    cursor: none; display: block; color: inherit; text-decoration: none;
+  }
+  .game-card::before { content: ''; position: absolute; inset: 0; background: linear-gradient(135deg, rgba(0,245,255,0.05), transparent); opacity: 0; transition: opacity 0.4s; }
+  .game-card:hover { border-color: var(--neon-cyan); transform: translateY(-8px); box-shadow: 0 20px 60px rgba(0,245,255,0.15); }
+  .game-card:hover::before { opacity: 1; }
+  .game-thumbnail {
+    width: 100%; height: 180px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 4rem; position: relative; overflow: hidden;
+  }
+  .game-thumbnail::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, transparent 50%, var(--card-bg) 100%); }
+  .game-thumb-glow { position: absolute; width: 120px; height: 120px; border-radius: 50%; filter: blur(35px); opacity: 0.4; animation: gPulse 3s ease-in-out infinite; }
+  @keyframes gPulse { 0%,100%{transform:scale(1);opacity:0.4;} 50%{transform:scale(1.3);opacity:0.65;} }
+  .game-info { padding: 20px; }
+  .game-tag { font-size: 0.65rem; letter-spacing: 3px; text-transform: uppercase; color: var(--neon-green); margin-bottom: 8px; }
+  .game-name { font-family: 'Orbitron', monospace; font-size: 1rem; font-weight: 700; margin-bottom: 10px; color: #fff; }
+  .game-desc { font-size: 0.88rem; color: rgba(255,255,255,0.5); line-height: 1.6; margin-bottom: 18px; }
+  .game-footer { display: flex; justify-content: flex-end; align-items: center; border-top: 1px solid var(--card-border); padding-top: 14px; }
+  .btn-play {
+    font-family: 'Orbitron', monospace; font-size: 0.65rem; letter-spacing: 2px;
+    padding: 8px 20px;  background: transparent;
+    color: var(--neon-cyan); cursor: none; text-transform: uppercase; transition: all 0.3s;
+    clip-path: polygon(6px 0%, 100% 0%, calc(100% - 6px) 100%, 0% 100%);
+  }
+  .btn-play:hover { background: var(--neon-cyan); color: #000; box-shadow: 0 0 20px rgba(0,245,255,0.4); }
+  .modal-overlay {
+    display: none; position: fixed; inset: 0; z-index: 500;
+    background: rgba(0,0,10,0.95); backdrop-filter: blur(8px);
+    align-items: center; justify-content: center;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal-container {
+    width: 100vw; height: 100vh;
+    background: var(--card-bg); 
+    
+    display: flex; flex-direction: column;
+    
+  }
+  .modal-header {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 8px 16px; border-bottom: 1px solid var(--card-border); flex-shrink: 0;
+  }
+  .modal-title { font-family: 'Orbitron', monospace; font-size: 1rem; color: var(--neon-cyan); letter-spacing: 2px; }
+  .modal-close {
+    background: transparent; border: 1px solid var(--neon-pink); color: var(--neon-pink);
+    font-family: 'Orbitron', monospace; font-size: 0.7rem; letter-spacing: 2px;
+    padding: 6px 16px; cursor: none; transition: all 0.3s;
+  }
+  .modal-close:hover { background: var(--neon-pink); color: #000; }
+  .modal-iframe { flex: 1; width: 100%; border: none; background: #000; }
+  .about-content { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center; }
+  .about-text h3 { font-family: 'Orbitron', monospace; font-size: 1.8rem; margin-bottom: 24px; color: var(--neon-cyan); text-shadow: 0 0 20px rgba(0,245,255,0.3); }
+  .about-text p { color: rgba(255,255,255,0.6); line-height: 1.8; font-size: 1rem; margin-bottom: 16px; }
+  .about-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .about-stat-card {
+    background: var(--card-bg); border: 1px solid var(--card-border); padding: 24px; text-align: center;
+    clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px));
+    transition: all 0.3s;
+  }
+  .about-stat-card:hover { border-color: var(--neon-purple); box-shadow: 0 0 30px rgba(191,0,255,0.1); }
+  .stat-value { font-family: 'Orbitron', monospace; font-size: 2.5rem; font-weight: 900; background: linear-gradient(135deg, var(--neon-cyan), var(--neon-purple)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+  .stat-label { font-size: 0.75rem; letter-spacing: 2px; color: rgba(255,255,255,0.4); text-transform: uppercase; margin-top: 4px; }
+  .contact-wrapper { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: start; }
+  .contact-info h3 { font-family: 'Orbitron', monospace; font-size: 1.2rem; color: var(--neon-pink); margin-bottom: 16px; text-shadow: 0 0 20px rgba(255,0,128,0.3); }
+  .contact-info p { color: rgba(255,255,255,0.5); line-height: 1.8; margin-bottom: 32px; }
+
+  .contact-form { display: flex; flex-direction: column; gap: 16px; }
+  .form-group { display: flex; flex-direction: column; gap: 8px; }
+  .form-group label { font-size: 0.7rem; letter-spacing: 2px; color: rgba(255,255,255,0.4); text-transform: uppercase; }
+  .form-group input, .form-group textarea { background: var(--card-bg); border: 1px solid var(--card-border); color: #fff; padding: 14px 18px; font-family: 'Rajdhani', sans-serif; font-size: 1rem; outline: none; transition: border-color 0.3s; resize: none; }
+  .form-group input:focus, .form-group textarea:focus { border-color: var(--neon-cyan); }
+  .form-group textarea { height: 120px; }
+  footer { position: relative; z-index: 1; border-top: 1px solid var(--card-border); padding: 40px 60px; display: flex; justify-content: space-between; align-items: center; }
+  .footer-logo { font-family: 'Orbitron', monospace; font-size: 1rem; font-weight: 900; letter-spacing: 2px; }
+  .footer-logo .c1 { color: var(--neon-cyan); }
+  .footer-logo .c2 { color: var(--neon-purple); }
+  .footer-text { font-size: 0.75rem; color: rgba(255,255,255,0.3); letter-spacing: 1px; }
+  @keyframes fadeUp { from { opacity:0; transform:translateY(30px); } to { opacity:1; transform:translateY(0); } }
+  @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
+  body::after { content:''; position:fixed; inset:0; background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.03) 2px,rgba(0,0,0,0.03) 4px); pointer-events:none; z-index:1000; }
+  @media (max-width: 768px) {
+    nav { padding: 16px 24px; } .nav-links { display: none; }
+    section { padding: 60px 24px; }
+    .about-content, .contact-wrapper { grid-template-columns: 1fr; gap: 40px; }
+    footer { flex-direction: column; gap: 16px; text-align: center; padding: 32px 24px; }
+  }
+</style>
+<link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@400;700;900&family=JetBrains+Mono:wght@600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Teko:wght@400;600;700&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;700;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+
+  /* EMBEDDED GAMES SECTION */
+  .embed-tabs {
+    display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 24px;
+  }
+  .embed-tab {
+    font-family: 'Orbitron', monospace; font-size: 0.65rem; letter-spacing: 2px;
+    padding: 10px 20px; border: 1px solid var(--card-border);
+    background: var(--card-bg); color: rgba(255,255,255,0.5);
+    cursor: none; text-transform: uppercase; transition: all 0.25s;
+    clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
+  }
+  .embed-tab:hover, .embed-tab.active {
+    border-color: var(--neon-cyan); color: var(--neon-cyan);
+    box-shadow: 0 0 16px rgba(0,245,255,0.2);
+    background: rgba(0,245,255,0.06);
+  }
+  .embed-container {
+    background: var(--card-bg); border: 1px solid var(--card-border);
+    border-radius: 4px; min-height: 600px; position: relative;
+    overflow-y: auto;
+  }
+  .embed-placeholder {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    height: 600px; gap: 16px; color: rgba(255,255,255,0.15);
+  }
+  .embed-ph-icon { font-size: 4rem; }
+  .embed-ph-text { font-family: 'Orbitron', monospace; font-size: 0.75rem; letter-spacing: 3px; text-transform: uppercase; }
+  .embedded-game-panel {
+    width: 100%; min-height: 600px;
+  }
+  .embedded-game-wrap {
+    width: 100%; min-height: 600px;
+    display: flex; flex-direction: column; align-items: center;
+    padding: 20px; overflow-y: auto;
+  }
+
+/* ── 2048 ── */
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}.embedded-game-wrap :root {
+  --bg:#0e0e16;--surface:#16161f;--border:#2a2a3d;
+  --text:#e8e8ff;--muted:#4a4a6a;
+  --grid-bg:#1a1a28;--cell-bg:#1e1e2e;
+}.embedded-game-wrap .embedded-game-wrap {
+  background:var(--bg);color:var(--text);
+  font-family:'Exo 2',sans-serif;
+  min-height:100vh;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  padding:16px;gap:14px;user-select:none;overflow:hidden;
+}.embedded-game-wrap .embedded-game-wrap::before {
+  content:'';position:absolute;inset:0;
+  background:
+    radial-gradient(ellipse 60% 50% at 30% 20%,rgba(255,180,0,.05),transparent 55%),
+    radial-gradient(ellipse 50% 60% at 70% 80%,rgba(255,80,120,.04),transparent 55%);
+  pointer-events:none;
+}.embedded-game-wrap .top {display:flex;align-items:center;justify-content:space-between;width:100%;max-width:440px;gap:12px;}.embedded-game-wrap h1 {
+  font-size:clamp(2.8rem,9vw,4.2rem);font-weight:900;letter-spacing:-.02em;
+  background:linear-gradient(135deg,#ffb800,#ff6030);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1;
+}.embedded-game-wrap .scores {display:flex;gap:8px;}.embedded-game-wrap .score-box {background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;text-align:center;min-width:76px;}.embedded-game-wrap .score-lbl {font-size:.55rem;letter-spacing:.15em;color:var(--muted);text-transform:uppercase;}.embedded-game-wrap .score-val {font-family:'JetBrains Mono',monospace;font-size:1.25rem;font-weight:600;color:#ffb800;line-height:1.2;}.embedded-game-wrap .row2 {display:flex;gap:8px;align-items:center;justify-content:space-between;width:100%;max-width:440px;}.embedded-game-wrap .size-bar {display:flex;gap:6px;}.embedded-game-wrap .sz-btn {
+  font-family:'JetBrains Mono',monospace;font-size:.7rem;
+  padding:5px 12px;border-radius:6px;
+  border:1px solid var(--border);background:var(--surface);
+  color:var(--muted);cursor:pointer;transition:all .15s;
+}.embedded-game-wrap .sz-btn.active, .embedded-game-wrap .sz-btn:hover {border-color:#ffb800;color:#ffb800;background:rgba(255,184,0,.08);}.embedded-game-wrap .btn {
+  font-family:'Exo 2',sans-serif;font-weight:700;font-size:.78rem;
+  letter-spacing:.06em;padding:8px 18px;border-radius:8px;
+  border:none;background:linear-gradient(135deg,#ffb800,#ff6030);
+  color:#0e0e16;cursor:pointer;transition:all .15s;
+}.embedded-game-wrap .btn:hover {box-shadow:0 0 16px rgba(255,184,0,.4);}.embedded-game-wrap .btn:active {transform:scale(.95);}.embedded-game-wrap .grid-wrap {position:relative;}.embedded-game-wrap .grid-wrap::before {
+  content:'';position:absolute;inset:-2px;border-radius:14px;
+  background:linear-gradient(135deg,#ffb800,#ff6030);
+  z-index:-1;opacity:.4;
+}.embedded-game-wrap #grid {
+  background:var(--grid-bg);border-radius:12px;padding:10px;
+  display:grid;gap:8px;
+  width:min(440px,96vw);height:min(440px,96vw);
+}.embedded-game-wrap .cell {
+  background:var(--cell-bg);border-radius:8px;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'JetBrains Mono',monospace;font-weight:600;
+  position:relative;overflow:hidden;transition:background .08s;
+}.embedded-game-wrap .cell::after {content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.05),transparent);pointer-events:none;}.embedded-game-wrap .cell.pop {animation:pop .18s ease;}@keyframes pop{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}.embedded-game-wrap .cell.born {animation:born .15s ease;}@keyframes born{from{transform:scale(0);opacity:0}to{transform:scale(1);opacity:1}}.embedded-game-wrap .v2 {background:#2d2416;color:#ffd580;border:1px solid #3d3020;}.embedded-game-wrap .v4 {background:#2d1e12;color:#ffaa40;border:1px solid #3d2818;}.embedded-game-wrap .v8 {background:#3d1a0a;color:#ff8030;border:1px solid #4d2210;}.embedded-game-wrap .v16 {background:#3d1010;color:#ff5050;border:1px solid #4d1818;}.embedded-game-wrap .v32 {background:#3d0d1a;color:#ff4080;border:1px solid #4d1228;}.embedded-game-wrap .v64 {background:#2d0d2d;color:#e040fb;border:1px solid #3d1240;}.embedded-game-wrap .v128 {background:#1a0d3d;color:#c77dff;border:1px solid #281250;}.embedded-game-wrap .v256 {background:#0d1a3d;color:#7b9fff;border:1px solid #122450;}.embedded-game-wrap .v512 {background:#0d2a3d;color:#40c8ff;border:1px solid #124050;}.embedded-game-wrap .v1024 {background:#0d3020;color:#40ffb0;border:1px solid #125030;}.embedded-game-wrap .v2048 {background:#1a3010;color:#a0ff40;border:1px solid #284010;box-shadow:0 0 20px rgba(160,255,64,.35);}.embedded-game-wrap .vbig {background:#2a1a00;color:#ffd700;border:1px solid #503000;box-shadow:0 0 16px rgba(255,215,0,.3);}.embedded-game-wrap #msg {font-size:.68rem;letter-spacing:.12em;color:var(--muted);height:18px;text-align:center;}.embedded-game-wrap .overlay {
+  position:absolute;inset:0;background:rgba(14,14,22,.92);backdrop-filter:blur(12px);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:16px;z-index:100;opacity:0;pointer-events:none;transition:opacity .4s;
+}.embedded-game-wrap .overlay.show {opacity:1;pointer-events:all;}.embedded-game-wrap .ov-em {font-size:4rem;animation:bob 2s ease infinite alternate;}@keyframes bob{from{transform:translateY(0)}to{transform:translateY(-12px)}}.embedded-game-wrap .ov-title {
+  font-size:clamp(2rem,7vw,3rem);font-weight:900;letter-spacing:.06em;
+  background:linear-gradient(135deg,#ffb800,#ff6030);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}.embedded-game-wrap .ov-info {font-family:'JetBrains Mono',monospace;font-size:.82rem;color:var(--muted);text-align:center;line-height:2.2;}.embedded-game-wrap .ov-info span {color:#ffb800;}.embedded-game-wrap .ov-btn {
+  font-family:'Exo 2',sans-serif;font-weight:700;font-size:.9rem;
+  letter-spacing:.08em;padding:13px 36px;border-radius:10px;
+  border:none;background:linear-gradient(135deg,#ffb800,#ff6030);
+  color:#0e0e16;cursor:pointer;transition:transform .12s,box-shadow .15s;
+}.embedded-game-wrap .ov-btn:hover {transform:scale(1.05);box-shadow:0 0 22px rgba(255,184,0,.4);}/* ── MUTE BUTTON ── */
+.embedded-game-wrap /* ── MUSIC BUTTON ── */
+.embedded-game-wrap .embedded-game-wrap /* ── Kayar Bulmaca ── */
+
+  *, *::before, *::after{ box-sizing: border-box; margin: 0; padding: 0; }.embedded-game-wrap :root {
+    --bg: #0a0a0f;
+    --panel: #12121a;
+    --accent: #e8ff47;
+    --accent2: #ff4fd8;
+    --tile: #1c1c2e;
+    --tile-border: #2e2e4a;
+    --text: #f0f0ff;
+    --muted: #55556a;
+  }.embedded-game-wrap body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    overflow: hidden;
+  }.embedded-game-wrap body::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 60% 50% at 20% 20%, rgba(232,255,71,0.06) 0%, transparent 60%),
+      radial-gradient(ellipse 50% 60% at 80% 80%, rgba(255,79,216,0.07) 0%, transparent 60%);
+    pointer-events: none;
+  }.embedded-game-wrap .container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 28px;
+    position: relative;
+    z-index: 1;
+  }.embedded-game-wrap header {
+    text-align: center;
+  }.embedded-game-wrap header h1 {
+    font-size: clamp(2rem, 5vw, 3.2rem);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 1;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }.embedded-game-wrap header p {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--muted);
+    margin-top: 6px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }.embedded-game-wrap .stats {
+    display: flex;
+    gap: 24px;
+    font-family: 'Space Mono', monospace;
+  }.embedded-game-wrap .stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+  }.embedded-game-wrap .stat-value {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--accent);
+    line-height: 1;
+    min-width: 60px;
+    text-align: center;
+  }.embedded-game-wrap .stat-label {
+    font-size: 0.65rem;
+    color: var(--muted);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }.embedded-game-wrap .stat-divider {
+    width: 1px;
+    background: var(--tile-border);
+    align-self: stretch;
+  }.embedded-game-wrap .board-wrap {
+    position: relative;
+  }.embedded-game-wrap .board-wrap::before {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    border-radius: 18px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    z-index: -1;
+    opacity: 0.5;
+  }.embedded-game-wrap #board {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
+    background: var(--panel);
+    padding: 12px;
+    border-radius: 16px;
+    width: min(400px, 92vw);
+    height: min(400px, 92vw);
+  }.embedded-game-wrap .tile {
+    background: var(--tile);
+    border: 1px solid var(--tile-border);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Space Mono', monospace;
+    font-size: clamp(1.1rem, 4vw, 1.6rem);
+    font-weight: 700;
+    color: var(--text);
+    cursor: pointer;
+    transition: background 0.15s, transform 0.12s, box-shadow 0.15s;
+    user-select: none;
+    position: relative;
+    overflow: hidden;
+  }.embedded-game-wrap .tile::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 10px;
+    background: linear-gradient(135deg, rgba(255,255,255,0.06), transparent);
+    pointer-events: none;
+  }.embedded-game-wrap .tile:not(.empty):hover {
+    background: #252540;
+    transform: scale(0.96);
+    box-shadow: 0 0 0 1px var(--accent2);
+  }.embedded-game-wrap .tile:not(.empty):active {
+    transform: scale(0.91);
+  }.embedded-game-wrap .tile.empty {
+    background: transparent;
+    border-color: transparent;
+    cursor: default;
+  }.embedded-game-wrap .tile.correct {
+    background: linear-gradient(135deg, #1a2e14, #1c3a1c);
+    border-color: #3aff5c;
+    color: #3aff5c;
+  }.embedded-game-wrap .tile.move-anim {
+    animation: pop 0.18s ease;
+  }@keyframes pop{
+    0%   { transform: scale(0.88); }
+    60%  { transform: scale(1.05); }
+    100% { transform: scale(1); }
+  }.embedded-game-wrap .controls {
+    display: flex;
+    gap: 12px;
+  }.embedded-game-wrap button {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 0.85rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    border: none;
+    border-radius: 10px;
+    padding: 12px 24px;
+    cursor: pointer;
+    transition: transform 0.12s, box-shadow 0.15s;
+  }.embedded-game-wrap button:active { transform: scale(0.95); }.embedded-game-wrap #btnShuffle {
+    background: linear-gradient(135deg, var(--accent), #c8e000);
+    color: #0a0a0f;
+  }.embedded-game-wrap #btnShuffle:hover {
+    box-shadow: 0 0 20px rgba(232,255,71,0.4);
+  }.embedded-game-wrap #btnSize {
+    background: var(--tile);
+    color: var(--text);
+    border: 1px solid var(--tile-border);
+  }.embedded-game-wrap #btnSize:hover {
+    border-color: var(--accent2);
+    box-shadow: 0 0 15px rgba(255,79,216,0.25);
+  }.embedded-game-wrap .win-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(10,10,15,0.88);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    z-index: 100;
+    backdrop-filter: blur(8px);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.4s;
+  }.embedded-game-wrap .win-overlay.show {
+    opacity: 1;
+    pointer-events: all;
+  }.embedded-game-wrap .win-title {
+    font-size: clamp(2.5rem, 8vw, 4rem);
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-align: center;
+    animation: float 2s ease-in-out infinite;
+  }@keyframes float{
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+  }.embedded-game-wrap .win-stats {
+    font-family: 'Space Mono', monospace;
+    font-size: 1rem;
+    color: var(--muted);
+    text-align: center;
+    line-height: 2;
+  }.embedded-game-wrap .win-stats span {
+    color: var(--accent);
+  }/* ── MUTE BUTTON ── */
+.embedded-game-wrap .embedded-game-wrap #btnPlay {
+    background: linear-gradient(135deg, var(--accent), #c8e000);
+    color: #0a0a0f;
+    font-size: 1rem;
+    padding: 14px 36px;
+    border-radius: 12px;
+  }.embedded-game-wrap .size-hint {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+  }/* ── MUSIC BUTTON ── */
+.embedded-game-wrap .embedded-game-wrap /* ── Wordle TR ── */
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}.embedded-game-wrap :root {
+  --bg:#0a0e0a;
+  --surface:#111711;
+  --border:#1e2e1e;
+  --correct:#3ddc68;
+  --present:#f5c842;
+  --absent:#2a352a;
+  --text:#d4f5d4;
+  --muted:#4a6b4a;
+  --key-bg:#1a2a1a;
+  --key-border:#2d472d;
+}.embedded-game-wrap .embedded-game-wrap {
+  background:var(--bg);
+  color:var(--text);
+  font-family:'IBM Plex Mono',monospace;
+  min-height:100vh;
+  display:flex;flex-direction:column;
+  align-items:center;
+  padding:0 12px 40px;
+  position:relative;
+  overflow-x:hidden;
+}/* scanline effect */
+.embedded-game-wrap::after{
+  content:'';position:absolute;inset:0;
+  background:repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0,0,0,0.08) 2px,
+    rgba(0,0,0,0.08) 4px
+  );
+  pointer-events:none;z-index:999;
+}.embedded-game-wrap .embedded-game-wrap::before {
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse 70% 60% at 50% 40%, rgba(61,220,104,.06), transparent 70%);
+  pointer-events:none;
+}/* ── HEADER ── */
+header{
+  width:100%;max-width:500px;
+  padding:20px 0 12px;
+  border-bottom:1px solid var(--border);
+  margin-bottom:16px;
+  display:flex;flex-direction:column;align-items:center;gap:4px;
+  position:relative;
+}.embedded-game-wrap header::before {
+  content:'> KELIME_BULMACA.exe';
+  font-size:.65rem;color:var(--muted);
+  letter-spacing:.12em;position:absolute;top:8px;left:0;
+}.embedded-game-wrap h1 {
+  font-family:'Teko',sans-serif;
+  font-size:clamp(2.8rem,8vw,4rem);
+  font-weight:700;letter-spacing:.15em;
+  color:var(--correct);
+  text-shadow:0 0 30px rgba(61,220,104,.4), 0 0 60px rgba(61,220,104,.15);
+  line-height:1;
+}.embedded-game-wrap .header-sub {
+  font-size:.65rem;color:var(--muted);
+  letter-spacing:.2em;text-transform:uppercase;
+}/* ── STATS BAR ── */
+.stats{
+  display:flex;gap:0;
+  border:1px solid var(--border);
+  border-radius:6px;overflow:hidden;
+  margin-bottom:16px;
+  font-size:.65rem;letter-spacing:.1em;
+}.embedded-game-wrap .stat {
+  padding:8px 16px;text-align:center;
+  border-right:1px solid var(--border);
+}.embedded-game-wrap .stat:last-child {border-right:none;}.embedded-game-wrap .stat-v {
+  font-size:1.3rem;font-weight:600;
+  color:var(--correct);display:block;line-height:1;margin-bottom:3px;
+}.embedded-game-wrap .stat-l {color:var(--muted);}/* ── MESSAGE ── */
+#message{
+  height:28px;font-size:.75rem;letter-spacing:.1em;
+  color:var(--correct);text-align:center;
+  transition:opacity .3s;
+  display:flex;align-items:center;justify-content:center;
+  margin-bottom:8px;
+}/* ── GRID ── */
+#grid{
+  display:grid;
+  grid-template-rows:repeat(6,1fr);
+  gap:6px;
+  margin-bottom:20px;
+}.embedded-game-wrap .row {display:flex;gap:6px;}.embedded-game-wrap .tile {
+  width:clamp(48px,13vw,58px);
+  height:clamp(48px,13vw,58px);
+  border:2px solid var(--border);
+  border-radius:4px;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Teko',sans-serif;
+  font-size:clamp(1.6rem,5vw,2rem);
+  font-weight:600;
+  letter-spacing:.05em;
+  color:var(--text);
+  background:var(--surface);
+  transition:border-color .1s;
+  position:relative;
+  overflow:hidden;
+}.embedded-game-wrap .tile[data-letter]::before {
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,rgba(255,255,255,.04),transparent);
+}.embedded-game-wrap .tile.filled {
+  border-color:var(--muted);
+  animation:pop .1s ease;
+}@keyframes pop{
+  0%{transform:scale(1)}
+  50%{transform:scale(1.08)}
+  100%{transform:scale(1)}
+}.embedded-game-wrap .tile.flip {animation:flip .5s ease forwards;}@keyframes flip{
+  0%{transform:rotateX(0);background:var(--surface);}
+  49%{transform:rotateX(-90deg);background:var(--surface);}
+  50%{transform:rotateX(-90deg);}
+  100%{transform:rotateX(0);}
+}.embedded-game-wrap .tile.correct {background:var(--correct);border-color:var(--correct);color:#0a0e0a;}.embedded-game-wrap .tile.present {background:var(--present);border-color:var(--present);color:#0a0e0a;}.embedded-game-wrap .tile.absent {background:var(--absent);border-color:var(--absent);color:var(--muted);}.embedded-game-wrap .tile.shake {animation:shake .4s ease;}@keyframes shake{
+  0%,100%{transform:translateX(0)}
+  20%{transform:translateX(-6px)}
+  40%{transform:translateX(6px)}
+  60%{transform:translateX(-4px)}
+  80%{transform:translateX(4px)}
+}.embedded-game-wrap .tile.bounce {animation:bounce .5s ease;}@keyframes bounce{
+  0%,100%{transform:translateY(0)}
+  40%{transform:translateY(-12px)}
+  70%{transform:translateY(-5px)}
+}/* ── KEYBOARD ── */
+#keyboard{
+  display:flex;flex-direction:column;align-items:center;gap:6px;
+  width:100%;max-width:500px;
+}.embedded-game-wrap .kb-row {display:flex;gap:5px;justify-content:center;}.embedded-game-wrap .key {
+  font-family:'Teko',sans-serif;font-weight:600;
+  font-size:clamp(.85rem,2.5vw,1.1rem);
+  letter-spacing:.05em;
+  min-width:clamp(26px,7vw,38px);
+  height:clamp(42px,10vw,50px);
+  border-radius:4px;
+  border:1px solid var(--key-border);
+  background:var(--key-bg);
+  color:var(--text);
+  cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:all .12s;
+  padding:0 4px;
+  user-select:none;
+}.embedded-game-wrap .key:hover {filter:brightness(1.3);}.embedded-game-wrap .key:active {transform:scale(.93);}.embedded-game-wrap .key.wide {min-width:clamp(44px,11vw,58px);font-size:.75rem;}.embedded-game-wrap .key.correct {background:var(--correct);border-color:var(--correct);color:#0a0e0a;}.embedded-game-wrap .key.present {background:var(--present);border-color:var(--present);color:#0a0e0a;}.embedded-game-wrap .key.absent {background:var(--absent);border-color:var(--absent);color:var(--muted);}/* ── NEW GAME BTN ── */
+#btnNew{
+  margin-top:18px;
+  font-family:'IBM Plex Mono',monospace;font-size:.75rem;font-weight:600;
+  letter-spacing:.15em;text-transform:uppercase;
+  padding:11px 28px;border-radius:5px;
+  border:1px solid var(--correct);
+  background:transparent;color:var(--correct);
+  cursor:pointer;
+  transition:all .15s;
+}.embedded-game-wrap #btnNew:hover {background:var(--correct);color:#0a0e0a;box-shadow:0 0 20px rgba(61,220,104,.3);}/* ── WIN/LOSE OVERLAY ── */
+.overlay{
+  position:absolute;inset:0;
+  background:rgba(10,14,10,.93);
+  backdrop-filter:blur(10px);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:16px;z-index:100;
+  opacity:0;pointer-events:none;transition:opacity .4s;
+}.embedded-game-wrap .overlay.show {opacity:1;pointer-events:all;}.embedded-game-wrap .ov-title {
+  font-family:'Teko',sans-serif;font-size:clamp(2.5rem,8vw,4rem);
+  font-weight:700;letter-spacing:.12em;line-height:1;
+}.embedded-game-wrap .ov-title.win {color:var(--correct);text-shadow:0 0 40px rgba(61,220,104,.5);}.embedded-game-wrap .ov-title.lose {color:var(--present);text-shadow:0 0 40px rgba(245,200,66,.4);}.embedded-game-wrap .ov-word {
+  font-size:.8rem;letter-spacing:.2em;color:var(--muted);text-align:center;
+}.embedded-game-wrap .ov-word span {color:var(--text);font-weight:600;font-size:1rem;}.embedded-game-wrap .ov-stats {
+  display:flex;gap:24px;
+  font-size:.65rem;letter-spacing:.12em;color:var(--muted);
+  text-align:center;
+}.embedded-game-wrap .ov-stat-v {font-size:2rem;font-weight:600;color:var(--correct);display:block;line-height:1;}.embedded-game-wrap #btnOvNew {
+  font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:.8rem;
+  letter-spacing:.15em;text-transform:uppercase;
+  padding:12px 32px;border-radius:5px;
+  border:1px solid var(--correct);
+  background:var(--correct);color:#0a0e0a;
+  cursor:pointer;transition:transform .12s,box-shadow .15s;
+  margin-top:8px;
+}.embedded-game-wrap #btnOvNew:hover {transform:scale(1.04);box-shadow:0 0 24px rgba(61,220,104,.35);}/* ── MUSIC BUTTON ── */
+.embedded-game-wrap .embedded-game-wrap /* ── Mastermind ── */
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}.embedded-game-wrap :root {
+  --bg:#070b14;
+  --surface:#0d1424;
+  --panel:#111c30;
+  --border:#1e3050;
+  --text:#a8d4ff;
+  --muted:#3a5a80;
+  --bright:#e0f4ff;
+  --c1:#ff3b5c;
+  --c2:#ff8c00;
+  --c3:#ffe000;
+  --c4:#00e676;
+  --c5:#2979ff;
+  --c6:#e040fb;
+  --black-peg:#0a1628;
+  --white-peg:#c8dff5;
+  --hit:#e0f4ff;
+  --near:#4a90d9;
+}.embedded-game-wrap .embedded-game-wrap {
+  background:var(--bg);
+  color:var(--text);
+  font-family:'Share Tech Mono',monospace;
+  min-height:100vh;
+  display:flex;flex-direction:column;
+  align-items:center;
+  padding:0 12px 40px;
+  overflow-x:hidden;
+}.embedded-game-wrap .embedded-game-wrap::before {
+  content:'';position:absolute;inset:0;
+  background:
+    radial-gradient(ellipse 60% 50% at 50% 0%,rgba(41,121,255,.1),transparent 60%),
+    radial-gradient(ellipse 30% 40% at 90% 80%,rgba(224,64,251,.06),transparent 50%);
+  pointer-events:none;
+}/* grid lines */
+.embedded-game-wrap::after{
+  content:'';position:absolute;inset:0;
+  background-image:
+    linear-gradient(rgba(41,121,255,.03) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(41,121,255,.03) 1px,transparent 1px);
+  background-size:32px 32px;
+  pointer-events:none;
+}/* ── HEADER ── */
+header{
+  width:100%;max-width:520px;
+  padding:20px 0 14px;
+  text-align:center;
+  border-bottom:1px solid var(--border);
+  margin-bottom:18px;
+}.embedded-game-wrap .logo {
+  font-family:'Orbitron',sans-serif;
+  font-size:clamp(1.8rem,6vw,2.8rem);
+  font-weight:900;letter-spacing:.15em;
+  color:var(--bright);
+  text-shadow:0 0 20px rgba(168,212,255,.5),0 0 60px rgba(41,121,255,.3);
+}.embedded-game-wrap .tagline {
+  font-size:.65rem;letter-spacing:.2em;color:var(--muted);
+  margin-top:5px;text-transform:uppercase;
+}/* ── DIFFICULTY ── */
+.diff-bar{display:flex;gap:8px;justify-content:center;margin-bottom:14px;}.embedded-game-wrap .diff-btn {
+  font-family:'Share Tech Mono',monospace;font-size:.68rem;
+  padding:5px 14px;border-radius:3px;
+  border:1px solid var(--border);background:var(--surface);
+  color:var(--muted);cursor:pointer;transition:all .15s;
+  letter-spacing:.1em;
+}.embedded-game-wrap .diff-btn:hover, .embedded-game-wrap .diff-btn.active {
+  border-color:#2979ff;color:#2979ff;
+  background:rgba(41,121,255,.1);
+  box-shadow:0 0 10px rgba(41,121,255,.2);
+}/* ── STATS ── */
+.stats{
+  display:flex;gap:0;border:1px solid var(--border);
+  border-radius:4px;overflow:hidden;margin-bottom:16px;
+  font-size:.62rem;letter-spacing:.1em;
+}.embedded-game-wrap .stat {padding:8px 16px;text-align:center;border-right:1px solid var(--border);}.embedded-game-wrap .stat:last-child {border-right:none;}.embedded-game-wrap .stat-v {font-family:'Orbitron',sans-serif;font-size:1.2rem;color:#2979ff;display:block;line-height:1;margin-bottom:3px;}/* ── MESSAGE ── */
+#msg{
+  height:24px;font-size:.7rem;letter-spacing:.12em;
+  text-align:center;color:#2979ff;margin-bottom:10px;
+  transition:opacity .3s;
+}/* ── BOARD ── */
+#board{
+  width:100%;max-width:480px;
+  display:flex;flex-direction:column;gap:6px;
+  margin-bottom:16px;
+}.embedded-game-wrap .guess-row {
+  display:flex;align-items:center;gap:8px;
+  padding:6px 10px;
+  border:1px solid var(--border);
+  border-radius:6px;
+  background:var(--surface);
+  transition:border-color .2s,box-shadow .2s;
+  position:relative;
+}.embedded-game-wrap .guess-row.active {
+  border-color:#2979ff;
+  box-shadow:0 0 12px rgba(41,121,255,.2);
+}.embedded-game-wrap .row-num {
+  font-size:.65rem;color:var(--muted);
+  min-width:18px;text-align:center;
+}.embedded-game-wrap .pegs {display:flex;gap:7px;flex:1;justify-content:center;}.embedded-game-wrap .peg {
+  width:clamp(34px,8vw,42px);
+  height:clamp(34px,8vw,42px);
+  border-radius:50%;
+  border:2px solid var(--border);
+  background:var(--panel);
+  cursor:pointer;
+  transition:all .15s;
+  position:relative;
+  display:flex;align-items:center;justify-content:center;
+}.embedded-game-wrap .peg::after {
+  content:'';position:absolute;
+  width:35%;height:35%;border-radius:50%;
+  background:rgba(255,255,255,.25);
+  top:18%;left:20%;
+}.embedded-game-wrap .peg:hover:not(.locked) {
+  filter:brightness(1.3);
+  transform:scale(1.08);
+}.embedded-game-wrap .peg.c1 {background:var(--c1);border-color:var(--c1);box-shadow:0 0 10px rgba(255,59,92,.4);}.embedded-game-wrap .peg.c2 {background:var(--c2);border-color:var(--c2);box-shadow:0 0 10px rgba(255,140,0,.4);}.embedded-game-wrap .peg.c3 {background:var(--c3);border-color:var(--c3);box-shadow:0 0 10px rgba(255,224,0,.4);}.embedded-game-wrap .peg.c4 {background:var(--c4);border-color:var(--c4);box-shadow:0 0 10px rgba(0,230,118,.4);}.embedded-game-wrap .peg.c5 {background:var(--c5);border-color:var(--c5);box-shadow:0 0 10px rgba(41,121,255,.4);}.embedded-game-wrap .peg.c6 {background:var(--c6);border-color:var(--c6);box-shadow:0 0 10px rgba(224,64,251,.4);}/* feedback mini-pegs */
+.feedback{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:4px;
+  min-width:32px;
+}.embedded-game-wrap .fb-peg {
+  width:12px;height:12px;border-radius:50%;
+  background:var(--panel);border:1px solid var(--border);
+}.embedded-game-wrap .fb-peg.hit {background:var(--hit);border-color:var(--hit);box-shadow:0 0 5px rgba(224,244,255,.5);}.embedded-game-wrap .fb-peg.near {background:var(--near);border-color:var(--near);}/* ── COLOR PALETTE ── */
+#palette{
+  display:flex;gap:10px;justify-content:center;
+  flex-wrap:wrap;
+  margin-bottom:14px;
+}.embedded-game-wrap .pal-peg {
+  width:clamp(36px,9vw,48px);
+  height:clamp(36px,9vw,48px);
+  border-radius:50%;
+  cursor:pointer;
+  transition:transform .15s,box-shadow .2s;
+  border:3px solid transparent;
+  position:relative;
+}.embedded-game-wrap .pal-peg::after {
+  content:'';position:absolute;
+  width:35%;height:35%;border-radius:50%;
+  background:rgba(255,255,255,.3);
+  top:15%;left:18%;
+}.embedded-game-wrap .pal-peg:hover {transform:scale(1.15);}.embedded-game-wrap .pal-peg.selected {
+  border-color:white;
+  transform:scale(1.18);
+  box-shadow:0 0 18px rgba(255,255,255,.4);
+}.embedded-game-wrap .pal-peg.p1 {background:var(--c1);box-shadow:0 0 10px rgba(255,59,92,.3);}.embedded-game-wrap .pal-peg.p2 {background:var(--c2);box-shadow:0 0 10px rgba(255,140,0,.3);}.embedded-game-wrap .pal-peg.p3 {background:var(--c3);box-shadow:0 0 10px rgba(255,224,0,.3);}.embedded-game-wrap .pal-peg.p4 {background:var(--c4);box-shadow:0 0 10px rgba(0,230,118,.3);}.embedded-game-wrap .pal-peg.p5 {background:var(--c5);box-shadow:0 0 10px rgba(41,121,255,.3);}.embedded-game-wrap .pal-peg.p6 {background:var(--c6);box-shadow:0 0 10px rgba(224,64,251,.3);}/* palette label */
+.pal-label{
+  font-size:.6rem;color:var(--muted);
+  text-align:center;letter-spacing:.12em;
+  margin-bottom:6px;
+}/* ── CONTROLS ── */
+.controls{display:flex;gap:10px;justify-content:center;}.embedded-game-wrap .ctrl {
+  font-family:'Share Tech Mono',monospace;font-size:.75rem;
+  letter-spacing:.12em;padding:10px 22px;border-radius:4px;
+  border:1px solid var(--border);background:var(--surface);
+  color:var(--text);cursor:pointer;transition:all .15s;
+}.embedded-game-wrap .ctrl:hover {border-color:#2979ff;color:#2979ff;}.embedded-game-wrap .ctrl:active {transform:scale(.95);}.embedded-game-wrap #btnConfirm {
+  background:linear-gradient(135deg,#2979ff,#1a56d4);
+  border-color:#2979ff;color:#fff;
+}.embedded-game-wrap #btnConfirm:hover {box-shadow:0 0 16px rgba(41,121,255,.4);}.embedded-game-wrap #btnConfirm:disabled {opacity:.35;cursor:not-allowed;box-shadow:none;}/* ── SECRET REVEAL ── */
+#secretRow{
+  display:flex;gap:7px;justify-content:center;
+  margin:10px 0;
+  opacity:0;transition:opacity .5s;
+}.embedded-game-wrap #secretRow.show {opacity:1;}/* ── WIN OVERLAY ── */
+.overlay{
+  position:absolute;inset:0;
+  background:rgba(7,11,20,.93);
+  backdrop-filter:blur(12px);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:16px;z-index:100;
+  opacity:0;pointer-events:none;transition:opacity .4s;
+}.embedded-game-wrap .overlay.show {opacity:1;pointer-events:all;}.embedded-game-wrap .ov-icon {font-size:3.5rem;animation:pulse 1.5s ease infinite alternate;}@keyframes pulse{from{transform:scale(1)}to{transform:scale(1.12)}}.embedded-game-wrap .ov-title {
+  font-family:'Orbitron',sans-serif;
+  font-size:clamp(1.8rem,6vw,2.8rem);
+  font-weight:900;letter-spacing:.12em;
+  text-align:center;line-height:1.1;
+}.embedded-game-wrap .ov-title.win {color:var(--c4);text-shadow:0 0 30px rgba(0,230,118,.4);}.embedded-game-wrap .ov-title.lose {color:var(--c1);text-shadow:0 0 30px rgba(255,59,92,.4);}.embedded-game-wrap .ov-info {font-size:.75rem;color:var(--muted);letter-spacing:.1em;text-align:center;line-height:2;}.embedded-game-wrap .ov-info span {color:var(--text);}.embedded-game-wrap .ov-secret {display:flex;gap:8px;justify-content:center;margin:4px 0;}.embedded-game-wrap #btnOvNew {
+  font-family:'Orbitron',sans-serif;font-weight:700;font-size:.8rem;
+  letter-spacing:.15em;padding:13px 32px;border-radius:4px;
+  border:none;background:linear-gradient(135deg,#2979ff,#1a56d4);
+  color:#fff;cursor:pointer;transition:transform .12s,box-shadow .15s;
+}.embedded-game-wrap #btnOvNew:hover {transform:scale(1.05);box-shadow:0 0 22px rgba(41,121,255,.45);}/* ── MUTE BUTTON ── */
+.embedded-game-wrap /* ── MUSIC BUTTON ── */
+.embedded-game-wrap .embedded-game-wrap /* ── Nonogram ── */
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}.embedded-game-wrap :root {
+  --bg:#1a1025;
+  --surface:#231630;
+  --border:#3d2d5a;
+  --accent:#c77dff;
+  --accent2:#7b2fff;
+  --gold:#ffd166;
+  --green:#06d6a0;
+  --red:#ef476f;
+  --text:#f0e6ff;
+  --muted:#8b7aaa;
+  --filled:#c77dff;
+  --crossed:#3d2d5a;
+}.embedded-game-wrap .embedded-game-wrap {
+  background:var(--bg);
+  color:var(--text);
+  font-family:'Raleway',sans-serif;
+  min-height:100vh;
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  padding:16px;gap:16px;
+}.embedded-game-wrap .embedded-game-wrap::before {
+  content:'';position:absolute;inset:0;
+  background:
+    radial-gradient(ellipse 50% 60% at 80% 10%,rgba(123,47,255,.12),transparent 55%),
+    radial-gradient(ellipse 40% 50% at 10% 90%,rgba(199,125,255,.08),transparent 55%);
+  pointer-events:none;
+}.embedded-game-wrap h1 {
+  font-size:clamp(2rem,5vw,3rem);font-weight:900;
+  letter-spacing:.05em;
+  background:linear-gradient(135deg,var(--accent),var(--gold));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}.embedded-game-wrap .sub {
+  font-family:'JetBrains Mono',monospace;
+  font-size:.7rem;color:var(--muted);letter-spacing:.15em;text-transform:uppercase;
+  text-align:center;
+}/* PUZZLE PICKER */
+.puzzle-tabs{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;}.embedded-game-wrap .ptab {
+  font-family:'JetBrains Mono',monospace;font-size:.7rem;
+  padding:5px 13px;border-radius:20px;
+  border:1px solid var(--border);background:var(--surface);
+  color:var(--muted);cursor:pointer;transition:all .15s;
+}.embedded-game-wrap .ptab:hover, .embedded-game-wrap .ptab.active {border-color:var(--accent);color:var(--accent);background:rgba(199,125,255,.1);}/* STATS */
+.stats{display:flex;gap:20px;align-items:center;}.embedded-game-wrap .stat {text-align:center;}.embedded-game-wrap .stat-v {font-family:'JetBrains Mono',monospace;font-size:1.5rem;color:var(--gold);line-height:1;}.embedded-game-wrap .stat-l {font-size:.6rem;color:var(--muted);letter-spacing:.12em;text-transform:uppercase;margin-top:3px;}.embedded-game-wrap .sep {width:1px;height:32px;background:var(--border);}/* MODE TOGGLE */
+.mode-bar{display:flex;gap:0;border:1px solid var(--border);border-radius:10px;overflow:hidden;}.embedded-game-wrap .mode-btn {
+  font-family:'Raleway',sans-serif;font-weight:700;font-size:.78rem;
+  padding:8px 18px;border:none;cursor:pointer;transition:all .15s;
+  background:var(--surface);color:var(--muted);
+}.embedded-game-wrap .mode-btn.active {background:var(--accent);color:#1a1025;}/* BOARD */
+.board-wrap{
+  position:relative;display:inline-block;
+}.embedded-game-wrap .board-wrap::before {
+  content:'';position:absolute;inset:-2px;border-radius:14px;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  z-index:-1;opacity:.4;
+}.embedded-game-wrap #ngTable {
+  border-collapse:collapse;
+  background:var(--surface);
+  border-radius:12px;overflow:hidden;
+}/* CLUE CELLS */
+.clue-corner{background:var(--surface);}.embedded-game-wrap .clue-col, .embedded-game-wrap .clue-row {
+  background:var(--surface);
+  font-family:'JetBrains Mono',monospace;
+  font-size:.75rem;color:var(--muted);
+  padding:4px 6px;
+  white-space:pre;
+  line-height:1.5;
+  text-align:center;vertical-align:bottom;
+}.embedded-game-wrap .clue-row {text-align:right;vertical-align:middle;}.embedded-game-wrap .clue-col.done, .embedded-game-wrap .clue-row.done {color:var(--accent);opacity:.5;}/* GRID CELLS */
+.cell{
+  width:34px;height:34px;
+  border:1px solid var(--border);
+  cursor:pointer;
+  transition:background .08s,transform .06s;
+  position:relative;user-select:none;
+}.embedded-game-wrap .cell:hover {filter:brightness(1.3);}.embedded-game-wrap .cell.filled {
+  background:var(--filled);
+  box-shadow:inset 0 0 6px rgba(255,255,255,.15);
+}.embedded-game-wrap .cell.crossed {
+  background:var(--crossed);
+}.embedded-game-wrap .cell.crossed::before, .embedded-game-wrap .cell.crossed::after {
+  content:'';position:absolute;
+  top:50%;left:50%;
+  width:55%;height:2px;
+  background:var(--muted);
+  transform:translate(-50%,-50%) rotate(45deg);
+  border-radius:2px;
+}.embedded-game-wrap .cell.crossed::after {transform:translate(-50%,-50%) rotate(-45deg);}/* thick borders every 5 */
+.cell.thick-right{border-right:2px solid var(--accent2);}.embedded-game-wrap .cell.thick-bottom {border-bottom:2px solid var(--accent2);}/* CONTROLS */
+.controls{display:flex;gap:10px;}.embedded-game-wrap .ctrl {
+  font-family:'Raleway',sans-serif;font-weight:700;font-size:.82rem;
+  padding:10px 22px;border-radius:10px;border:none;cursor:pointer;
+  transition:transform .12s,box-shadow .15s;letter-spacing:.03em;
+}.embedded-game-wrap .ctrl:active {transform:scale(.95);}.embedded-game-wrap #btnReset {background:var(--surface);color:var(--text);border:1px solid var(--border);}.embedded-game-wrap #btnReset:hover {border-color:var(--accent);}.embedded-game-wrap #btnCheck {background:linear-gradient(135deg,var(--gold),#e09400);color:#1a1025;}.embedded-game-wrap #btnCheck:hover {box-shadow:0 0 18px rgba(255,209,102,.35);}.embedded-game-wrap #btnReveal {background:linear-gradient(135deg,var(--green),#04a07a);color:#fff;}.embedded-game-wrap #btnReveal:hover {box-shadow:0 0 18px rgba(6,214,160,.3);}/* ERROR FLASH */
+.cell.error{animation:errflash .35s ease;}@keyframes errflash{0%,100%{background:var(--filled)}50%{background:var(--red)}}/* WIN OVERLAY */
+.win-overlay{
+  position:absolute;inset:0;
+  background:rgba(26,16,37,.92);
+  backdrop-filter:blur(12px);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:16px;z-index:99;
+  opacity:0;pointer-events:none;transition:opacity .4s;
+}.embedded-game-wrap .win-overlay.show {opacity:1;pointer-events:all;}.embedded-game-wrap .win-em {font-size:4rem;animation:spin 2s linear infinite;}@keyframes spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}.embedded-game-wrap .win-title {
+  font-size:2.8rem;font-weight:900;letter-spacing:.08em;
+  background:linear-gradient(90deg,var(--gold),var(--accent));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}.embedded-game-wrap .win-desc {font-family:'JetBrains Mono',monospace;font-size:.85rem;color:var(--muted);text-align:center;line-height:2;}.embedded-game-wrap .win-desc span {color:var(--gold);}.embedded-game-wrap #btnWinNew {
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  color:#fff;font-family:'Raleway',sans-serif;font-weight:700;
+  font-size:1rem;padding:13px 36px;border-radius:12px;border:none;cursor:pointer;
+  transition:transform .12s;
+}.embedded-game-wrap #btnWinNew:hover {transform:scale(1.05);}/* ── MUTE BUTTON ── */
+.embedded-game-wrap .embedded-game-wrap .preview-canvas {
+  border-radius:8px;border:1px solid var(--border);
+  image-rendering:pixelated;
+}/* ── MUSIC BUTTON ── */
+.embedded-game-wrap .embedded-game-wrap </style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+<div class="grid-bg"></div>
+<div class="particles" id="particles"></div>
+
+<!-- Modal -->
+<div class="modal-overlay" id="gameModal">
+  <div class="modal-container">
+    <div class="modal-header">
+      <span class="modal-title" id="modalTitle">OYUN</span>
+      <button class="modal-close" onclick="closeGame()">✕ KAPAT</button>
+    </div>
+    <iframe class="modal-iframe" id="gameFrame" src=""></iframe>
+  </div>
+</div>
+
+<nav>
+  <div class="logo"><span class="c1">HÜSEYİNİSTAN</span><span class="c2"> GAMES</span></div>
+  <ul class="nav-links">
+    <li><a href="#games">Oyunlar</a></li>
+    <li><a href="#about">Hakkında</a></li>
+    <li><a href="#contact">İletişim</a></li>
+  </ul>
+</nav>
+
+<div class="hero">
+  <div class="corner-deco tl"></div><div class="corner-deco tr"></div>
+  <div class="corner-deco bl"></div><div class="corner-deco br"></div>
+  <div class="hero-badge">⬡ 16 Oyun Koleksiyonu ⬡</div>
+  <h1>
+    <span class="line1">HÜSEYİNİSTAN</span>
+    <span class="line2">GAMES</span>
+  </h1>
+  <p class="hero-sub">Claude ile Yaratılan Oyunlar</p>
+  <div class="hero-cta">
+    <button class="btn-primary" onclick="document.getElementById('games').scrollIntoView({behavior:'smooth'})">Oyunları Keşfet</button>
+  </div>
+  <div class="scroll-indicator">
+    <span>Aşağı Kaydır</span>
+    <div class="scroll-line"></div>
+  </div>
+</div>
+
+<section id="games">
+  <div class="section-header">
+    <span class="section-number">01</span>
+    <h2 class="section-title">OYUNLAR</h2>
+    <div class="section-line"></div>
+  </div>
+  <div class="games-grid">
+
+    <div class="game-card" onclick="openGame('bullet-dodge-game.html','Mermi Dodge')">
+      <div class="game-thumbnail" style="background:linear-gradient(135deg,#001020,#001a30);">
+        <div class="game-thumb-glow" style="background:#00f5ff;top:30%;left:30%;"></div>
+        🚀
+      </div>
+      <div class="game-info">
+        <div class="game-tag">⬡ Aksiyon / Dodge</div>
+        <div class="game-name">MERMİ DODGE</div>
+        <div class="game-desc">Gelen mermilerden kaçmaya çalış! Spiral saldırılar, yağmur atışları ve hedef güdümlü mermilerden hayatta kal.</div>
+        <div class="game-footer"><button class="btn-play">Oyna ▶</button></div>
+      </div>
+    </div>
+
+    <div class="game-card" onclick="openGame('city-tower-defense.html','Şehir Savunması')">
+      <div class="game-thumbnail" style="background:linear-gradient(135deg,#0a1020,#101830);">
+        <div class="game-thumb-glow" style="background:#ff8800;top:35%;left:40%;"></div>
+        🏙️
+      </div>
+      <div class="game-info">
+        <div class="game-tag">⬡ Strateji / Kule Savunma</div>
+        <div class="game-name">ŞEHİR SAVUNMASI</div>
+        <div class="game-desc">Şehri düşman istilasından koru! Kuleler inşa et, savunma hatları oluştur ve gelen dalgaları geçir.</div>
+        <div class="game-footer"><button class="btn-play">Oyna ▶</button></div>
+      </div>
+    </div>
+
+    <div class="game-card" onclick="openGame('strateji-oyunu.html','İmparatorluk Yükselişi')">
+      <div class="game-thumbnail" style="background:linear-gradient(135deg,#100a00,#201500);">
+        <div class="game-thumb-glow" style="background:#c9a227;top:35%;left:35%;"></div>
+        ⚔️
+      </div>
+      <div class="game-info">
+        <div class="game-tag">⬡ Strateji / İmparatorluk</div>
+        <div class="game-name">İMPARATORLUK YÜKSELİŞİ</div>
+        <div class="game-desc">Kendi imparatorluğunu kur, orduları yönet ve rakip krallıkları fethederek tarihe geçecek bir hükümdar ol.</div>
+        <div class="game-footer"><button class="btn-play">Oyna ▶</button></div>
+      </div>
+    </div>
+
+
+    <div class="game-card" onclick="openGame('rpg-macera.html','Metin Macerası')">
+      <div class="game-thumbnail" style="background:linear-gradient(135deg,#0a0020,#150030);">
+        <div class="game-thumb-glow" style="background:#bf00ff;top:30%;left:40%;"></div>
+        🧙
+      </div>
+      <div class="game-info">
+        <div class="game-tag">⬡ RPG / Macera</div>
+        <div class="game-name">METİN MACERASI</div>
+        <div class="game-desc">Destansı bir metin tabanlı RPG. Karakterini geliştir, kararlar ver ve bu efsanenin büyük kahramanı ol.</div>
+        <div class="game-footer"><button class="btn-play">Oyna ▶</button></div>
+      </div>
+    </div>
+
+    <div class="game-card" onclick="openGame('card-battle.html','Kart Savaşı')">
+      <div class="game-thumbnail" style="background:linear-gradient(135deg,#0a0015,#1a0030);">
+        <div class="game-thumb-glow" style="background:#c9a84c;top:35%;left:40%;"></div>
+        🃏
+      </div>
+      <div class="game-info">
+        <div class="game-tag">⬡ Kart / Strateji</div>
+        <div class="game-name">KART SAVAŞI</div>
+        <div class="game-desc">Güçlü yaratıkları savaşa çağır! Taunt, Lifesteal, Poison gibi özel yetenekli 24 kart ile düşmanı yok et.</div>
+        <div class="game-footer"><button class="btn-play">Oyna ▶</button></div>
+      </div>
+    </div>
+
+    <div class="game-card" onclick="openGame('chess-pro.html','Satranç Arena')">
+      <div class="game-thumbnail" style="background:linear-gradient(135deg,#080c10,#0f1a10);">
+        <div class="game-thumb-glow" style="background:#d4a843;top:35%;left:40%;"></div>
+        ♛
+      </div>
+      <div class="game-info">
+        <div class="game-tag">⬡ Zeka / Satranç</div>
+        <div class="game-name">SATRANÇ ARENA</div>
+        <div class="game-desc">5 farklı bot ile satranç oyna! Saat modu, hamle analizi ve bot vs bot izleme özelliği ile eksiksiz satranç deneyimi.</div>
+        <div class="game-footer"><button class="btn-play">Oyna ▶</button></div>
+      </div>
+    </div>
+
+    <div class="game-card" onclick="openGame('snake.html','Snake')">
+      <div class="game-thumbnail" style="background:linear-gradient(135deg,#050a0e,#0a1f15);">
+        <div class="game-thumb-glow" style="background:#00ff88;top:35%;left:40%;"></div>
+        🐍
+      </div>
+      <div class="game-info">
+        <div class="game-tag">⬡ Klasik / Arcade</div>
+        <div class="game-name">SNAKE</div>
+        <div class="game-desc">Yılanı yönet, elmaları topla ve büyü! Her seviyede hız artar. Kendi rekorunu kır!</div>
+        <div class="game-footer"><button class="btn-play">Oyna ▶</button></div>
+      </div>
+    </div>
+
+    <div class="game-card" onclick="openGame('bulmaca.html','Kayar Bulmaca')">
+      <div class="game-thumbnail" style="background:linear-gradient(135deg,#0a0a0f,#1c1c2e);">
+        <div class="game-thumb-glow" style="background:#e8ff47;top:35%;left:40%;"></div>
+        🔢
+      </div>
+      <div class="game-info">
+        <div class="game-tag">⬡ Bulmaca / Zeka</div>
+        <div class="game-name">KAYAR BULMACA</div>
+        <div class="game-desc">Sayıları doğru sıraya diz! 3×3, 4×4 ve 5×5 modlarıyla kafanı yoracak klasik kayar bulmaca.</div>
+        <div class="game-footer"><button class="btn-play">Oyna ▶</button></div>
+      </div>
+    </div>
+
+    <div class="game-card" onclick="openGame('nonogram.html','Nonogram')">
+      <div class="game-thumbnail" style="background:linear-gradient(135deg,#1a1025,#231630);">
+        <div class="game-thumb-glow" style="background:#c77dff;top:35%;left:40%;"></div>
+        🟪
+      </div>
+      <div class="game-info">
+        <div class="game-tag">⬡ Bulmaca / Piksel</div>
+        <div class="game-name">NONOGRAM</div>
+        <div class="game-desc">Satır ve sütun ipuçlarıyla piksel resimler çiz! 10 farklı bulmaca ve artan zorluk seviyeleri.</div>
+        <div class="game-footer"><button class="btn-play">Oyna ▶</button></div>
+      </div>
+    </div>
+
+    <div class="game-card" onclick="openGame('wordle-tr.html','Türkçe Wordle')">
+      <div class="game-thumbnail" style="background:linear-gradient(135deg,#0a0e0a,#111711);">
+        <div class="game-thumb-glow" style="background:#3ddc68;top:35%;left:40%;"></div>
+        🟩
+      </div>
+      <div class="game-info">
+        <div class="game-tag">⬡ Kelime / Günlük</div>
+        <div class="game-name">WORDLE</div>
+        <div class="game-desc">5 harfli Türkçe kelimeyi 6 tahminde bul! Renk ipuçlarını takip et ve kelimeyi keşfet.</div>
+        <div class="game-footer"><button class="btn-play">Oyna ▶</button></div>
+      </div>
+    </div>
+
+    <div class="game-card" onclick="openGame('mastermind.html','Mastermind')">
+      <div class="game-thumbnail" style="background:linear-gradient(135deg,#070b14,#0d1424);">
+        <div class="game-thumb-glow" style="background:#2979ff;top:35%;left:40%;"></div>
+        🔵
+      </div>
+      <div class="game-info">
+        <div class="game-tag">⬡ Mantık / Kod</div>
+        <div class="game-name">MASTERMİND</div>
+        <div class="game-desc">Gizli renk kodunu kır! Kolay, Orta ve Zor modlarıyla renkli kod çözme bulmacası.</div>
+        <div class="game-footer"><button class="btn-play">Oyna ▶</button></div>
+      </div>
+    </div>
+
+    <div class="game-card" onclick="openGame('2048.html','2048')">
+      <div class="game-thumbnail" style="background:linear-gradient(135deg,#0e0e16,#16161f);">
+        <div class="game-thumb-glow" style="background:#ffb800;top:35%;left:40%;"></div>
+        🔥
+      </div>
+      <div class="game-info">
+        <div class="game-tag">⬡ Strateji / Sayı</div>
+        <div class="game-name">2048</div>
+        <div class="game-desc">Karoları kaydır, birleştir ve 2048'e ulaş! 3×3'ten 6×6'ya farklı ızgara boyutları.</div>
+        <div class="game-footer"><button class="btn-play">Oyna ▶</button></div>
+      </div>
+    </div>
+
+    <div class="game-card" onclick="openGame('aim-trainer.html','AimLab')">
+      <div class="game-thumbnail" style="background:linear-gradient(135deg,#080c14,#0d1421);">
+        <div class="game-thumb-glow" style="background:#00d4ff;top:35%;left:40%;"></div>
+        🎯
+      </div>
+      <div class="game-info">
+        <div class="game-tag">⬡ Refleks / Nişan</div>
+        <div class="game-name">AIM LAB</div>
+        <div class="game-desc">Hedeflere tıkla, refleksini test et! Klasik, Hassas, Hız ve Hareketli modlar + liderlik tablosu.</div>
+        <div class="game-footer"><button class="btn-play">Oyna ▶</button></div>
+      </div>
+    </div>
+
+    <div class="game-card" onclick="openGame('piano-tiles.html','Piano Tiles')">
+      <div class="game-thumbnail" style="background:linear-gradient(135deg,#0a0a14,#1a0a2e);">
+        <div class="game-thumb-glow" style="background:#a855f7;top:35%;left:40%;"></div>
+        🎹
+      </div>
+      <div class="game-info">
+        <div class="game-tag">⬡ Müzik / Refleks</div>
+        <div class="game-name">PİANO TİLES</div>
+        <div class="game-desc">Siyah tuşlara tıkla, beyazlara dokunma! Ritme ayak uydur ve en yüksek skoru kır.</div>
+        <div class="game-footer"><button class="btn-play">Oyna ▶</button></div>
+      </div>
+    </div>
+
+    <div class="game-card" onclick="openGame('galactic-war.html','Galactic War')">
+      <div class="game-thumbnail" style="background:linear-gradient(135deg,#000510,#001a10);">
+        <div class="game-thumb-glow" style="background:#00ff88;top:30%;left:35%;"></div>
+        <div class="game-thumb-glow" style="background:#0088ff;top:55%;left:60%;opacity:0.5;"></div>
+        🚀
+      </div>
+      <div class="game-info">
+        <div class="game-tag">⬡ Aksiyon / Uzay</div>
+        <div class="game-name">GALAKTİK SAVAŞ</div>
+        <div class="game-desc">Uzayda düşman gemilere karşı savaş! Güçlü silahlar, boss savaşları ve epik uzay macerası.</div>
+        <div class="game-footer"><button class="btn-play">Oyna ▶</button></div>
+      </div>
+    </div>
+
+        <div class="game-card" onclick="openGame('survivor.html','Survivor')">
+      <div class="game-thumbnail" style="background:linear-gradient(135deg,#020408,#0e0a1a);">
+        <div class="game-thumb-glow" style="background:#a29bfe;top:30%;left:35%;"></div>
+        <div class="game-thumb-glow" style="background:#fd79a8;top:55%;left:60%;opacity:0.5;"></div>
+        ⚔️
+      </div>
+      <div class="game-info">
+        <div class="game-tag">⬡ Aksiyon / Survivor</div>
+        <div class="game-name">SURVIVOR</div>
+        <div class="game-desc">100 dalga boyunca hayatta kal! Güçlen, seviye atla, boss'ları yen. WASD ile hareket, otomatik ateş.</div>
+        <div class="game-footer"><button class="btn-play">Oyna ▶</button></div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+
+
+<section id="about">
+  <div class="section-header">
+    <span class="section-number">02</span>
+    <h2 class="section-title">HAKKINDA</h2>
+    <div class="section-line"></div>
+  </div>
+  <div class="about-content">
+    <div class="about-text">
+      <h3>Hüseyinistan Games</h3>
+      <p>Claude yapay zekası ile birlikte üretilen oyunların sergilendiği kişisel oyun koleksiyonu. Her oyun, yaratıcılık ve teknolojinin buluştuğu noktada doğdu.</p>
+      <p>Aksiyon'dan strateji oyunlarına, tower defense'ten metin RPG'lerine kadar her türden deneyim burada seni bekliyor.</p>
+    </div>
+    <div class="about-stats">
+      <div class="about-stat-card"><div class="stat-value">16</div><div class="stat-label">Oyun</div></div>
+      <div class="about-stat-card"><div class="stat-value">6</div><div class="stat-label">Tür</div></div>
+      <div class="about-stat-card"><div class="stat-value">AI</div><div class="stat-label">Destekli</div></div>
+      <div class="about-stat-card"><div class="stat-value">100%</div><div class="stat-label">Ücretsiz</div></div>
+    </div>
+  </div>
+</section>
+
+<section id="contact">
+  <div class="section-header">
+    <span class="section-number">03</span>
+    <h2 class="section-title">İLETİŞİM</h2>
+    <div class="section-line"></div>
+  </div>
+  <div class="contact-wrapper">
+    <div class="contact-info">
+      <h3>Bana Ulaş</h3>
+      <p>Bir oyun hakkında fikrin mi var? Öneri, geri bildirim veya sadece merhaba demek için yazabilirsin.</p>
+
+    </div>
+    <div class="contact-form">
+      <div class="form-group"><label>Adın</label><input type="text" id="cf-name" placeholder="Adını gir..."></div>
+      <div class="form-group"><label>E-posta</label><input type="email" id="cf-email" placeholder="eposta@ornek.com"></div>
+      <div class="form-group"><label>Mesaj</label><textarea id="cf-msg" placeholder="Mesajını yaz..."></textarea></div>
+      <button class="btn-primary" style="width:100%;text-align:center;" onclick="sendMail()">Gönder</button>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-logo"><span class="c1">HÜSEYİNİSTAN</span><span class="c2"> GAMES</span></div>
+  <div class="footer-text">© 2026 · Claude ile Yapıldı ⚡</div>
+</footer>
+
+<script>
+  const cursor = document.getElementById('cursor');
+  const cursorRing = document.getElementById('cursorRing');
+  document.addEventListener('mousemove', e => {
+    cursor.style.left = e.clientX + 'px'; cursor.style.top = e.clientY + 'px';
+    setTimeout(() => { cursorRing.style.left = e.clientX + 'px'; cursorRing.style.top = e.clientY + 'px'; }, 80);
+  });
+  document.querySelectorAll('button, a, .game-card').forEach(el => {
+    el.addEventListener('mouseenter', () => { cursor.style.transform='translate(-50%,-50%) scale(1.5)'; cursorRing.style.transform='translate(-50%,-50%) scale(1.5)'; });
+    el.addEventListener('mouseleave', () => { cursor.style.transform='translate(-50%,-50%) scale(1)'; cursorRing.style.transform='translate(-50%,-50%) scale(1)'; });
+  });
+  const pc = document.getElementById('particles');
+  for (let i = 0; i < 30; i++) {
+    const p = document.createElement('div'); p.className = 'particle';
+    p.style.left = Math.random()*100+'%';
+    p.style.animationDuration = (8+Math.random()*12)+'s';
+    p.style.animationDelay = (Math.random()*10)+'s';
+    const s = (1+Math.random()*2)+'px'; p.style.width=s; p.style.height=s;
+    p.style.background = ['#00f5ff','#bf00ff','#ff0080','#00ff88'][Math.floor(Math.random()*4)];
+    pc.appendChild(p);
+  }
+  function openGame(file, title) {
+    document.getElementById('modalTitle').textContent = title;
+    document.getElementById('gameFrame').src = file;
+    document.getElementById('gameModal').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeGame() {
+    document.getElementById('gameModal').classList.remove('open');
+    document.getElementById('gameFrame').src = '';
+    document.body.style.overflow = '';
+  }
+  document.getElementById('gameModal').addEventListener('click', e => { if(e.target===document.getElementById('gameModal')) closeGame(); });
+  document.addEventListener('keydown', e => { if(e.key==='Escape') closeGame(); });
+</script>
+<script>
+/* ── 2048 ── */
+(function() {
+
+
+
+
+
+
+
+let N=4, board=[], sc=0, best=0, over=false, won=false;
+
+function newGame(){
+  document.getElementById('g2048_overlay').classList.remove('show');
+  board=Array.from({length:N},()=>Array(N).fill(0));
+  sc=0; over=false; won=false;
+  updSc();
+  spawnTile(); spawnTile();
+  render();
+}
+
+function spawnTile(){
+  const empty=[];
+  board.forEach((row,r)=>row.forEach((v,c)=>{if(!v)empty.push([r,c]);}));
+  if(!empty.length)return null;
+  const [r,c]=empty[Math.floor(Math.random()*empty.length)];
+  board[r][c]=Math.random()<.9?2:4; return [r,c];
+}
+
+function render(born=null, popped=[]){
+  const g=document.getElementById('g2048_grid');
+  g.style.gridTemplateColumns=`repeat(${N},1fr)`;
+  g.innerHTML='';
+  const sz=(g.clientWidth-20-(N-1)*8)/N;
+  board.forEach((row,r)=>row.forEach((v,c)=>{
+    const d=document.createElement('div');
+    d.className='cell';
+    if(v){
+      d.textContent=v;
+      const fs=v>=1024?sz*.28:v>=100?sz*.33:sz*.4;
+      d.style.fontSize=fs+'px';
+      d.classList.add(v<=2048?'v'+v:'vbig');
+    }
+    if(born&&born[0]===r&&born[1]===c)d.classList.add('born');
+    if(popped.some(([pr,pc])=>pr===r&&pc===c))d.classList.add('pop');
+    g.appendChild(d);
+  }));
+}
+
+function slide(dir){
+  if(over)return;
+  const prev=board.map(r=>[...r]);
+  const pops=[];
+
+  function compress(arr){
+    let a=arr.filter(v=>v), merged=false;
+    for(let i=0;i<a.length-1;i++){
+      if(!merged&&a[i]===a[i+1]){
+        a[i]*=2; sc+=a[i]; if(a[i]===2048&&!won)won=true;
+        a.splice(i+1,1); merged=false;
+      }
+    }
+    while(a.length<N)a.push(0);
+    return a;
+  }
+
+  if(dir==='l')board=board.map(r=>compress(r));
+  else if(dir==='r')board=board.map(r=>compress([...r].reverse()).reverse());
+  else if(dir==='u'){
+    for(let c=0;c<N;c++){
+      const col=compress(board.map(r=>r[c]));
+      col.forEach((v,r)=>board[r][c]=v);
+    }
+  } else {
+    for(let c=0;c<N;c++){
+      const col=compress(board.map(r=>r[c]).reverse()).reverse();
+      col.forEach((v,r)=>board[r][c]=v);
+    }
+  }
+
+  const changed=board.some((row,r)=>row.some((v,c)=>v!==prev[r][c]));
+  if(!changed){return;}
+  updSc();
+  const b=spawnTile();
+  render(b,pops);
+
+  if(won){over=true;setTimeout(()=>showEnd(true),350);return;}
+  if(isLost()){over=true;setTimeout(()=>showEnd(false),350);}
+}
+
+function isLost(){
+  for(let r=0;r<N;r++)for(let c=0;c<N;c++){
+    if(!board[r][c])return false;
+    if(r<N-1&&board[r][c]===board[r+1][c])return false;
+    if(c<N-1&&board[r][c]===board[r][c+1])return false;
+  }
+  return true;
+}
+
+function updSc(){
+  document.getElementById('g2048_score').textContent=sc;
+  if(sc>best){best=sc;document.getElementById('g2048_best').textContent=best;}
+}
+
+function showEnd(win){
+  document.getElementById('g2048_ovEm').textContent=win?'🏆':'💥';
+  document.getElementById('g2048_ovTitle').textContent=win?'2048\'E ULAŞTI!':'OYUN BİTTİ';
+  const top=Math.max(...board.flat());
+  document.getElementById('g2048_ovInfo').innerHTML=`Skor: <span>${sc}</span><br>En yüksek karo: <span>${top}</span>`;
+  document.getElementById('g2048_overlay').classList.add('show');
+}
+
+// keyboard
+document.addEventListener('keydown',e=>{
+  const m={ArrowLeft:'l',ArrowRight:'r',ArrowUp:'u',ArrowDown:'d',a:'l',d:'r',w:'u',s:'d'};
+  if(m[e.key]){e.preventDefault();slide(m[e.key]);}
+});
+
+// touch
+let tx=0,ty=0;
+const gEl=document.getElementById('g2048_grid');
+gEl.addEventListener('touchstart',e=>{tx=e.touches[0].clientX;ty=e.touches[0].clientY;},{passive:true});
+gEl.addEventListener('touchend',e=>{
+  const dx=e.changedTouches[0].clientX-tx, dy=e.changedTouches[0].clientY-ty;
+  if(Math.abs(dx)<20&&Math.abs(dy)<20)return;
+  if(Math.abs(dx)>Math.abs(dy))slide(dx>0?'r':'l');
+  else slide(dy>0?'d':'u');
+},{passive:true});
+
+// size buttons
+document.querySelectorAll('.sz-btn').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.sz-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    N=parseInt(btn.dataset.s);
+    newGame();
+  });
+});
+
+newGame();
+
+
+
+
+
+
+
+  const sizes = [3, 4, 5];
+  btnSize.addEventListener('click', () => {
+    size = sizes[(sizes.indexOf(size) + 1) % sizes.length];
+    btnSize.textContent = `${size}×${size} ▾`;
+    newGame();
+  });
+
+  newGame();
+
+
+
+
+
+
+    kb.appendChild(div);
+  });
+}
+
+// ── INPUT ─────────────────────────────────────────────────────────────────────
+document.addEventListener('keydown',e=>{
+  if(e.ctrlKey||e.altKey||e.metaKey)return;
+  const k=e.key;
+  if(k==='Enter')handleKey('ENTER');
+  else if(k==='Backspace')handleKey('⌫');
+  else if(/^[a-züğışçöA-ZÜĞİŞÇÖ]$/.test(k))handleKey(k.toLowerCase());
+});
+
+function handleKey(k){
+  if(gameOver)return;
+  if(!started&&k!=='ENTER'&&k!=='⌫'){started=true;startTimer();}
+  if(k==='⌫'){deleteLetter();return;}
+  if(k==='ENTER'){submitRow();return;}
+  addLetter(k);
+}
+
+function addLetter(k){
+  if(currentCol>=5)return;
+  board[currentRow][currentCol]=k;
+  const t=document.getElementById(`t${currentRow}${currentCol}`);
+  t.textContent=k.toUpperCase();
+  t.classList.add('filled');
+  currentCol++;
+}
+
+function deleteLetter(){
+  if(currentCol<=0)return;
+  currentCol--;
+  board[currentRow][currentCol]='';
+  const t=document.getElementById(`t${currentRow}${currentCol}`);
+  t.textContent='';t.classList.remove('filled');
+}
+
+function submitRow(){
+  if(currentCol<5){shakeRow();showMsg('5 harf gir!');return;}
+  const guess=board[currentRow].join('');
+  revealRow(guess,currentRow,()=>{
+    const won=guess===secret;
+    if(won||currentRow===5){
+      gameOver=true;
+      clearInterval(timerInt);
+      plays++;
+      if(won){wins++;streak++;}else{streak=0;}
+      updateStats();
+      setTimeout(()=>showResult(won,guess),300);
+    }
+    currentRow++;currentCol=0;
+  });
+}
+
+function revealRow(guess,row,cb){
+  const result=score(guess);
+  result.forEach((res,c)=>{
+    setTimeout(()=>{
+      const t=document.getElementById(`t${row}${c}`);
+      t.style.animationDelay=`${c*80}ms`;
+      t.classList.add('flip');
+      setTimeout(()=>{
+        t.classList.add(res); if(res==="correct")else if(res==="present")else // update key
+        const prev=keyState[guess[c]]||'';
+        const priority={correct:3,present:2,absent:1};
+        if((priority[res]||0)>(priority[prev]||0)){
+          keyState[guess[c]]=res;
+          const kb=document.getElementById('key-'+guess[c]);
+          if(kb){kb.className='key';kb.classList.add(res);}
+        }
+      },240);
+    },c*80);
+  });
+  setTimeout(cb,5*80+300);
+}
+
+function score(guess){
+  const res=Array(5).fill('absent');
+  const secretArr=secret.split('');
+  const guessArr=guess.split('');
+  // first pass: correct
+  guessArr.forEach((l,i)=>{if(l===secretArr[i]){res[i]='correct';secretArr[i]=null;guessArr[i]=null;}});
+  // second pass: present
+  guessArr.forEach((l,i)=>{
+    if(!l)return;
+    const si=secretArr.indexOf(l);
+    if(si!==-1){res[i]='present';secretArr[si]=null;}
+  });
+  return res;
+}
+
+function shakeRow(){
+  const row=document.getElementById(`row${currentRow}`);
+  row.querySelectorAll('.tile').forEach(t=>{
+    t.classList.remove('shake');
+    void t.offsetWidth;
+    t.classList.add('shake');
+  });
+}
+
+function showResult(won,guess){
+  const m=Math.floor(seconds/60),s=seconds%60;
+  document.getElementById('gwordle_ovTitle').textContent=won?'KAZANDIN!':'BİTTİ';
+  document.getElementById('gwordle_ovTitle').className='ov-title '+(won?'win':'lose');
+  document.getElementById('gwordle_ovWord').innerHTML=won
+    ?`${currentRow}. tahmin · harika iş!`
+    :`Cevap: <span>${secret.toUpperCase()}</span>`;
+  document.getElementById('gwordle_ovGuess').textContent=won?currentRow:'-';
+  document.getElementById('gwordle_ovTime').textContent=`${m}:${s.toString().padStart(2,'0')}`;
+  if(won){
+    // bounce tiles
+    document.getElementById(`row${currentRow-1}`).querySelectorAll('.tile').forEach((t,i)=>{
+      setTimeout(()=>{t.classList.add('bounce');},i*80);
+    });
+  }
+  if(won)else setTimeout(()=>document.getElementById('gwordle_overlay').classList.add('show'),400);
+}
+
+function showMsg(txt){
+  const el=document.getElementById('gwordle_message');
+  el.textContent=txt||'_';
+  el.style.opacity=1;
+  if(txt){setTimeout(()=>{el.style.opacity=0;setTimeout(()=>{el.textContent='_';el.style.opacity=1;},300);},1800);}
+}
+
+function startTimer(){
+  clearInterval(timerInt);
+  timerInt=setInterval(()=>seconds++,1000);
+}
+
+function updateStats(){
+  document.getElementById('gwordle_sWin').textContent=wins;
+  document.getElementById('gwordle_sPlay').textContent=plays;
+  document.getElementById('gwordle_sStreak').textContent=streak;
+}
+
+document.getElementById('gwordle_btnNew').addEventListener('click',startNew);
+
+
+
+startNew();
+
+
+
+  sr.classList.add('show');
+}
+
+function showResult(won){
+  document.getElementById('gmastermind_ovIcon').textContent = won ? '🔓' : '🔒';
+  document.getElementById('gmastermind_ovTitle').textContent = won ? 'KOD KIRILDI!' : 'BAŞARISIZ';
+  document.getElementById('gmastermind_ovTitle').className = 'ov-title ' + (won ? 'win' : 'lose');
+
+  // secret pegs in overlay
+  const ovS = document.getElementById('gmastermind_ovSecret');
+  ovS.innerHTML = '';
+  secret.forEach(c => {
+    const p = document.createElement('div');
+    p.className = `peg ${c}`;
+    p.style.cssText = 'width:38px;height:38px;flex-shrink:0;';
+    ovS.appendChild(p);
+  });
+
+  document.getElementById('gmastermind_ovInfo').innerHTML = won
+    ? `<span>${currentRow}</span>. denemede kırdın!<br>Gizli kod yukarıda ↑`
+    : `Gizli kod yukarıda ↑<br>Daha fazla pratik yap!`;
+
+  setTimeout(() => document.getElementById('gmastermind_overlay').classList.add('show'), 300);
+}
+
+function showMsg(txt){
+  const el = document.getElementById('gmastermind_msg');
+  el.textContent = txt;
+}
+
+function updateStats(){
+  document.getElementById('gmastermind_sWin').textContent = wins;
+  document.getElementById('gmastermind_sPlay').textContent = plays;
+  document.getElementById('gmastermind_sBest').textContent = best === Infinity ? '-' : best;
+}
+
+// ── DIFFICULTY ────────────────────────────────────────────────────────────────
+document.querySelectorAll('.diff-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.diff-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const [p, c, m] = btn.dataset.d.split(',').map(Number);
+    POSITIONS = p; COLOR_COUNT = c; MAX_GUESSES = m;
+    newGame();
+  });
+});
+
+// ── NEW GAME ──────────────────────────────────────────────────────────────────
+function newGame(){
+  document.getElementById('gmastermind_overlay').classList.remove('show');
+  secret = genSecret();
+  currentGuess = Array(POSITIONS).fill(null);
+  currentRow = 0; gameOver = false; selectedColor = null;
+  document.getElementById('gmastermind_btnConfirm').disabled = true;
+  document.getElementById('gmastermind_secretRow').classList.remove('show');
+  document.getElementById('gmastermind_secretRow').innerHTML = '';
+  document.querySelectorAll('.pal-peg').forEach(p => p.classList.remove('selected'));
+  buildBoard();
+  buildPalette();
+  showMsg('// Renk seç, pozisyona tıkla, onayla');
+}
+
+newGame();
+
+document.addEventListener("DOMContentLoaded",()=>{});
+
+
+      td.addEventListener('touchmove',e=>{
+        e.preventDefault();
+        const t=e.touches[0];
+        const el=document.elementFromPoint(t.clientX,t.clientY);
+        if(el&&el.classList.contains('cell')){
+          const [,rr,cc]=el.id.split('_');
+          onCellEnter(parseInt(rr),parseInt(cc));
+        }
+      },{passive:false});
+      tr.appendChild(td);
+    });
+    tbl.appendChild(tr);
+  });
+
+  document.addEventListener('mouseup',()=>{isDragging=false;dragVal=null;});
+  document.addEventListener('touchend',()=>{isDragging=false;dragVal=null;});
+}
+
+// ── INPUT ─────────────────────────────────────────────────────────────────────
+function onCellDown(r,c){
+  if(!started){started=true;startTimer();}
+  isDragging=true;
+  const cur=userGrid[r][c];
+  if(mode==='fill') dragVal=cur===1?0:1;
+  else dragVal=cur===2?0:2;
+  applyCell(r,c);
+}
+
+function onCellEnter(r,c){
+  if(!isDragging)return;
+  applyCell(r,c);
+}
+
+function applyCell(r,c){
+  if(dragVal===null)return;
+  if(dragVal===1)else if(dragVal===2)else userGrid[r][c]=dragVal;
+  renderCell(r,c);
+  updateStats();
+}
+
+function renderCell(r,c){
+  const td=document.getElementById(`cell_${r}_${c}`);
+  td.classList.remove('filled','crossed','error');
+  if(userGrid[r][c]===1)td.classList.add('filled');
+  else if(userGrid[r][c]===2)td.classList.add('crossed');
+}
+
+function setMode(m){
+  mode=m;
+  document.getElementById('gnonogram_modeColor').classList.toggle('active',m==='fill');
+  document.getElementById('gnonogram_modeCross').classList.toggle('active',m==='cross');
+}
+
+// ── STATS & CLUE CHECKING ─────────────────────────────────────────────────────
+function updateStats(){
+  let filled=0,total=0;
+  solution.forEach((row,r)=>row.forEach((v,c)=>{if(v){total++;if(userGrid[r][c]===1)filled++;}}));
+  document.getElementById('gnonogram_pctVal').textContent=Math.round(filled/total*100)+'%';
+  // clue done highlight
+  solution.forEach((_,r)=>{
+    const sClue=getClues(solution[r]).join(',');
+    const uClue=getClues(userGrid[r].map(v=>v===1?1:0)).join(',');
+    const el=document.getElementById(`rc${r}`);
+    if(el)el.classList.toggle('done',sClue===uClue);
+  });
+  for(let c=0;c<N;c++){
+    const sClue=getClues(solution.map(r=>r[c])).join(',');
+    const uClue=getClues(userGrid.map(r=>r[c]===1?1:0)).join(',');
+    const el=document.getElementById(`cc${c}`);
+    if(el)el.classList.toggle('done',sClue===uClue);
+  }
+}
+
+function checkSolution(){
+  let wrong=0;
+  solution.forEach((row,r)=>row.forEach((v,c)=>{
+    const td=document.getElementById(`cell_${r}_${c}`);
+    td.classList.remove('error');
+    if(v===1&&userGrid[r][c]!==1){wrong++;}
+    else if(v===0&&userGrid[r][c]===1){
+      wrong++;
+      td.classList.add('error');
+      setTimeout(()=>td.classList.remove('error'),400);
+    }
+  }));
+  if(wrong>0){
+    errors+=wrong;
+    document.getElementById('gnonogram_errVal').textContent=errors;
+  } else {
+    onWin();
+  }
+}
+
+function revealSolution(){
+  solution.forEach((row,r)=>row.forEach((v,c)=>{
+    userGrid[r][c]=v?1:0;renderCell(r,c);
+  }));
+  updateStats();
+  setTimeout(onWin,400);
+}
+
+function resetGrid(){
+  userGrid=Array.from({length:N},()=>Array(N).fill(0));
+  for(let r=0;r<N;r++)for(let c=0;c<N;c++)renderCell(r,c);
+  updateStats();
+}
+
+// ── WIN ───────────────────────────────────────────────────────────────────────
+function onWin(){
+  clearInterval(timerInterval);
+  const m=Math.floor(seconds/60),s=seconds%60;
+  document.getElementById('gnonogram_winDesc').innerHTML=
+    `<span>${puzzle.name}</span> tamamlandı!<br>Süre: <span>${m}:${s.toString().padStart(2,'0')}</span> · Hata: <span>${errors}</span>`;
+  drawPreview();
+  setTimeout(()=>document.getElementById('gnonogram_winOverlay').classList.add('show'),200);
+}
+
+function drawPreview(){
+  const cv=document.getElementById('gnonogram_previewCanvas');
+  const cs=Math.floor(100/N);
+  cv.width=cv.height=cs*N;
+  const c=cv.getContext('2d');
+  solution.forEach((row,r)=>row.forEach((v,col)=>{
+    c.fillStyle=v?'#c77dff':'#231630';
+    c.fillRect(col*cs,r*cs,cs,cs);
+  }));
+}
+
+function nextPuzzle(){
+  document.getElementById('gnonogram_winOverlay').classList.remove('show');
+  currentPuzzleIdx=(currentPuzzleIdx+1)%PUZZLES.length;
+  loadPuzzle(currentPuzzleIdx);
+}
+
+// ── TIMER ─────────────────────────────────────────────────────────────────────
+function startTimer(){
+  clearInterval(timerInterval);
+  timerInterval=setInterval(()=>{
+    seconds++;
+    const m=Math.floor(seconds/60),s=seconds%60;
+    document.getElementById('gnonogram_timeVal').textContent=`${m}:${s.toString().padStart(2,'0')}`;
+  },1000);
+}
+
+// ── LOAD ──────────────────────────────────────────────────────────────────────
+function loadPuzzle(idx){
+  puzzle=PUZZLES[idx];
+  N=puzzle.size;
+  solution=puzzle.grid;
+  userGrid=Array.from({length:N},()=>Array(N).fill(0));
+  errors=0;seconds=0;started=false;
+  clearInterval(timerInterval);
+  document.getElementById('gnonogram_errVal').textContent='0';
+  document.getElementById('gnonogram_timeVal').textContent='0:00';
+  document.getElementById('gnonogram_pctVal').textContent='0%';
+  buildTable();
+  // tab highlight
+  document.querySelectorAll('.ptab').forEach((t,i)=>t.classList.toggle('active',i===idx));
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+const tabs=document.getElementById('gnonogram_puzzleTabs');
+PUZZLES.forEach((p,i)=>{
+  const btn=document.createElement('button');
+  btn.className='ptab'+(i===0?' active':'');
+  btn.textContent=p.name;
+  btn.onclick=()=>{currentPuzzleIdx=i;loadPuzzle(i);};
+  tabs.appendChild(btn);
+});
+
+loadPuzzle(0);
+
+
+
+
+
+
+
+
+})();
+
+function showEmbedGame(prefix) {
+  document.querySelectorAll(".embedded-game-panel").forEach(p => p.style.display="none");
+  document.getElementById("embed-placeholder").style.display="none";
+  const panel = document.getElementById("ep_"+prefix);
+  if(panel) panel.style.display="block";
+  document.querySelectorAll(".embed-tab").forEach(t => t.classList.toggle("active", t.dataset.target===prefix));
+}
+
+function sendMail() {
+  const name = document.getElementById('cf-name').value.trim();
+  const email = document.getElementById('cf-email').value.trim();
+  const msg = document.getElementById('cf-msg').value.trim();
+  if (!name || !email || !msg) { alert('Lütfen tüm alanları doldur!'); return; }
+  const subject = encodeURIComponent('Hüseyinistan Games - ' + name + ' mesaj gönderdi');
+  const body = encodeURIComponent('Ad: ' + name + '\nE-posta: ' + email + '\n\nMesaj:\n' + msg);
+  window.location.href = 'mailto:keleshusein3@gmail.com?subject=' + subject + '&body=' + body;
+}
+</script>
+</body>
+</html>
