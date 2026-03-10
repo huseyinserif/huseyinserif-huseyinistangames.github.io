@@ -276,34 +276,35 @@ h1{
 #musicBtn.on{border-color:#ffb800;box-shadow:0 0 10px rgba(255,184,0,.3);}
 
 </style>
+
 </head>
 <body>
 
 <button id="muteBtn" title="Ses aç/kapat">🔊</button>
 <header>
   <h1>WORDLE</h1>
-  <div class="header-sub">5 harfli Türkçe kelimeyi bul · 6 hakkın var</div>
+  <div class="header-sub"><span data-tr="5 harfli Türkçe kelimeyi bul · 6 hakkın var" data-en="Find the 5-letter Turkish word · 6 attempts">5 harfli Türkçe kelimeyi bul · 6 hakkın var</span></div>
 </header>
 
 <div class="stats">
   <div class="stat"><span class="stat-v" id="sWin">0</span><span class="stat-l">KAZANMA</span></div>
   <div class="stat"><span class="stat-v" id="sPlay">0</span><span class="stat-l">OYNANAN</span></div>
-  <div class="stat"><span class="stat-v" id="sStreak">0</span><span class="stat-l">SERİ</span></div>
+  <div class="stat"><span class="stat-v" id="sStreak">0</span><span class="stat-l"><span data-tr="SERİ" data-en="STREAK">SERİ</span></span></div>
 </div>
 
 <div id="message">_</div>
 <div id="grid"></div>
 <div id="keyboard"></div>
-<button id="btnNew">[ YENİ KELİME ]</button>
+<button id="btnNew"><span data-tr="[ YENİ KELİME ]" data-en="[ NEW WORD ]">[ YENİ KELİME ]</span></button>
 
 <div class="overlay" id="overlay">
   <div class="ov-title" id="ovTitle"></div>
   <div class="ov-word" id="ovWord"></div>
   <div class="ov-stats">
-    <div><span class="ov-stat-v" id="ovGuess">-</span>TAHMİN</div>
-    <div><span class="ov-stat-v" id="ovTime">-</span>SÜRE</div>
+    <div><span class="ov-stat-v" id="ovGuess">-</span><span data-tr="TAHMİN" data-en="GUESSES">TAHMİN</span></div>
+    <div><span class="ov-stat-v" id="ovTime">-</span><span data-tr="SÜRE" data-en="TIME">SÜRE</span></div>
   </div>
-  <button id="btnOvNew" onclick="startNew()">▶ YENİ OYUN</button>
+  <button id="btnOvNew" onclick="startNew()"><span data-tr="▶ YENİ OYUN" data-en="▶ NEW GAME">▶ YENİ OYUN</span></button>
 </div>
 
 <script>
@@ -841,7 +842,7 @@ function shakeRow(){
 
 function showResult(won,guess){
   const m=Math.floor(seconds/60),s=seconds%60;
-  document.getElementById('ovTitle').textContent=won?'KAZANDIN!':'BİTTİ';
+  document.getElementById('ovTitle').textContent=won?'KAZANDIN!':(__LANG==='en'?'GAME OVER':'BİTTİ');
   document.getElementById('ovTitle').className='ov-title '+(won?'win':'lose');
   document.getElementById('ovWord').innerHTML=won
     ?`${currentRow}. tahmin · harika iş!`
@@ -903,5 +904,14 @@ document.addEventListener('click', function startMusic() {
 
 </script>
 <button id="musicBtn" title="Müzik aç/kapat">🎵</button>
+
+<script>
+(function(){
+  var L=localStorage.getItem('huseyinistan_lang')||'tr';
+  document.querySelectorAll('[data-tr]').forEach(function(el){
+    el.textContent=L==='en'?el.dataset.en:el.dataset.tr;
+  });
+})();
+</script>
 </body>
 </html>
