@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Satranç Arena</title>
+<title><span data-tr="Satranç Arena" data-en="Chess Arena">Satranç Arena</span></title>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=Nunito:ital,wght@0,300;0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -217,6 +217,7 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
 .tdots span:nth-child(2){animation:tdot 1.1s infinite 0.2s;}
 .tdots span:nth-child(3){animation:tdot 1.1s infinite 0.4s;}
 </style>
+
 </head>
 <body>
 
@@ -231,18 +232,18 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
   <div class="mode-cards">
     <div class="mc hvb" onclick="pickMode('hvb')">
       <div class="mc-icon">🧑‍💻</div>
-      <div class="mc-name">İnsan vs Bot</div>
-      <div class="mc-desc">5 farklı güçte botla oyna</div>
+      <div class="mc-name"><span data-tr="İnsan vs Bot" data-en="Human vs Bot">İnsan vs Bot</span></div>
+      <div class="mc-desc"><span data-tr="5 farklı güçte botla oyna" data-en="Play against 5 bots of different strength">5 farklı güçte botla oyna</span></div>
     </div>
     <div class="mc hvh" onclick="pickMode('hvh')">
       <div class="mc-icon">🤝</div>
-      <div class="mc-name">İnsan vs İnsan</div>
-      <div class="mc-desc">Aynı ekranda iki oyuncu</div>
+      <div class="mc-name"><span data-tr="İnsan vs İnsan" data-en="Human vs Human">İnsan vs İnsan</span></div>
+      <div class="mc-desc"><span data-tr="Aynı ekranda iki oyuncu" data-en="Two players on same screen">Aynı ekranda iki oyuncu</span></div>
     </div>
     <div class="mc bvb" onclick="pickMode('bvb')">
       <div class="mc-icon">🤖</div>
-      <div class="mc-name">Bot vs Bot</div>
-      <div class="mc-desc">İki botu eşleştir izle</div>
+      <div class="mc-name"><span data-tr="Bot vs Bot" data-en="Bot vs Bot">Bot vs Bot</span></div>
+      <div class="mc-desc"><span data-tr="İki botu eşleştir izle" data-en="Match two bots and watch">İki botu eşleştir izle</span></div>
     </div>
   </div>
 
@@ -419,13 +420,13 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
 // BOTS
 // ════════════════════════════════════════════
 const BOTS=[
-  {id:0,name:'Acemi Adem',emoji:'🐣',depth:1,desc:'Zayıf — çaylak seviye',
+  {id:0,name:'Acemi Adem',emoji:'🐣',depth:1,desc:(__LANG==='en'?'Weak — beginner level':'Zayıf — çaylak seviye'),
     bonus:()=>Math.random()*60-30},
   {id:1,name:'Kasım Paşa',emoji:'🦁',depth:2,desc:'Saldırgan — hamle başına atar',
     bonus:(m,b)=>{let x=0;if(b[m.to])x+=65;const{r,c}=rc(m.to);x+=(3.5-Math.abs(r-3.5))*7+(3.5-Math.abs(c-3.5))*7;return x;}},
   {id:2,name:'Demir Defne',emoji:'🛡️',depth:2,desc:'Savunmacı — sağlam tutar',
     bonus:(m,b)=>{let x=0;if(typ(b[m.from])==='K')x-=60;if(b[m.to])x+=30;return x;}},
-  {id:3,name:'Mızrak',emoji:'🐴',depth:3,desc:'At ustası — L hamlesi sever',
+  {id:3,name:'Mızrak',emoji:'🐴',depth:3,desc:(__LANG==='en'?'Knight master — loves the L move':'At ustası — L hamlesi sever'),
     bonus:(m,b)=>typ(b[m.from])==='N'?45:0},
   {id:4,name:'ZEUS',emoji:'⚡',depth:5,desc:'Güçlü motor — derin hesap',
     bonus:()=>0}
@@ -573,7 +574,7 @@ function pickMode(m){
   ['cfg-hvb','cfg-hvh','cfg-bvb'].forEach(id=>document.getElementById(id).style.display='none');
   document.getElementById('cfg-'+m).style.display='flex';
   const t={hvb:'İnsan vs Bot',hvh:'İki Oyuncu',bvb:'Bot vs Bot'};
-  document.getElementById('cfg-title').textContent=t[m]+' Ayarları';
+  document.getElementById('cfg-title').textContent=t[m]+(__LANG==='en'?' Settings':' Ayarları');
 }
 
 function setClock(sec){
@@ -608,7 +609,7 @@ function launchGame(){
   }else{
     const wi=parseInt(document.getElementById('bvb-w').value);
     const bi=parseInt(document.getElementById('bvb-b').value);
-    if(wi===bi){alert('İki farklı bot seç!');return;}
+    if(wi===bi){alert((__LANG==='en'?'Select two different bots!':(__LANG==='en'?'Select two different bots!':'İki farklı bot seç!')));return;}
     players={w:{name:BOTS[wi].name,icon:BOTS[wi].emoji,isBot:true,bot:BOTS[wi]},b:{name:BOTS[bi].name,icon:BOTS[bi].emoji,isBot:true,bot:BOTS[bi]}};
     botSpeed=parseInt(document.getElementById('bvb-spd').value);flipped=false;
   }
@@ -671,7 +672,7 @@ function flagExpired(){
   sndFlag();
   const loser=players[turn].name;
   const winner=turn==='w'?'b':'w';
-  setResult(players[winner].icon,'Süre Bitti!',loser+' zamanı doldu. '+players[winner].name+' kazandı!');
+  setResult(players[winner].icon,(__LANG==='en'?'Time Up!':(__LANG==='en'?'Time Up!':'Süre Bitti!')),loser+' zamanı doldu. '+players[winner].name+' kazandı!');
 }
 
 // ════════════════════════════════════════════
@@ -816,7 +817,7 @@ function endGame(reason){
     stopAmbient();
     if(allBots) sndWin();
     else if(humanIsWinner) sndWin(); else sndLose();
-    setResult(players[winner].icon,players[winner].name+' Kazandı!','Şah mat! '+players[turn].name+' hamle yapamıyor.');
+    setResult(players[winner].icon,players[winner].name+' Kazandı!',(__LANG==='en'?'Checkmate! ':(__LANG==='en'?'Checkmate! ':'Şah mat! '))+players[turn].name+(__LANG==='en'?' cannot move.',' hamle yapamıyor.'));
   }else{
     gameResult='draw';
     stopAmbient();
@@ -1068,7 +1069,7 @@ function updatePlayerStrips(){
 function updateStatusBar(check=false){
   const p=players[turn];
   document.getElementById('g-turn').textContent=(gameOver?'Oyun Bitti':p.name+"'nın sırası");
-  document.getElementById('g-alert').textContent=check?'⚠ ŞAH!':'';
+  document.getElementById('g-alert').textContent=check?(__LANG==='en'?'⚠ CHECK!':(__LANG==='en'?'⚠ CHECK!':'⚠ ŞAH!')):'';
 }
 
 function setThinking(on){
@@ -1185,7 +1186,7 @@ function sndSelect() {
 function toggleMute(){
   soundEnabled=!soundEnabled;
   const btn=document.getElementById('mute-btn');
-  if(btn) btn.textContent=soundEnabled?'🔊 Ses Açık':'🔇 Ses Kapalı';
+  if(btn) btn.textContent=soundEnabled?(__LANG==='en'?'🔊 Sound On':(__LANG==='en'?'🔊 Sound On':'🔊 Ses Açık')):(__LANG==='en'?'🔇 Sound Off':(__LANG==='en'?'🔇 Sound Off':'🔇 Ses Kapalı'));
   if(soundEnabled) startAmbient();
   else stopAmbient();
 }
@@ -1337,6 +1338,15 @@ function stopAmbient() {
 // ════════════════════════════════════════════
 populateSelects();
 renderBoard();
+</script>
+
+<script>
+(function(){
+  var L=localStorage.getItem('huseyinistan_lang')||'tr';
+  document.querySelectorAll('[data-tr]').forEach(function(el){
+    el.textContent=L==='en'?el.dataset.en:el.dataset.tr;
+  });
+})();
 </script>
 </body>
 </html>
