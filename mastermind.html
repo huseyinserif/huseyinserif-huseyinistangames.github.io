@@ -308,13 +308,14 @@ header{
 #musicBtn.on{border-color:#ffb800;box-shadow:0 0 10px rgba(255,184,0,.3);}
 
 </style>
+
 </head>
 <body>
 
 <button id="muteBtn" title="Ses aç/kapat">🔊</button>
 <header>
   <div class="logo">MASTERMIND</div>
-  <div class="tagline">Gizli kodu kır · Renk sırasını bul</div>
+  <div class="tagline"><span data-tr="Gizli kodu kır · Renk sırasını bul" data-en="Crack the code · Find the color sequence">Gizli kodu kır · Renk sırasını bul</span></div>
 </header>
 
 <div class="diff-bar">
@@ -326,14 +327,14 @@ header{
 <div class="stats">
   <div class="stat"><span class="stat-v" id="sWin">0</span><span>KAZANMA</span></div>
   <div class="stat"><span class="stat-v" id="sPlay">0</span><span>OYNANAN</span></div>
-  <div class="stat"><span class="stat-v" id="sBest">-</span><span>EN İYİ</span></div>
+  <div class="stat"><span class="stat-v" id="sBest">-</span><span><span data-tr="EN İYİ" data-en="BEST">EN İYİ</span></span></div>
 </div>
 
 <div id="msg">// Renk seç, pozisyona tıkla, onayla</div>
 
 <div id="board"></div>
 
-<div class="pal-label">— RENK PALETİ —</div>
+<div class="pal-label"><span data-tr="— RENK PALETİ —" data-en="— COLOR PALETTE —">— RENK PALETİ —</span></div>
 <div id="palette"></div>
 
 <div class="controls">
@@ -349,7 +350,7 @@ header{
   <div class="ov-title" id="ovTitle"></div>
   <div class="ov-secret" id="ovSecret"></div>
   <div class="ov-info" id="ovInfo"></div>
-  <button id="btnOvNew" onclick="newGame()">▶ YENİ OYUN</button>
+  <button id="btnOvNew" onclick="newGame()"><span data-tr="▶ YENİ OYUN" data-en="▶ NEW GAME">▶ YENİ OYUN</span></button>
 </div>
 
 <script>
@@ -619,7 +620,7 @@ const SFX = (() => {
 
 // ── CONFIG ────────────────────────────────────────────────────────────────────
 const COLORS = ['c1','c2','c3','c4','c5','c6'];
-const COLOR_NAMES = ['Kırmızı','Turuncu','Sarı','Yeşil','Mavi','Mor'];
+const COLOR_NAMES = [(__LANG==='en'?'Red':'Kırmızı'),'Turuncu',(__LANG==='en'?'Yellow':'Sarı'),(__LANG==='en'?'Green':'Yeşil'),'Mavi','Mor'];
 
 let POSITIONS = 4;
 let COLOR_COUNT = 6;
@@ -801,7 +802,7 @@ function revealSecret(){
 
 function showResult(won){
   document.getElementById('ovIcon').textContent = won ? '🔓' : '🔒';
-  document.getElementById('ovTitle').textContent = won ? 'KOD KIRILDI!' : 'BAŞARISIZ';
+  document.getElementById('ovTitle').textContent = won ? 'KOD KIRILDI!' : (__LANG==='en'?'FAILED':'BAŞARISIZ');
   document.getElementById('ovTitle').className = 'ov-title ' + (won ? 'win' : 'lose');
 
   // secret pegs in overlay
@@ -815,8 +816,8 @@ function showResult(won){
   });
 
   document.getElementById('ovInfo').innerHTML = won
-    ? `<span>${currentRow}</span>. denemede kırdın!<br>Gizli kod yukarıda ↑`
-    : `Gizli kod yukarıda ↑<br>Daha fazla pratik yap!`;
+    ? (__LANG==="en"?`Cracked in <span>${currentRow}</span> attempts!<br>Secret code above ↑`:`<span>${currentRow}</span>. denemede kırdın!<br>Gizli kod yukarıda ↑`)
+    : (__LANG==="en"?"Secret code above ↑<br>Keep practicing!":"Gizli kod yukarıda ↑<br>Daha fazla pratik yap!");
 
   setTimeout(() => document.getElementById('overlay').classList.add('show'), 300);
 }
@@ -861,6 +862,15 @@ function newGame(){
 newGame();
 </script>
 <button id="musicBtn" title="Müzik aç/kapat">🎵</button>
+
+<script>
+(function(){
+  var L=localStorage.getItem('huseyinistan_lang')||'tr';
+  document.querySelectorAll('[data-tr]').forEach(function(el){
+    el.textContent=L==='en'?el.dataset.en:el.dataset.tr;
+  });
+})();
+</script>
 </body>
 </html>
 
@@ -873,7 +883,7 @@ document.getElementById('musicBtn').addEventListener('click', () => {
   const btn = document.getElementById('musicBtn');
   btn.classList.toggle('on', on);
   btn.textContent = on ? '🎵' : '🔇';
-  btn.title = on ? 'Müziği kapat' : 'Müziği aç';
+  btn.title = on ? (__LANG==='en'?'Music Off':'Müziği kapat') : (__LANG==='en'?'Music On':'Müziği aç');
 });
 // Auto-start music on first interaction
 document.addEventListener('click', function startMusic() {
