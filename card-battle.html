@@ -521,6 +521,7 @@
     .battlefield-card .card-emoji { font-size:20px; }
   }
 </style>
+
 </head>
 <body>
 
@@ -528,21 +529,21 @@
 <div id="titleScreen" class="screen active">
   <div class="title-emblem">⚔️</div>
   <div>
-    <div class="game-title">KART SAVAŞI</div>
-    <div class="game-subtitle">Efsaneler Arasında</div>
+    <div class="game-title"><span data-tr="KART SAVAŞI" data-en="CARD BATTLE">KART SAVAŞI</span></div>
+    <div class="game-subtitle"><span data-tr="Efsaneler Arasında" data-en="Among Legends">Efsaneler Arasında</span></div>
   </div>
   <div class="title-divider"></div>
   <p style="font-size:16px;color:rgba(232,213,176,0.6);max-width:360px;line-height:1.7;">
-    Güçlü yaratıkları savaşa çağır, düşmanın canını sıfırla ve zaferi kap!
+    <span data-tr="Güçlü yaratıkları savaşa çağır, düşmanın canını sıfırla ve zaferi kap!" data-en="Summon powerful creatures, reduce enemy HP to zero and claim victory!">Güçlü yaratıkları savaşa çağır, düşmanın canını sıfırla ve zaferi kap!</span>
   </p>
-  <button class="btn btn-primary" onclick="startGame()">⚔ SAVAŞA BAŞLA</button>
-  <button class="btn btn-secondary" onclick="showRules()">📜 Nasıl Oynanır</button>
+  <button class="btn btn-primary" onclick="startGame()"><span data-tr="⚔ SAVAŞA BAŞLA" data-en="⚔ START BATTLE">⚔ SAVAŞA BAŞLA</span></button>
+  <button class="btn btn-secondary" onclick="showRules()"><span data-tr="📜 Nasıl Oynanır" data-en="📜 How to Play">📜 Nasıl Oynanır</span></button>
   <p id="rulesText" style="display:none;max-width:420px;font-size:15px;line-height:1.8;color:rgba(232,213,176,0.7);background:rgba(0,0,0,0.4);padding:16px;border:1px solid var(--border);">
-    🃏 Her tur 1 mana kazanırsın<br>
-    ⚡ El kartlarına tıkla → sahaya yerleştir<br>
-    ⚔️ Sahanda kart varsa düşmana saldır<br>
-    💀 Düşman canı 0'a düşünce kazanırsın<br>
-    🔄 "Tur Bitir" ile düşman hamle yapar
+    🃏 <span data-tr="Her tur 1 mana kazanırsın" data-en="Gain 1 mana each turn">Her tur 1 mana kazanırsın</span><br>
+    ⚡ <span data-tr="El kartlarına tıkla → sahaya yerleştir" data-en="Click hand cards → place on field">El kartlarına tıkla → sahaya yerleştir</span><br>
+    ⚔️ <span data-tr="Sahanda kart varsa düşmana saldır" data-en="Attack enemy if you have cards on field">Sahanda kart varsa düşmana saldır</span><br>
+    💀 <span data-tr="Düşman canı 0'a düşünce kazanırsın" data-en="Win when enemy HP reaches 0">Düşman canı 0'a düşünce kazanırsın</span><br>
+    🔄 <span data-tr='🔄 "Tur Bitir" ile düşman hamle yapar' data-en='"End Turn" lets the enemy move'>"Tur Bitir" ile düşman hamle yapar</span>
   </p>
 </div>
 
@@ -550,15 +551,15 @@
 <div id="gameScreen" class="screen">
   <div class="game-header">
     <div class="turn-indicator" id="turnIndicator">Tur 1</div>
-    <button id="muteBtn" onclick="toggleMute()" style="background:transparent;border:1px solid rgba(201,168,76,0.3);color:var(--gold);font-size:16px;padding:4px 10px;cursor:pointer;border-radius:3px;" title="Sesi Aç/Kapat">🔊</button>
-    <button id="musicBtn" onclick="toggleMusic()" style="background:transparent;border:1px solid rgba(201,168,76,0.3);color:var(--gold);font-size:16px;padding:4px 10px;cursor:pointer;border-radius:3px;" title="Müzik Aç/Kapat">🎵</button>
+    <button id="muteBtn" onclick="toggleMute()" style="background:transparent;border:1px solid rgba(201,168,76,0.3);color:var(--gold);font-size:16px;padding:4px 10px;cursor:pointer;border-radius:3px;" title="">🔊</button>
+    <button id="musicBtn" onclick="toggleMusic()" style="background:transparent;border:1px solid rgba(201,168,76,0.3);color:var(--gold);font-size:16px;padding:4px 10px;cursor:pointer;border-radius:3px;" title="">🎵</button>
     <button class="btn btn-secondary" style="font-size:12px;padding:6px 16px;" onclick="endTurn()">Tur Bitir ⏭</button>
   </div>
 
   <div class="game-area">
     <!-- ENEMY -->
     <div class="player-area enemy-area">
-      <div class="player-area-label">☠ Düşman</div>
+      <div class="player-area-label"><span data-tr="☠ Düşman" data-en="☠ Enemy">☠ Düşman</span></div>
       <div class="stats-row">
         <div class="stat-block">
           <div class="stat-label">❤ Can</div>
@@ -579,7 +580,7 @@
 
     <!-- BATTLE LOG -->
     <div class="battle-log" id="battleLog">
-      <div class="log-entry special">⚔ Savaş başladı! İlk hamle sende.</div>
+      <div class="log-entry special"><span data-tr="⚔ Savaş başladı! İlk hamle sende." data-en="⚔ Battle started! Your move first.">⚔ Savaş başladı! İlk hamle sende.</span></div>
     </div>
 
     <!-- VS DIVIDER -->
@@ -617,7 +618,7 @@
   </div>
 
   <div class="action-bar">
-    <div class="action-hint" id="actionHint">Oynamak için bir kart seç</div>
+    <div class="action-hint" id="actionHint"><span data-tr="Oynamak için bir kart seç" data-en="Select a card to play">Oynamak için bir kart seç</span></div>
     <button class="btn btn-primary" style="font-size:13px;padding:10px 24px;" onclick="endTurn()">Tur Bitir</button>
   </div>
 </div>
@@ -626,13 +627,14 @@
 <div id="resultScreen" class="screen">
   <div class="result-icon" id="resultIcon">🏆</div>
   <div class="result-title" id="resultTitle">Zafer!</div>
-  <div class="result-subtitle" id="resultSubtitle">Efsanevi savaşçı!</div>
+  <div class="result-subtitle" id="resultSubtitle"><span data-tr="Efsanevi savaşçı!" data-en="Legendary warrior!">Efsanevi savaşçı!</span></div>
   <div class="title-divider"></div>
   <button class="btn btn-primary" onclick="startGame()">🔄 Tekrar Oyna</button>
-  <button class="btn btn-secondary" onclick="showScreen('titleScreen')">🏠 Ana Menü</button>
+  <button class="btn btn-secondary" onclick="showScreen('titleScreen')"><span data-tr="🏠 Ana Menü" data-en="🏠 Main Menu">🏠 Ana Menü</span></button>
 </div>
 
 <script>
+var __LANG=localStorage.getItem('huseyinistan_lang')||'tr';
 // ===== BACKGROUND MUSIC =====
 let musicCtx = null, musicNodes = [], musicPlaying = false;
 
@@ -1418,6 +1420,15 @@ enemyArea.addEventListener('click', function(e) {
     if(!isCard) attackTarget('face');
   }
 });
+</script>
+
+<script>
+(function(){
+  var L=localStorage.getItem('huseyinistan_lang')||'tr';
+  document.querySelectorAll('[data-tr]').forEach(function(el){
+    el.textContent=L==='en'?el.dataset.en:el.dataset.tr;
+  });
+})();
 </script>
 </body>
 </html>
