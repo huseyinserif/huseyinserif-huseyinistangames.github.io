@@ -101,6 +101,7 @@ body{background:var(--bg);font-family:'Orbitron',monospace;overflow:hidden;heigh
 @keyframes fup{0%{opacity:1;transform:translateY(0) scale(1)}50%{opacity:1;transform:translateY(-28px) scale(1.18)}100%{opacity:0;transform:translateY(-56px) scale(.8)}}
 @keyframes banim{0%{opacity:0;transform:translateX(-50%) translateY(8px)}20%{opacity:1;transform:translateX(-50%) translateY(0)}70%{opacity:1}100%{opacity:0;transform:translateX(-50%) translateY(-18px)}}
 </style>
+
 </head>
 <body>
 <div id="gw">
@@ -109,7 +110,7 @@ body{background:var(--bg);font-family:'Orbitron',monospace;overflow:hidden;heigh
 
 <div id="hud">
   <div class="hp" id="hpb">
-    <div class="hl">Sağlık</div><div class="bt"><div class="bf" id="hf"></div></div>
+    <div class="hl"><span data-tr="Sağlık" data-en="Health">Sağlık</span></div><div class="bt"><div class="bf" id="hf"></div></div>
     <div class="hl" style="margin-top:7px">Kalkan</div><div class="bt"><div class="bf" id="sf"></div></div>
   </div>
   <div class="hp" style="text-align:center">
@@ -128,25 +129,25 @@ body{background:var(--bg);font-family:'Orbitron',monospace;overflow:hidden;heigh
 <div id="wbar">
   <div class="ws act" id="w0"><div class="wi">🔵</div><div class="wn">Lazer</div><div class="wa">∞</div></div>
   <div class="ws" id="w1"><div class="wi">🟠</div><div class="wn">Plazma</div><div class="wa" id="ap">0</div></div>
-  <div class="ws" id="w2"><div class="wi">💥</div><div class="wn">Nükleer</div><div class="wa" id="an">0</div></div>
+  <div class="ws" id="w2"><div class="wi">💥</div><div class="wn"><span data-tr="Nükleer" data-en="Nuclear">Nükleer</span></div><div class="wa" id="an">0</div></div>
 </div>
 
 <!-- wave upgrade screen -->
 <div id="upgScreen" class="hidden">
-  <div class="ut">⚡ GÜÇLENİYORSUN</div>
-  <div class="us">Dalga <span id="uwn">1</span> tamamlandı — bir güçlenme seç</div>
+  <div class="ut"><span data-tr="⚡ GÜÇLENİYORSUN" data-en="⚡ POWERING UP">⚡ GÜÇLENİYORSUN</span></div>
+  <div class="us">Dalga <span id="uwn">1</span> <span data-tr="tamamlandı — bir güçlenme seç" data-en="completed — choose an upgrade">tamamlandı — bir güçlenme seç</span></div>
   <div class="ucards" id="ucards"></div>
-  <div class="ulvl">Bu güçlenmeler sadece bu oyun için geçerlidir</div>
+  <div class="ulvl"><span data-tr="Bu güçlenmeler sadece bu oyun için geçerlidir" data-en="These upgrades apply to this game only">Bu güçlenmeler sadece bu oyun için geçerlidir</span></div>
 </div>
 
 <!-- permanent shop -->
 <div id="permScreen" class="hidden">
-  <div class="pt">⭐ KALICI YÜKSELTİMLER</div>
-  <div class="ps">Her oyunda başlangıçtan geçerli — altınla satın al</div>
-  <div class="pgold">💰 Altın: <span id="goldD">0</span></div>
+  <div class="pt"><span data-tr="⭐ KALICI YÜKSELTİMLER" data-en="⭐ PERMANENT UPGRADES">⭐ KALICI YÜKSELTİMLER</span></div>
+  <div class="ps"><span data-tr="Her oyunda başlangıçtan geçerli — altınla satın al" data-en="Active from start every game — buy with gold">Her oyunda başlangıçtan geçerli — altınla satın al</span></div>
+  <div class="pgold"><span data-tr="💰 Altın" data-en="💰 Gold">💰 Altın</span>: <span id="goldD">0</span></div>
   <div class="pgrid" id="pgrid"></div>
   <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center">
-    <button class="btn gn" onclick="closePerm()">▶ OYUNA GİT</button>
+    <button class="btn gn" onclick="closePerm()"><span data-tr="▶ OYUNA GİT" data-en="▶ GO TO GAME">▶ OYUNA GİT</span></button>
     <button class="btn rd" onclick="resetPerm()">🗑 SIFIRLA</button>
   </div>
 </div>
@@ -155,10 +156,10 @@ body{background:var(--bg);font-family:'Orbitron',monospace;overflow:hidden;heigh
 <div class="screen" id="mns">
   <div style="font-family:'Rajdhani',sans-serif;font-size:11px;letter-spacing:6px;color:rgba(0,245,255,.35);margin-bottom:8px">ANTHROPIC GAMES</div>
   <div class="gtitle">GALACTIC WAR</div>
-  <div class="gsub">Yıldızların Ötesinde Savaş</div>
+  <div class="gsub"><span data-tr="Yıldızların Ötesinde Savaş" data-en="Battle Beyond the Stars">Yıldızların Ötesinde Savaş</span></div>
   <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center">
     <button class="btn" onclick="startGame()">⚡ OYNA</button>
-    <button class="btn gd" onclick="openPerm()">⭐ YÜKSELTİMLER</button>
+    <button class="btn gd" onclick="openPerm()"><span data-tr="⭐ YÜKSELTİMLER" data-en="⭐ UPGRADES">⭐ YÜKSELTİMLER</span></button>
   </div>
   <div class="inst"><span>MOUSE</span> → Hareket &nbsp;|&nbsp; <span>CLICK/SPACE</span> → Ateş<br><span>1/2/3</span> → Silah &nbsp;|&nbsp; <span>SHIFT</span> → Hız &nbsp;|&nbsp; <span>ESC</span> → Duraklat</div>
 </div>
@@ -167,7 +168,7 @@ body{background:var(--bg);font-family:'Orbitron',monospace;overflow:hidden;heigh
 <div class="screen hidden" id="pus">
   <div class="gtitle" style="font-size:clamp(22px,5vw,48px)">DURAKLAT</div>
   <button class="btn" onclick="resumeGame()">▶ DEVAM ET</button>
-  <button class="btn rd" onclick="goMenu()">⏹ MENÜ</button>
+  <button class="btn rd" onclick="goMenu()"><span data-tr="⏹ MENÜ" data-en="⏹ MENU">⏹ MENÜ</span></button>
 </div>
 
 <!-- game over -->
@@ -176,9 +177,9 @@ body{background:var(--bg);font-family:'Orbitron',monospace;overflow:hidden;heigh
   <div class="gtitle" style="background:linear-gradient(135deg,var(--nr),var(--no));font-size:clamp(26px,6vw,56px)">OYUN BİTTİ</div>
   <div class="srow" style="margin-top:22px">
     <div class="si"><div class="sl2">Skor</div><div class="sv" id="fs">0</div></div>
-    <div class="si"><div class="sl2">En Yüksek</div><div class="sv" id="fh">0</div></div>
+    <div class="si"><div class="sl2"><span data-tr="En Yüksek" data-en="High Score">En Yüksek</span></div><div class="sv" id="fh">0</div></div>
     <div class="si"><div class="sl2">Dalga</div><div class="sv" id="fw">1</div></div>
-    <div class="si"><div class="sl2">Öldürülen</div><div class="sv" id="fk">0</div></div>
+    <div class="si"><div class="sl2"><span data-tr="Öldürülen" data-en="Killed">Öldürülen</span></div><div class="sv" id="fk">0</div></div>
   </div>
   <div style="font-family:'Rajdhani',sans-serif;font-size:13px;color:#ffd700;letter-spacing:3px;margin:10px 0" id="goldEarned"></div>
   <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:10px">
@@ -235,16 +236,16 @@ const AE=(()=>{
 
 // ── PERMANENT UPGRADES ───────────────────────────────────────
 const PU=[
-  {id:'mhp', n:'Titanyum Zırh',   i:'🛡', d:'Başlangıç max HP +25.',            cost:50,  max:10, fx:()=>{PL.maxHp+=25;PL.hp+=25;}},
-  {id:'msh', n:'Güçlü Kalkan',    i:'🔵', d:'Başlangıç max kalkan +30.',         cost:50,  max:8,  fx:()=>{PL.maxShield+=30;PL.shield+=30;}},
-  {id:'dmg', n:'Güçlü Silahlar',  i:'💥', d:'Tüm hasar +%15.',                  cost:80,  max:8,  fx:()=>{pDmg=+(pDmg*1.15).toFixed(3);}},
-  {id:'spd', n:'İyon Motoru',     i:'🚀', d:'Gemi hızı +1.',                    cost:60,  max:6,  fx:()=>{pSpd+=1;}},
-  {id:'shr', n:'Kalkan Jeneratör',i:'🔄', d:'Kalkan yenilenmesi %60 hızlı.',    cost:70,  max:5,  fx:()=>{pShR=+(pShR*1.6).toFixed(3);}},
-  {id:'spl', n:'Plazma Deposu',   i:'🟠', d:'Her oyuna +8 plazma ile başla.',   cost:100, max:5,  fx:()=>{pSPl+=8;}},
-  {id:'snk', n:'Nükleer Depo',    i:'☢',  d:'Her oyuna +2 nükleer ile başla.',  cost:150, max:4,  fx:()=>{pSNk+=2;}},
-  {id:'xp',  n:'Skor Çarpanı',    i:'⭐', d:'Skor ve altın kazanımı +%20.',     cost:120, max:5,  fx:()=>{pSM=+(pSM*1.2).toFixed(3);}},
-  {id:'hpr', n:'Nano-Onarıcı',    i:'💉', d:'Otomatik HP yenilenmesi.',         cost:90,  max:5,  fx:()=>{pHpR+=0.04;}},
-  {id:'tri', n:'Üçlü Lazer',      i:'🔱', d:'+1 ekstra lazer demeti çıkar.',    cost:200, max:3,  fx:()=>{pTri+=1;}},
+  {id:'mhp', n:(__LANG==='en'?'Titanium Armor':'Titanyum Zırh'),   i:'🛡', d:(__LANG==='en'?'Starting max HP +25.':'Başlangıç max HP +25.'),            cost:50,  max:10, fx:()=>{PL.maxHp+=25;PL.hp+=25;}},
+  {id:'msh', n:(__LANG==='en'?'Strong Shield':'Güçlü Kalkan'),    i:'🔵', d:(__LANG==='en'?'Starting max shield +30.':'Başlangıç max kalkan +30.'),         cost:50,  max:8,  fx:()=>{PL.maxShield+=30;PL.shield+=30;}},
+  {id:'dmg', n:(__LANG==='en'?'Power Weapons':'Güçlü Silahlar'),  i:'💥', d:'Tüm hasar +%15.',                  cost:80,  max:8,  fx:()=>{pDmg=+(pDmg*1.15).toFixed(3);}},
+  {id:'spd', n:'İyon Motoru',     i:'🚀', d:(__LANG==='en'?'Ship speed +1.':'Gemi hızı +1.'),                    cost:60,  max:6,  fx:()=>{pSpd+=1;}},
+  {id:'shr', n:(__LANG==='en'?'Shield Generator':'Kalkan Jeneratör'),i:'🔄', d:(__LANG==='en'?'Shield recharge 60% faster.':'Kalkan yenilenmesi %60 hızlı.'),    cost:70,  max:5,  fx:()=>{pShR=+(pShR*1.6).toFixed(3);}},
+  {id:'spl', n:(__LANG==='en'?'Plasma Storage':'Plazma Deposu'),   i:'🟠', d:(__LANG==='en'?'Start each game with +8 plasma.':'Her oyuna +8 plazma ile başla.'),   cost:100, max:5,  fx:()=>{pSPl+=8;}},
+  {id:'snk', n:(__LANG==='en'?'Nuclear Storage':'Nükleer Depo'),    i:'☢',  d:(__LANG==='en'?'Start each game with +2 nuclear.':'Her oyuna +2 nükleer ile başla.'),  cost:150, max:4,  fx:()=>{pSNk+=2;}},
+  {id:'xp',  n:(__LANG==='en'?'Score Multiplier':'Skor Çarpanı'),    i:'⭐', d:(__LANG==='en'?'Score and gold gain +20%.':'Skor ve altın kazanımı +%20.'),     cost:120, max:5,  fx:()=>{pSM=+(pSM*1.2).toFixed(3);}},
+  {id:'hpr', n:(__LANG==='en'?'Nano-Repair':'Nano-Onarıcı'), i:'💉', d:(__LANG==='en'?'Auto HP regeneration.':'Otomatik HP yenilenmesi.'),         cost:90,  max:5,  fx:()=>{pHpR+=0.04;}},
+  {id:'tri', n:'Üçlü Lazer',      i:'🔱', d:(__LANG==='en'?'+1 extra laser beam.':'+1 ekstra lazer demeti çıkar.'),    cost:200, max:3,  fx:()=>{pTri+=1;}},
 ];
 let pDmg=1,pSpd=0,pShR=0.15,pSPl=0,pSNk=0,pSM=1,pHpR=0,pTri=0;
 let gold=0, pLvl={};
@@ -265,7 +266,7 @@ function buyP(id){
   gold-=cost;pLvl[id]=(pLvl[id]||0)+1;u.fx();saveP();AE.pup();buildPGrid();updGold();
 }
 function resetPerm(){
-  if(!confirm('Tüm kalıcı yükseltimler sıfırlansın mı?'))return;
+  if(!confirm((__LANG==='en'?'Reset all permanent upgrades?':'Tüm kalıcı yükseltimler sıfırlansın mı?')))return;
   pLvl={};gold=0;saveP();applyP();buildPGrid();updGold();
 }
 function buildPGrid(){
@@ -434,7 +435,7 @@ function drawEnemy(e){
 function spawnBoss(){
   bossOn=true;boss={x:W/2,y:-100,tY:110,hp:500+wave*200,mHp:500+wave*200,angle:0,alive:true,pat:0,pt:0,st:0,vx:0};
   document.getElementById('bossBar').style.display='block';
-  wann('⚠ BOSS GELİYOR ⚠','GALAKTİK İMPARATOR');AE.warp();
+  wann('⚠ BOSS GELİYOR ⚠',(__LANG==='en'?'GALACTIC EMPEROR':'GALAKTİK İMPARATOR'));AE.warp();
 }
 function updBoss(){
   if(!boss||!boss.alive)return;boss.angle+=.02;boss.y+=(boss.tY-boss.y)*.02;boss.pt++;
@@ -528,16 +529,16 @@ function wann(t,s){const el=document.getElementById('wann');document.getElementB
 
 // ── WAVE UPGRADES (temporary, per session) ────────────────────
 const WU=[
-  {n:'Ateş Hızı',      i:'⚡',rar:'NADİR',    c:'#ffff00',d:'Lazer atış sıklığı artar.',        st:'-2 GECİKME', apply:()=>{ssFire=Math.max(2,ssFire-2);}},
-  {n:'Hasar +%20',     i:'💥',rar:'STANDART', c:'#ff6600',d:'Mermi hasarı %20 artar.',           st:'+%20 HASAR',  apply:()=>{ssDmg=+(ssDmg*1.2).toFixed(2);}},
-  {n:'Ekstra Lazer',   i:'🔱',rar:'EPİK',     c:'#bf00ff',d:'Lazere +1 ekstra demet çıkar.',    st:'LAZER +1',    apply:()=>{ssTri=Math.min(ssTri+1,4);}},
-  {n:'Büyük Mermi',    i:'🎯',rar:'STANDART', c:'#ffdd00',d:'Mermi boyutu ve hitbox büyür.',     st:'+4 BOY',      apply:()=>{ssSz+=4;}},
-  {n:'Hız Motoru',     i:'🚀',rar:'STANDART', c:'#00f5ff',d:'Gemi hareket hızlanır.',            st:'+2 HIZ',      apply:()=>{ssSpd+=2;}},
-  {n:'Kalkan x2',      i:'🔄',rar:'NADİR',    c:'#00ffcc',d:'Kalkan yenilenme 2x hızlı.',        st:'KALKAN 2x',   apply:()=>{ssShR=+(ssShR*2).toFixed(3);}},
+  {n:(__LANG==='en'?'Fire Rate':'Ateş Hızı'),      i:'⚡',rar:'NADİR',    c:'#ffff00',d:(__LANG==='en'?'Laser fire rate increases.':'Lazer atış sıklığı artar.'),        st:'-2 GECİKME', apply:()=>{ssFire=Math.max(2,ssFire-2);}},
+  {n:'Hasar +%20',     i:'💥',rar:'STANDART', c:'#ff6600',d:(__LANG==='en'?'Bullet damage +20%.':'Mermi hasarı %20 artar.'),           st:'+%20 HASAR',  apply:()=>{ssDmg=+(ssDmg*1.2).toFixed(2);}},
+  {n:'Ekstra Lazer',   i:'🔱',rar:(__LANG==='en'?'EPIC':'EPİK'),     c:'#bf00ff',d:'Lazere +1 ekstra demet çıkar.',    st:'LAZER +1',    apply:()=>{ssTri=Math.min(ssTri+1,4);}},
+  {n:(__LANG==='en'?'Big Bullet':'Büyük Mermi'),    i:'🎯',rar:'STANDART', c:'#ffdd00',d:(__LANG==='en'?'Bullet size and hitbox grows.':'Mermi boyutu ve hitbox büyür.'),     st:'+4 BOY',      apply:()=>{ssSz+=4;}},
+  {n:(__LANG==='en'?'Speed Engine':'Hız Motoru'),     i:'🚀',rar:'STANDART', c:'#00f5ff',d:'Gemi hareket hızlanır.',            st:'+2 HIZ',      apply:()=>{ssSpd+=2;}},
+  {n:(__LANG==='en'?'Shield x2':'Kalkan x2'),      i:'🔄',rar:'NADİR',    c:'#00ffcc',d:(__LANG==='en'?'Shield recharge 2x faster.':'Kalkan yenilenme 2x hızlı.'),        st:'KALKAN 2x',   apply:()=>{ssShR=+(ssShR*2).toFixed(3);}},
   {n:'Acil Tedavi',    i:'💊',rar:'STANDART', c:'#00ff88',d:'+50 HP ve kalkan tazelenir.',        st:'+50 HP',      apply:()=>{PL.hp=Math.min(PL.maxHp,PL.hp+50);PL.shield=PL.maxShield;updHUD();}},
-  {n:'Nano-Onarıcı',   i:'💉',rar:'NADİR',    c:'#ff88aa',d:'Otomatik HP yenilenmesi eklenir.',  st:'+HP/KARE',    apply:()=>{ssHpR+=0.06;}},
-  {n:'Plazma Reaktör', i:'🟠',rar:'EPİK',     c:'#ff4400',d:'Plazma silahı sonsuz mermi alır!', st:'SONSUZ PLAZMA',apply:()=>{ammo[1]=Infinity;updAmmo();}},
-  {n:'Nükleer Çekirdek',i:'☢',rar:'EFSANEVİ',c:'#ff00ff',d:'Nükleer silah sonsuz mermi alır!', st:'SONSUZ NÜKLEER',apply:()=>{ammo[2]=Infinity;updAmmo();}},
+  {n:(__LANG==='en'?'Nano-Repair':'Nano-Onarıcı'), i:'💉',rar:'NADİR',    c:'#ff88aa',d:(__LANG==='en'?'Adds auto HP regeneration.':'Otomatik HP yenilenmesi eklenir.'',  st:'+HP/KARE',    apply:()=>{ssHpR+=0.06;}},
+  {n:(__LANG==='en'?'Plasma Reactor':'Plazma Reaktör'), i:'🟠',rar:'EPİK',     c:'#ff4400',d:(__LANG==='en'?'Plasma weapon gets infinite ammo!':'Plazma silahı sonsuz mermi alır!'), st:'SONSUZ PLAZMA',apply:()=>{ammo[1]=Infinity;updAmmo();}},
+  {n:'Nükleer Çekirdek',i:'☢',rar:(__LANG==='en'?'LEGENDARY':'EFSANEVİ'),c:'#ff00ff',d:'Nükleer silah sonsuz mermi alır!', st:'SONSUZ NÜKLEER',apply:()=>{ammo[2]=Infinity;updAmmo();}},
 ];
 function showUpg(){
   gs='upgrading';
@@ -678,7 +679,7 @@ function gameOver(){
   const earned=Math.floor(score/500+kills*2);gold+=earned;saveP();
   document.getElementById('fs').textContent=score;document.getElementById('fh').textContent=hiScore;
   document.getElementById('fw').textContent=wave;document.getElementById('fk').textContent=kills;
-  document.getElementById('goldEarned').textContent=`💰 +${earned} Altın Kazandın! (Toplam: ${gold})`;
+  document.getElementById('goldEarned').textContent=`💰 +${earned} ${__LANG==="en"?"Gold Earned! (Total:":"Altın Kazandın! (Toplam:"} ${gold})`;
   setTimeout(()=>document.getElementById('gos').classList.remove('hidden'),1400);
 }
 function toggleAudio(){AE.init();const v=!AE.en;AE.setEn(v);document.getElementById('abt').textContent=v?'🔊 SES':'🔇 KAPALI';}
@@ -689,6 +690,15 @@ PL.x=W/2;PL.y=H*.75;
 updHUD();updAmmo();
 document.getElementById('hsd').textContent=String(hiScore).padStart(6,'0');
 requestAnimationFrame(loop);
+</script>
+
+<script>
+(function(){
+  var L=localStorage.getItem('huseyinistan_lang')||'tr';
+  document.querySelectorAll('[data-tr]').forEach(function(el){
+    el.textContent=L==='en'?el.dataset.en:el.dataset.tr;
+  });
+})();
 </script>
 </body>
 </html>
