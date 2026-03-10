@@ -135,6 +135,7 @@ h1{
 #musicBtn.on{border-color:#ffb800;box-shadow:0 0 10px rgba(255,184,0,.3);}
 
 </style>
+
 </head>
 <body>
 
@@ -143,7 +144,7 @@ h1{
   <h1>2048</h1>
   <div class="scores">
     <div class="score-box"><div class="score-lbl">Skor</div><div class="score-val" id="score">0</div></div>
-    <div class="score-box"><div class="score-lbl">En İyi</div><div class="score-val" id="best">0</div></div>
+    <div class="score-box"><div class="score-lbl"><span data-tr="En İyi" data-en="Best">En İyi</span></div><div class="score-val" id="best">0</div></div>
   </div>
 </div>
 
@@ -158,7 +159,7 @@ h1{
 </div>
 
 <div class="grid-wrap"><div id="grid"></div></div>
-<div id="msg">← → ↑ ↓ tuşları veya kaydır</div>
+<div id="msg"><span data-tr="← → ↑ ↓ tuşları veya kaydır" data-en="← → ↑ ↓ keys or swipe">← → ↑ ↓ tuşları veya kaydır</span></div>
 
 <div class="overlay" id="overlay">
   <div class="ov-em" id="ovEm"></div>
@@ -530,9 +531,9 @@ function updSc(){
 
 function showEnd(win){
   document.getElementById('ovEm').textContent=win?'🏆':'💥';
-  document.getElementById('ovTitle').textContent=win?'2048\'E ULAŞTI!':'OYUN BİTTİ';
+  document.getElementById('ovTitle').textContent=win?'2048\(__LANG==='en'?' REACHED!':'E ULAŞTI!'):(__LANG==='en'?'GAME OVER':'OYUN BİTTİ');
   const top=Math.max(...board.flat());
-  document.getElementById('ovInfo').innerHTML=`Skor: <span>${sc}</span><br>En yüksek karo: <span>${top}</span>`;
+  document.getElementById('ovInfo').innerHTML=`${__LANG==="en"?"Score":"Skor"}: <span>${sc}</span><br>${__LANG==="en"?"Best tile":"En yüksek karo"}: <span>${top}</span>`;
   document.getElementById('overlay').classList.add('show');
 }
 
@@ -576,7 +577,7 @@ document.getElementById('musicBtn').addEventListener('click', () => {
   const btn = document.getElementById('musicBtn');
   btn.classList.toggle('on', on);
   btn.textContent = on ? '🎵' : '🔇';
-  btn.title = on ? 'Müziği kapat' : 'Müziği aç';
+  btn.title = on ? (__LANG==='en'?'Music Off':'Müziği kapat') : (__LANG==='en'?'Music On':'Müziği aç');
 });
 // Auto-start music on first interaction
 document.addEventListener('click', function startMusic() {
@@ -590,5 +591,14 @@ document.addEventListener('click', function startMusic() {
 
 </script>
 <button id="musicBtn" title="Müzik aç/kapat">🎵</button>
+
+<script>
+(function(){
+  var L=localStorage.getItem('huseyinistan_lang')||'tr';
+  document.querySelectorAll('[data-tr]').forEach(function(el){
+    el.textContent=L==='en'?el.dataset.en:el.dataset.tr;
+  });
+})();
+</script>
 </body>
 </html>
