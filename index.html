@@ -209,6 +209,7 @@
 </style>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 
+<script src="https://pl28889583.effectivegatecpm.com/74/c5/66/74c5661100dc6400ec483b6f3cb46f37.js"></script>
 </head>
 <body>
 
@@ -575,7 +576,7 @@ function sendMail() {
 }
 
 // ── LANGUAGE TOGGLE ──
-let currentLang = 'tr';
+let currentLang = localStorage.getItem('huseyinistan_lang') || 'tr';
 const translations = {
   // Nav
   'nav-games':    {tr:'Oyunlar',        en:'Games'},
@@ -658,6 +659,7 @@ const translations = {
 
 function toggleLang() {
   currentLang = currentLang === 'tr' ? 'en' : 'tr';
+  localStorage.setItem('huseyinistan_lang', currentLang);
   const btn = document.getElementById('lang-btn');
   btn.textContent = '🌐 ' + (currentLang === 'tr' ? 'EN' : 'TR');
   applyLang();
@@ -721,7 +723,14 @@ function applyLang() {
   // Email placeholder
   const emailInput = $('cf-email'); if(emailInput) emailInput.placeholder = l==='tr' ? 'eposta@ornek.com' : 'email@example.com';
 }
+
+// Apply saved lang on page load
+window.addEventListener('DOMContentLoaded', () => {
+  if (currentLang === 'en') {
+    document.getElementById('lang-btn').textContent = '🌐 TR';
+    applyLang();
+  }
+});
 </script>
-  <script src="https://pl28889583.effectivegatecpm.com/74/c5/66/74c5661100dc6400ec483b6f3cb46f37.js"></script>
 </body>
 </html>
