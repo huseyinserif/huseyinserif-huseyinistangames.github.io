@@ -323,6 +323,7 @@
 #musicBtn.on{border-color:#ffb800;box-shadow:0 0 10px rgba(255,184,0,.3);}
 
 </style>
+
 </head>
 <body>
 
@@ -330,7 +331,7 @@
 <div class="container">
   <header>
     <h1>KAYAR BULMACA</h1>
-    <p>Sayıları sıralaya bilir misin?</p>
+    <p><span data-tr="Sayıları sıralaya bilir misin?" data-en="Can you sort the numbers?">Sayıları sıralaya bilir misin?</span></p>
   </header>
 
   <div class="stats">
@@ -341,7 +342,7 @@
     <div class="stat-divider"></div>
     <div class="stat">
       <div class="stat-value" id="timer">0:00</div>
-      <div class="stat-label">Süre</div>
+      <div class="stat-label"><span data-tr="Süre" data-en="Time">Süre</span></div>
     </div>
   </div>
 
@@ -350,10 +351,10 @@
   </div>
 
   <div class="controls">
-    <button id="btnShuffle">🔀 Karıştır</button>
+    <button id="btnShuffle"><span data-tr="🔀 Karıştır" data-en="🔀 Shuffle">🔀 Karıştır</span></button>
     <button id="btnSize">4×4 ▾</button>
   </div>
-  <div class="size-hint" id="sizeHint">Boyutu değiştirmek için tıkla</div>
+  <div class="size-hint" id="sizeHint"><span data-tr="Boyutu değiştirmek için tıkla" data-en="Click to change size">Boyutu değiştirmek için tıkla</span></div>
 </div>
 
 <div class="win-overlay" id="winOverlay">
@@ -732,7 +733,7 @@ const SFX = (() => {
     stopTimer();
     const m = Math.floor(seconds / 60);
     const s = seconds % 60;
-    winStats.innerHTML = `<span>${moves}</span> hamlede çözdün!<br>Süre: <span>${m}:${s.toString().padStart(2,'0')}</span>`;
+    winStats.innerHTML = `<span>${moves}</span> ${__LANG==="en"?"moves to solve":"hamlede çözdün"}!<br>${__LANG==="en"?"Time":"Süre"}: <span>${m}:${s.toString().padStart(2,'0')}</span>`;
     SFX.win(); winOverlay.classList.add('show');
   }
 
@@ -769,7 +770,7 @@ document.getElementById('musicBtn').addEventListener('click', () => {
   const btn = document.getElementById('musicBtn');
   btn.classList.toggle('on', on);
   btn.textContent = on ? '🎵' : '🔇';
-  btn.title = on ? 'Müziği kapat' : 'Müziği aç';
+  btn.title = on ? (__LANG==='en'?'Music Off':'Müziği kapat') : (__LANG==='en'?'Music On':'Müziği aç');
 });
 // Auto-start music on first interaction
 document.addEventListener('click', function startMusic() {
@@ -783,5 +784,14 @@ document.addEventListener('click', function startMusic() {
 
 </script>
 <button id="musicBtn" title="Müzik aç/kapat">🎵</button>
+
+<script>
+(function(){
+  var L=localStorage.getItem('huseyinistan_lang')||'tr';
+  document.querySelectorAll('[data-tr]').forEach(function(el){
+    el.textContent=L==='en'?el.dataset.en:el.dataset.tr;
+  });
+})();
+</script>
 </body>
 </html>
