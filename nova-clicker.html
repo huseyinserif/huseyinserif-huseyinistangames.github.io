@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NOVA CLICKER</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600&display=swap" rel="stylesheet">
+<script>var __LANG=localStorage.getItem('huseyinistan_lang')||'tr';</script>
+<style>
+  :root {
+    --gold: #FFD700;
+    --plasma: #00FFFF;
+    --nova: #FF6B35;
+    --void: #0a0a1a;
+    --deep: #050510;
+    --glow-cyan: 0 0 20px #00FFFF, 0 0 40px #00FFFF55;
+    --glow-gold: 0 0 20px #FFD700, 0 0 60px #FFD70066;
+    --glow-nova: 0 0 30px #FF6B35, 0 0 60px #FF6B3566;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: var(--deep);
+    color: #fff;
+    font-family: 'Rajdhani', sans-serif;
+    min-height: 100vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    user-select: none;
+  }
+  #starfield { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 80% 60% at 20% 80%, #1a003388 0%, transparent 60%),
+      radial-gradient(ellipse 60% 80% at 80% 20%, #003322aa 0%, transparent 60%),
+      radial-gradient(ellipse 40% 40% at 50% 50%, #001133 0%, transparent 70%);
+    z-index: 0;
+    animation: nebulaDrift 20s ease-in-out infinite alternate;
+  }
+  @keyframes nebulaDrift {
+    from { opacity: 0.6; transform: scale(1); }
+    to { opacity: 1; transform: scale(1.05); }
+  }
+  #homeBtn {
+    position: fixed; top: 12px; left: 15px;
+    background: transparent;
+    border: 1px solid rgba(0,255,255,0.3);
+    color: var(--plasma);
+    font-family: 'Orbitron', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    cursor: pointer;
+    padding: 6px 14px;
+    border-radius: 6px;
+    z-index: 1000;
+    text-decoration: none;
+    transition: all 0.2s;
+  }
+  #homeBtn:hover { background: rgba(0,255,255,0.08); border-color: var(--plasma); }
+  .game-wrapper {
+    position: relative;
+    z-index: 10;
+    display: grid;
+    grid-template-columns: 260px 1fr 260px;
+    gap: 20px;
+    width: 100%;
+    max-width: 1100px;
+    height: 100vh;
+    padding: 20px;
+    align-items: start;
+  }
+  .left-panel { display: flex; flex-direction: column; gap: 12px; padding-top: 10px; }
+  .panel-title {
+    font-family: 'Orbitron', monospace;
+    font-size: 10px;
+    letter-spacing: 4px;
+    color: var(--plasma);
+    text-shadow: var(--glow-cyan);
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+  .stat-card {
+    background: linear-gradient(135deg, rgba(0,255,255,0.05), rgba(0,255,255,0.01));
+    border: 1px solid rgba(0,255,255,0.2);
+    border-radius: 8px;
+    padding: 12px 16px;
+    position: relative;
+    overflow: hidden;
+  }
+  .stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--plasma), transparent);
+    opacity: 0.5;
+  }
+  .stat-label { font-size: 10px; letter-spacing: 3px; color: rgba(0,255,255,0.6); text-transform: uppercase; }
+  .stat-value {
+    font-family: 'Orbitron', monospace;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--gold);
+    text-shadow: var(--glow-gold);
+    line-height: 1.2;
+  }
+  .stat-sub { font-size: 11px; color: rgba(255,255,255,0.4); letter-spacing: 1px; }
+  .prestige-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: linear-gradient(135deg, #FF6B35, #FF0055);
+    border-radius: 20px;
+    padding: 4px 12px;
+    font-family: 'Orbitron', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    box-shadow: var(--glow-nova);
+  }
+  .center-panel {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 24px;
+    height: 100%;
+    padding-bottom: 20px;
+  }
+  .game-title {
+    font-family: 'Orbitron', monospace;
+    font-size: 28px;
+    font-weight: 900;
+    letter-spacing: 8px;
+    background: linear-gradient(135deg, var(--gold), var(--nova), var(--plasma));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-align: center;
+    filter: drop-shadow(0 0 20px rgba(255,215,0,0.4));
+    animation: titlePulse 3s ease-in-out infinite;
+  }
+  @keyframes titlePulse {
+    0%, 100% { filter: drop-shadow(0 0 20px rgba(255,215,0,0.4)); }
+    50% { filter: drop-shadow(0 0 40px rgba(255,215,0,0.8)); }
+  }
+  .click-arena {
+    position: relative;
+    width: 240px;
+    height: 240px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .orbit-ring {
+    position: absolute;
+    border-radius: 50%;
+    border: 1px solid rgba(0,255,255,0.15);
+    animation: orbitSpin linear infinite;
+    pointer-events: none;
+  }
+  .orbit-ring:nth-child(1) { width: 260px; height: 260px; animation-duration: 8s; }
+  .orbit-ring:nth-child(2) { width: 290px; height: 290px; animation-duration: 12s; animation-direction: reverse; border-color: rgba(255,107,53,0.1); }
+  .orbit-ring:nth-child(3) { width: 320px; height: 320px; animation-duration: 20s; border-color: rgba(255,215,0,0.08); }
+  @keyframes orbitSpin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+  .orbit-dot {
+    position: absolute;
+    width: 6px; height: 6px;
+    background: var(--plasma);
+    border-radius: 50%;
+    top: -3px; left: 50%;
+    margin-left: -3px;
+    box-shadow: var(--glow-cyan);
+  }
+  .nova-btn {
+    width: 180px; height: 180px;
+    border-radius: 50%;
+    cursor: pointer;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    background: radial-gradient(circle at 35% 35%, #1a3a5c, #0a1a2c 40%, #050e1a 70%, #020810);
+    border: 2px solid rgba(0,255,255,0.3);
+    box-shadow: 0 0 30px rgba(0,255,255,0.1), 0 0 60px rgba(0,255,255,0.05), inset 0 0 30px rgba(0,255,255,0.05);
+    transition: transform 0.08s ease, box-shadow 0.08s ease;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .nova-btn:hover { box-shadow: 0 0 40px rgba(0,255,255,0.2), 0 0 80px rgba(0,255,255,0.1), inset 0 0 40px rgba(0,255,255,0.1); }
+  .nova-btn:active, .nova-btn.clicked {
+    transform: scale(0.94);
+    box-shadow: 0 0 60px rgba(255,215,0,0.4), 0 0 120px rgba(255,215,0,0.2), inset 0 0 40px rgba(255,215,0,0.15);
+  }
+  .nova-icon { font-size: 52px; line-height: 1; filter: drop-shadow(0 0 15px rgba(255,215,0,0.6)); transition: transform 0.08s ease; pointer-events: none; }
+  .nova-btn.clicked .nova-icon { transform: scale(1.15); }
+  .nova-label { font-family: 'Orbitron', monospace; font-size: 8px; letter-spacing: 4px; color: rgba(0,255,255,0.6); margin-top: 4px; pointer-events: none; }
+  .ripple {
+    position: absolute; border-radius: 50%;
+    border: 2px solid var(--gold);
+    animation: rippleOut 0.6s ease-out forwards;
+    pointer-events: none;
+    width: 20px; height: 20px; margin: -10px;
+  }
+  @keyframes rippleOut { from { transform: scale(0); opacity: 1; } to { transform: scale(6); opacity: 0; } }
+  .float-text {
+    position: fixed;
+    font-family: 'Orbitron', monospace;
+    font-weight: 700;
+    pointer-events: none;
+    z-index: 1000;
+    animation: floatUp 1s ease-out forwards;
+    text-shadow: 0 0 10px currentColor;
+  }
+  @keyframes floatUp { from { transform: translateY(0) scale(1); opacity: 1; } to { transform: translateY(-80px) scale(0.6); opacity: 0; } }
+  .progress-section { width: 100%; max-width: 280px; }
+  .progress-label { display: flex; justify-content: space-between; font-size: 11px; color: rgba(255,255,255,0.5); letter-spacing: 2px; margin-bottom: 6px; }
+  .progress-bar { height: 4px; background: rgba(255,255,255,0.08); border-radius: 2px; overflow: hidden; }
+  .progress-fill { height: 100%; background: linear-gradient(90deg, var(--plasma), var(--gold)); border-radius: 2px; transition: width 0.3s ease; box-shadow: 0 0 8px var(--plasma); }
+  .critical-flash { position: fixed; inset: 0; background: radial-gradient(circle at center, rgba(255,215,0,0.15), transparent 70%); pointer-events: none; z-index: 500; opacity: 0; animation: critFlash 0.4s ease-out forwards; }
+  @keyframes critFlash { 0% { opacity: 1; } 100% { opacity: 0; } }
+  .right-panel { display: flex; flex-direction: column; gap: 10px; padding-top: 10px; max-height: 100vh; overflow-y: auto; overflow-x: hidden; scrollbar-width: none; }
+  .right-panel::-webkit-scrollbar { display: none; }
+  .upgrade-btn {
+    background: linear-gradient(135deg, rgba(0,255,255,0.03), rgba(0,255,255,0.01));
+    border: 1px solid rgba(0,255,255,0.15);
+    border-radius: 10px;
+    padding: 10px 14px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    position: relative;
+    overflow: hidden;
+  }
+  .upgrade-btn:hover:not(.disabled) { background: linear-gradient(135deg, rgba(0,255,255,0.08), rgba(0,255,255,0.04)); border-color: rgba(0,255,255,0.4); transform: translateX(-3px); box-shadow: 4px 0 20px rgba(0,255,255,0.1); }
+  .upgrade-btn.disabled { opacity: 0.35; cursor: not-allowed; filter: grayscale(0.5); }
+  .upgrade-btn.affordable { border-color: rgba(255,215,0,0.4); background: linear-gradient(135deg, rgba(255,215,0,0.06), rgba(255,215,0,0.02)); }
+  .upgrade-btn.affordable::after { content: ''; position: absolute; top: 0; right: 0; width: 3px; height: 100%; background: linear-gradient(180deg, var(--gold), transparent); border-radius: 0 10px 10px 0; }
+  .upg-icon { font-size: 24px; min-width: 36px; text-align: center; filter: drop-shadow(0 0 6px rgba(255,215,0,0.4)); }
+  .upg-info { flex: 1; }
+  .upg-name { font-family: 'Orbitron', monospace; font-size: 10px; font-weight: 700; letter-spacing: 1px; color: #fff; }
+  .upg-desc { font-size: 10px; color: rgba(255,255,255,0.4); margin-top: 2px; }
+  .upg-cost { font-family: 'Orbitron', monospace; font-size: 11px; color: var(--gold); text-shadow: 0 0 8px rgba(255,215,0,0.5); text-align: right; white-space: nowrap; }
+  .upg-owned { font-size: 9px; color: rgba(0,255,255,0.5); letter-spacing: 1px; }
+  .prestige-btn { background: linear-gradient(135deg, rgba(255,107,53,0.1), rgba(255,0,85,0.05)); border: 1px solid rgba(255,107,53,0.3); border-radius: 10px; padding: 12px; cursor: pointer; transition: all 0.3s ease; text-align: center; margin-top: 8px; }
+  .prestige-btn:hover:not(.disabled) { background: linear-gradient(135deg, rgba(255,107,53,0.2), rgba(255,0,85,0.1)); border-color: rgba(255,107,53,0.6); box-shadow: 0 0 20px rgba(255,107,53,0.2); }
+  .prestige-btn.disabled { opacity: 0.3; cursor: not-allowed; }
+  .prestige-name { font-family: 'Orbitron', monospace; font-size: 10px; letter-spacing: 3px; color: var(--nova); text-shadow: var(--glow-nova); }
+  .prestige-desc { font-size: 10px; color: rgba(255,255,255,0.35); margin-top: 3px; }
+  .milestone-notif {
+    position: fixed; top: 20px; left: 50%;
+    transform: translateX(-50%) translateY(-100px);
+    background: linear-gradient(135deg, rgba(10,10,26,0.95), rgba(10,10,26,0.9));
+    border: 1px solid var(--gold);
+    border-radius: 12px;
+    padding: 14px 24px;
+    text-align: center;
+    z-index: 2000;
+    box-shadow: 0 0 30px rgba(255,215,0,0.3);
+    transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+    min-width: 260px;
+  }
+  .milestone-notif.show { transform: translateX(-50%) translateY(0); }
+  .milestone-title { font-family: 'Orbitron', monospace; font-size: 10px; letter-spacing: 4px; color: var(--gold); text-shadow: var(--glow-gold); }
+  .milestone-text { font-size: 14px; color: #fff; margin-top: 4px; letter-spacing: 1px; }
+  .combo-display { font-family: 'Orbitron', monospace; font-size: 13px; letter-spacing: 3px; color: var(--nova); text-shadow: var(--glow-nova); height: 20px; text-align: center; transition: opacity 0.3s; }
+  .auto-pulse { position: absolute; inset: -8px; border-radius: 50%; border: 2px solid rgba(0,255,255,0.2); animation: autoPulse 1s ease-in-out infinite; pointer-events: none; }
+  @keyframes autoPulse { 0%, 100% { transform: scale(1); opacity: 0.3; } 50% { transform: scale(1.05); opacity: 0.7; } }
+</style>
+</head>
+<body>
+
+<a id="homeBtn" href="index.html">← <span data-tr="ANA SAYFA" data-en="HOME">ANA SAYFA</span></a>
+<canvas id="starfield"></canvas>
+
+<div class="game-wrapper">
+  <div class="left-panel">
+    <div class="panel-title">⬡ <span data-tr="Durum" data-en="Status">Durum</span></div>
+    <div class="stat-card">
+      <div class="stat-label"><span data-tr="Nova Enerjisi" data-en="Nova Energy">Nova Enerjisi</span></div>
+      <div class="stat-value" id="display-points">0</div>
+      <div class="stat-sub" id="display-total"><span data-tr="Toplam" data-en="Total">Toplam</span>: 0</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label"><span data-tr="Üretim / Saniye" data-en="Production / Second">Üretim / Saniye</span></div>
+      <div class="stat-value" id="display-pps">0</div>
+      <div class="stat-sub"><span data-tr="pasif akış" data-en="passive flow">pasif akış</span></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label"><span data-tr="Tıklama Gücü" data-en="Click Power">Tıklama Gücü</span></div>
+      <div class="stat-value" id="display-cps">1</div>
+      <div class="stat-sub" id="display-crit"><span data-tr="Kritik" data-en="Critical">Kritik</span>: %5</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label"><span data-tr="Prestij" data-en="Prestige">Prestij</span></div>
+      <div id="prestige-display">
+        <div class="prestige-badge">
+          <span>⭐</span>
+          <span id="prestige-count">0</span>
+          <span>NOVA</span>
+        </div>
+        <div style="margin-top:8px;font-size:11px;color:rgba(255,255,255,0.4)"><span data-tr="Çarpan" data-en="Multiplier">Çarpan</span>: ×<span id="prestige-mult">1.00</span></div>
+      </div>
+    </div>
+    <div style="margin-top: 8px">
+      <div class="panel-title">⬡ <span data-tr="Kilometre Taşları" data-en="Milestones">Kilometre Taşları</span></div>
+      <div id="milestones-list" style="display:flex;flex-direction:column;gap:6px;margin-top:6px;"></div>
+    </div>
+  </div>
+
+  <div class="center-panel">
+    <div class="game-title">NOVA<br>CLICKER</div>
+    <div class="click-arena">
+      <div class="orbit-ring"><div class="orbit-dot"></div></div>
+      <div class="orbit-ring"><div class="orbit-dot" style="background:var(--nova);box-shadow:var(--glow-nova)"></div></div>
+      <div class="orbit-ring"><div class="orbit-dot" style="background:var(--gold);box-shadow:var(--glow-gold)"></div></div>
+      <button class="nova-btn" id="nova-btn">
+        <div class="auto-pulse" id="auto-pulse" style="display:none"></div>
+        <div class="nova-icon">⭐</div>
+        <div class="nova-label"><span data-tr="TIKLA" data-en="CLICK">TIKLA</span></div>
+      </button>
+    </div>
+    <div class="combo-display" id="combo-display"></div>
+    <div class="progress-section">
+      <div class="progress-label">
+        <span id="next-milestone-label"><span data-tr="İlk Hedef" data-en="First Goal">İlk Hedef</span></span>
+        <span id="next-milestone-pct">0%</span>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;width:100%;max-width:280px">
+      <div style="text-align:center">
+        <div style="font-size:9px;letter-spacing:2px;color:rgba(255,255,255,0.4)"><span data-tr="TIKLAMALAR" data-en="CLICKS">TIKLAMALAR</span></div>
+        <div style="font-family:'Orbitron',monospace;font-size:16px;color:var(--plasma)" id="total-clicks">0</div>
+      </div>
+      <div style="text-align:center">
+        <div style="font-size:9px;letter-spacing:2px;color:rgba(255,255,255,0.4)"><span data-tr="KRİTİK" data-en="CRITICAL">KRİTİK</span></div>
+        <div style="font-family:'Orbitron',monospace;font-size:16px;color:var(--gold)" id="total-crits">0</div>
+      </div>
+      <div style="text-align:center">
+        <div style="font-size:9px;letter-spacing:2px;color:rgba(255,255,255,0.4)"><span data-tr="EN YÜKSEK" data-en="HIGHEST">EN YÜKSEK</span></div>
+        <div style="font-family:'Orbitron',monospace;font-size:16px;color:var(--nova)" id="highest-click">0</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="right-panel" id="upgrade-panel">
+    <div class="panel-title">⬡ <span data-tr="Yükseltmeler" data-en="Upgrades">Yükseltmeler</span></div>
+  </div>
+</div>
+
+<div class="milestone-notif" id="milestone-notif">
+  <div class="milestone-title">✦ <span data-tr="KİLOMETRE TAŞI" data-en="MILESTONE">KİLOMETRE TAŞI</span> ✦</div>
+  <div class="milestone-text" id="milestone-notif-text"></div>
+</div>
+
+<script>
+function T(tr,en){return __LANG==='en'?en:tr;}
+
+const canvas=document.getElementById('starfield');
+const ctx=canvas.getContext('2d');
+canvas.width=window.innerWidth;canvas.height=window.innerHeight;
+const stars=Array.from({length:200},()=>({x:Math.random()*canvas.width,y:Math.random()*canvas.height,r:Math.random()*1.5,speed:0.1+Math.random()*0.3,twinkle:Math.random()*Math.PI*2,twinkleSpeed:0.02+Math.random()*0.04}));
+function drawStars(){ctx.clearRect(0,0,canvas.width,canvas.height);stars.forEach(s=>{s.twinkle+=s.twinkleSpeed;const alpha=0.3+0.7*(0.5+0.5*Math.sin(s.twinkle));ctx.beginPath();ctx.arc(s.x,s.y,s.r,0,Math.PI*2);ctx.fillStyle=`rgba(255,255,255,${alpha})`;ctx.fill();s.y+=s.speed;if(s.y>canvas.height){s.y=0;s.x=Math.random()*canvas.width;}});requestAnimationFrame(drawStars);}
+drawStars();
+window.addEventListener('resize',()=>{canvas.width=window.innerWidth;canvas.height=window.innerHeight;});
+
+const G={points:0,totalEarned:0,clickPower:1,critChance:0.05,critMultiplier:5,pps:0,prestige:0,prestigeMult:1,totalClicks:0,critClicks:0,highestClick:0,combo:0,comboTimer:null,lastClickTime:0,upgrades:{}};
+
+const UPGRADES=[
+  {id:'plasma_core',icon:'⚡',name:T('Plazma Çekirdeği','Plasma Core'),desc:T('+3 tıklama gücü','+3 click power'),baseCost:15,basePower:3,type:'click',maxLevel:50},
+  {id:'void_tap',icon:'🌀',name:T('Void Dokunuşu','Void Touch'),desc:T('+8 tıklama gücü','+8 click power'),baseCost:80,basePower:8,type:'click',maxLevel:40},
+  {id:'quantum_fist',icon:'💥',name:T('Kuantum Yumruğu','Quantum Fist'),desc:T('+25 tıklama gücü','+25 click power'),baseCost:500,basePower:25,type:'click',maxLevel:30},
+  {id:'stellar_strike',icon:'⭐',name:T('Yıldız Darbesi','Stellar Strike'),desc:T('+100 tıklama gücü','+100 click power'),baseCost:3000,basePower:100,type:'click',maxLevel:20},
+  {id:'nebula_punch',icon:'🌌',name:T('Nebula Yumruğu','Nebula Punch'),desc:T('+500 tıklama gücü','+500 click power'),baseCost:25000,basePower:500,type:'click',maxLevel:15},
+  {id:'crit_lens',icon:'🎯',name:T('Kritik Mercek','Critical Lens'),desc:T('+%3 kritik şansı','+3% critical chance'),baseCost:200,basePower:0.03,type:'crit',maxLevel:15},
+  {id:'supernova_amp',icon:'💫',name:T('Süpernova Amp','Supernova Amp'),desc:T('+%5 kritik şansı','+5% critical chance'),baseCost:2000,basePower:0.05,type:'crit',maxLevel:10},
+  {id:'dark_energy',icon:'🌑',name:T('Karanlık Enerji','Dark Energy'),desc:T('+1 pasif/sn','+1 passive/s'),baseCost:100,basePower:1,type:'passive',maxLevel:999},
+  {id:'pulsar_gen',icon:'📡',name:T('Pulsar Jeneratör','Pulsar Generator'),desc:T('+5 pasif/sn','+5 passive/s'),baseCost:600,basePower:5,type:'passive',maxLevel:999},
+  {id:'neutron_farm',icon:'⚛️',name:T('Nötron Çiftliği','Neutron Farm'),desc:T('+20 pasif/sn','+20 passive/s'),baseCost:4000,basePower:20,type:'passive',maxLevel:999},
+  {id:'wormhole_tap',icon:'🕳️',name:T('Solucan Deliği','Wormhole Tap'),desc:T('+100 pasif/sn','+100 passive/s'),baseCost:30000,basePower:100,type:'passive',maxLevel:999},
+  {id:'galaxy_forge',icon:'🌠',name:T('Galaksi Dövmesi','Galaxy Forge'),desc:T('+1000 pasif/sn','+1000 passive/s'),baseCost:300000,basePower:1000,type:'passive',maxLevel:999},
+];
+
+const MILESTONES=[
+  {threshold:100,text:T('🌟 İlk 100 Nova!','🌟 First 100 Nova!')},
+  {threshold:1000,text:T('⚡ 1.000 Nova — Plazma Aktif!','⚡ 1,000 Nova — Plasma Active!')},
+  {threshold:10000,text:T('💥 10.000 Nova — Kuantum Modu!','💥 10,000 Nova — Quantum Mode!')},
+  {threshold:100000,text:T('🌌 100.000 Nova — Nebula Seviyesi!','🌌 100,000 Nova — Nebula Level!')},
+  {threshold:1000000,text:T('🚀 1 Milyon Nova — Galaktik!','🚀 1 Million Nova — Galactic!')},
+  {threshold:10000000,text:T('⭐ 10 Milyon Nova — Nova Tanrısı!','⭐ 10 Million Nova — Nova God!')},
+  {threshold:100000000,text:T('🌠 100 Milyon — Evren Efendisi!','🌠 100 Million — Universe Master!')},
+];
+
+let achievedMilestones=new Set();
+UPGRADES.forEach(u=>{G.upgrades[u.id]=0;});
+
+function getCost(upg){return Math.floor(upg.baseCost*Math.pow(1.18,G.upgrades[upg.id]));}
+
+function recalcStats(){
+  let cp=1,pps=0,crit=0.05;
+  UPGRADES.forEach(u=>{const lvl=G.upgrades[u.id];if(lvl===0)return;if(u.type==='click')cp+=u.basePower*lvl;if(u.type==='passive')pps+=u.basePower*lvl;if(u.type==='crit')crit+=u.basePower*lvl;});
+  G.clickPower=Math.floor(cp*G.prestigeMult);G.pps=pps*G.prestigeMult;G.critChance=Math.min(crit,0.75);
+}
+
+function handleClick(e){
+  const btn=document.getElementById('nova-btn');
+  btn.classList.add('clicked');setTimeout(()=>btn.classList.remove('clicked'),120);
+  const rect=btn.getBoundingClientRect();
+  const rip=document.createElement('div');rip.className='ripple';
+  rip.style.left=(e.clientX-rect.left)+'px';rip.style.top=(e.clientY-rect.top)+'px';
+  btn.appendChild(rip);setTimeout(()=>rip.remove(),700);
+  const now=Date.now();
+  if(now-G.lastClickTime<600){G.combo=Math.min(G.combo+1,50);}else{G.combo=1;}
+  G.lastClickTime=now;
+  clearTimeout(G.comboTimer);
+  G.comboTimer=setTimeout(()=>{G.combo=0;document.getElementById('combo-display').textContent='';},1500);
+  const comboBonus=1+(G.combo-1)*0.05;
+  const isCrit=Math.random()<G.critChance;
+  let earned=Math.round(G.clickPower*comboBonus*(isCrit?G.critMultiplier:1));
+  if(isCrit){G.critClicks++;const flash=document.createElement('div');flash.className='critical-flash';document.body.appendChild(flash);setTimeout(()=>flash.remove(),400);}
+  G.points+=earned;G.totalEarned+=earned;G.totalClicks++;
+  if(earned>G.highestClick)G.highestClick=earned;
+  spawnFloat(e.clientX,e.clientY,'+'+formatNum(earned),isCrit?'#FFD700':G.combo>5?'#FF6B35':'#00FFFF',isCrit?18:G.combo>5?15:12);
+  if(G.combo>5)document.getElementById('combo-display').textContent=`×${G.combo} ${T('KOMBO','COMBO')}!`;
+  checkMilestones();updateUI();
+}
+
+function spawnFloat(x,y,text,color,size){
+  const el=document.createElement('div');el.className='float-text';el.textContent=text;
+  el.style.left=(x+(Math.random()-0.5)*40)+'px';el.style.top=(y-20)+'px';
+  el.style.color=color;el.style.fontSize=size+'px';
+  document.body.appendChild(el);setTimeout(()=>el.remove(),1000);
+}
+
+setInterval(()=>{if(G.pps>0){const gained=G.pps/20;G.points+=gained;G.totalEarned+=gained;checkMilestones();updateUI();}},50);
+
+function updateAutoPulse(){document.getElementById('auto-pulse').style.display=G.pps>0?'block':'none';}
+
+function checkMilestones(){MILESTONES.forEach(m=>{if(!achievedMilestones.has(m.threshold)&&G.totalEarned>=m.threshold){achievedMilestones.add(m.threshold);showMilestoneNotif(m.text);renderMilestones();}});}
+
+let notifTimeout;
+function showMilestoneNotif(text){
+  const el=document.getElementById('milestone-notif');
+  document.getElementById('milestone-notif-text').textContent=text;
+  el.classList.add('show');clearTimeout(notifTimeout);
+  notifTimeout=setTimeout(()=>el.classList.remove('show'),3500);
+}
+
+function renderMilestones(){
+  const container=document.getElementById('milestones-list');container.innerHTML='';
+  MILESTONES.slice().reverse().forEach(m=>{
+    const achieved=achievedMilestones.has(m.threshold);
+    const div=document.createElement('div');
+    div.style.cssText=`font-size:10px;padding:5px 8px;border-radius:5px;border:1px solid ${achieved?'rgba(255,215,0,0.3)':'rgba(255,255,255,0.06)'};color:${achieved?'#FFD700':'rgba(255,255,255,0.25)'};transition:all 0.3s`;
+    div.textContent=m.text;container.appendChild(div);
+  });
+}
+
+function renderUpgrades(){
+  const panel=document.getElementById('upgrade-panel');
+  while(panel.children.length>1)panel.removeChild(panel.lastChild);
+  UPGRADES.forEach(u=>{
+    const btn=document.createElement('div');btn.className='upgrade-btn';btn.dataset.upgId=u.id;
+    btn.innerHTML=`<div class="upg-icon">${u.icon}</div><div class="upg-info"><div class="upg-name">${u.name}</div><div class="upg-desc">${u.desc}</div><div class="upg-owned" id="owned-${u.id}">${T('Seviye','Level')}: 0${u.maxLevel<999?'/'+u.maxLevel:''}</div></div><div><div class="upg-cost" id="cost-${u.id}"></div></div>`;
+    btn.addEventListener('click',()=>buyUpgrade(u.id));panel.appendChild(btn);
+  });
+  const pBtn=document.createElement('div');pBtn.className='prestige-btn disabled';pBtn.id='prestige-btn';
+  pBtn.innerHTML=`<div class="prestige-name">⭐ ${T('PRESTİJ','PRESTIGE')} ⭐</div><div class="prestige-desc" id="prestige-desc"></div><div style="font-size:10px;color:rgba(255,107,53,0.6);margin-top:4px" id="prestige-req"></div>`;
+  pBtn.addEventListener('click',()=>{if(!pBtn.classList.contains('disabled'))doPrestige();});
+  panel.appendChild(pBtn);
+  updateUpgradesUI();
+}
+
+function updateUpgradesUI(){
+  UPGRADES.forEach(u=>{
+    const lvl=G.upgrades[u.id];const cost=getCost(u);const canAfford=G.points>=cost;const maxed=lvl>=u.maxLevel;
+    const btn=document.querySelector(`[data-upg-id="${u.id}"]`);if(!btn)return;
+    btn.className='upgrade-btn'+(maxed?' disabled':canAfford?' affordable':' disabled');
+    document.getElementById(`owned-${u.id}`).textContent=`${T('Seviye','Level')}: ${lvl}${u.maxLevel<999?'/'+u.maxLevel:''}`;
+    document.getElementById(`cost-${u.id}`).textContent=maxed?T('MAKS','MAX'):formatNum(cost);
+  });
+  const prestigeThreshold=1000000*Math.pow(10,G.prestige);
+  const canPrestige=G.totalEarned>=prestigeThreshold;
+  const pBtn=document.getElementById('prestige-btn');
+  if(pBtn){
+    pBtn.className='prestige-btn'+(canPrestige?'':' disabled');
+    document.getElementById('prestige-desc').textContent=`${T('Sıfırla','Reset')} → ×${((G.prestige+1)*0.5+1).toFixed(1)} ${T('çarpan','multiplier')}`;
+    document.getElementById('prestige-req').textContent=`${T('Gerekli','Required')}: ${formatNum(prestigeThreshold)} ${T('toplam','total')}`;
+  }
+}
+
+function buyUpgrade(id){
+  const u=UPGRADES.find(u=>u.id===id);const cost=getCost(u);
+  if(G.points<cost||G.upgrades[id]>=u.maxLevel)return;
+  G.points-=cost;G.upgrades[id]++;recalcStats();updateAutoPulse();updateUpgradesUI();updateUI();
+  spawnFloat(window.innerWidth/2,window.innerHeight/2,u.icon,'#FFD700',24);
+  if(audioCtx)sfxBuy();
+}
+
+function doPrestige(){
+  if(!confirm(T('Prestij yap? Tüm ilerleme sıfırlanır ama kalıcı çarpan kazanırsın!','Prestige? All progress resets but you gain a permanent multiplier!')))return;
+  G.prestige++;G.prestigeMult=1+G.prestige*0.5;G.points=0;G.totalEarned=0;G.totalClicks=0;G.critClicks=0;G.highestClick=0;
+  achievedMilestones=new Set();UPGRADES.forEach(u=>{G.upgrades[u.id]=0;});
+  recalcStats();renderUpgrades();renderMilestones();updateAutoPulse();updateUI();
+  showMilestoneNotif(`🌟 ${T('Prestij','Prestige')} ${G.prestige} — ×${G.prestigeMult.toFixed(1)} ${T('Çarpan!','Multiplier!')}`);
+}
+
+function formatNum(n){
+  if(n>=1e12)return(n/1e12).toFixed(2)+'T';
+  if(n>=1e9)return(n/1e9).toFixed(2)+'B';
+  if(n>=1e6)return(n/1e6).toFixed(2)+'M';
+  if(n>=1e3)return(n/1e3).toFixed(1)+'K';
+  return Math.floor(n).toString();
+}
+
+function updateUI(){
+  document.getElementById('display-points').textContent=formatNum(G.points);
+  document.getElementById('display-total').textContent=T('Toplam','Total')+': '+formatNum(G.totalEarned);
+  document.getElementById('display-pps').textContent=formatNum(G.pps)+T('/sn','/s');
+  document.getElementById('display-cps').textContent=formatNum(G.clickPower);
+  document.getElementById('display-crit').textContent=`${T('Kritik','Critical')}: %${Math.round(G.critChance*100)} (×${G.critMultiplier})`;
+  document.getElementById('prestige-count').textContent=G.prestige;
+  document.getElementById('prestige-mult').textContent=G.prestigeMult.toFixed(2);
+  document.getElementById('total-clicks').textContent=formatNum(G.totalClicks);
+  document.getElementById('total-crits').textContent=formatNum(G.critClicks);
+  document.getElementById('highest-click').textContent=formatNum(G.highestClick);
+  const nextM=MILESTONES.find(m=>!achievedMilestones.has(m.threshold));
+  if(nextM){
+    const pct=Math.min((G.totalEarned/nextM.threshold)*100,100);
+    document.getElementById('next-milestone-label').textContent=nextM.text.split('—')[0]||nextM.text;
+    document.getElementById('next-milestone-pct').textContent=pct.toFixed(1)+'%';
+    document.getElementById('progress-fill').style.width=pct+'%';
+  } else {
+    document.getElementById('next-milestone-label').textContent=T('Tüm taşlar tamamlandı!','All milestones complete!');
+    document.getElementById('next-milestone-pct').textContent='100%';
+    document.getElementById('progress-fill').style.width='100%';
+  }
+  updateUpgradesUI();
+}
+
+recalcStats();renderUpgrades();renderMilestones();updateUI();
+
+// ===== AUDIO =====
+let audioCtx=null,musicNodes={},musicOn=true,sfxOn=true,masterGain=null,musicGain=null,sfxGain=null;
+function initAudio(){
+  if(audioCtx)return;
+  audioCtx=new(window.AudioContext||window.webkitAudioContext)();
+  masterGain=audioCtx.createGain();masterGain.gain.value=0.7;masterGain.connect(audioCtx.destination);
+  musicGain=audioCtx.createGain();musicGain.gain.value=0.4;musicGain.connect(masterGain);
+  sfxGain=audioCtx.createGain();sfxGain.gain.value=1.0;sfxGain.connect(masterGain);
+  startAmbientMusic();
+}
+function startAmbientMusic(){
+  if(!audioCtx)return;
+  const convolver=audioCtx.createConvolver();
+  const len=audioCtx.sampleRate*3;const ir=audioCtx.createBuffer(2,len,audioCtx.sampleRate);
+  for(let c=0;c<2;c++){const d=ir.getChannelData(c);for(let i=0;i<len;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/len,2.5);}
+  convolver.buffer=ir;
+  const reverbGain=audioCtx.createGain();reverbGain.gain.value=0.35;convolver.connect(reverbGain);reverbGain.connect(musicGain);
+  const dryGain=audioCtx.createGain();dryGain.gain.value=0.65;dryGain.connect(musicGain);
+  const padChords=[[130.81,164.81,196.00,246.94],[138.59,174.61,207.65,261.63],[123.47,155.56,185.00,233.08],[130.81,155.56,196.00,246.94]];
+  let chordIdx=0;let padOscs=[];
+  function playPadChord(){
+    padOscs.forEach(({osc,g})=>{g.gain.setTargetAtTime(0,audioCtx.currentTime,1.5);setTimeout(()=>{try{osc.stop();}catch(e){}},4000);});padOscs=[];
+    const chord=padChords[chordIdx%padChords.length];chordIdx++;
+    chord.forEach((freq,i)=>{
+      const osc=audioCtx.createOscillator();const g=audioCtx.createGain();osc.type=i%2===0?'sine':'triangle';osc.frequency.value=freq/2;g.gain.setValueAtTime(0,audioCtx.currentTime);g.gain.linearRampToValueAtTime(0.06,audioCtx.currentTime+1.5);osc.connect(g);g.connect(convolver);g.connect(dryGain);osc.start();padOscs.push({osc,g});
+      const osc2=audioCtx.createOscillator();const g2=audioCtx.createGain();osc2.type='sine';osc2.frequency.value=freq;g2.gain.setValueAtTime(0,audioCtx.currentTime);g2.gain.linearRampToValueAtTime(0.04,audioCtx.currentTime+2);osc2.connect(g2);g2.connect(convolver);osc2.start();padOscs.push({osc:osc2,g:g2});
+    });
+  }
+  playPadChord();const padInterval=setInterval(()=>{if(musicOn&&audioCtx)playPadChord();else clearInterval(padInterval);},8000);
+  const arpScale=[130.81,155.56,164.81,196.00,220.00,246.94,261.63,293.66];let arpStep=0;let arpDir=1;
+  function arpTick(){
+    if(!musicOn||!audioCtx)return;
+    const freq=arpScale[arpStep]*2;const osc=audioCtx.createOscillator();const g=audioCtx.createGain();const filter=audioCtx.createBiquadFilter();filter.type='bandpass';filter.frequency.value=freq*2;filter.Q.value=2;
+    osc.type='sine';osc.frequency.value=freq;g.gain.setValueAtTime(0.08,audioCtx.currentTime);g.gain.exponentialRampToValueAtTime(0.001,audioCtx.currentTime+0.4);osc.connect(filter);filter.connect(g);g.connect(convolver);g.connect(dryGain);osc.start();osc.stop(audioCtx.currentTime+0.5);
+    arpStep+=arpDir;if(arpStep>=arpScale.length-1||arpStep<=0)arpDir*=-1;
+    setTimeout(arpTick,[120,160,160,240,120,160,240,320][Math.floor(Math.random()*8)]);
+  }
+  setTimeout(arpTick,2000);
+  function bassTick(){
+    if(!musicOn||!audioCtx)return;
+    const osc=audioCtx.createOscillator();const g=audioCtx.createGain();osc.type='sine';osc.frequency.setValueAtTime(65,audioCtx.currentTime);osc.frequency.exponentialRampToValueAtTime(40,audioCtx.currentTime+0.3);g.gain.setValueAtTime(0.18,audioCtx.currentTime);g.gain.exponentialRampToValueAtTime(0.001,audioCtx.currentTime+0.4);osc.connect(g);g.connect(dryGain);osc.start();osc.stop(audioCtx.currentTime+0.5);setTimeout(bassTick,480);
+  }
+  setTimeout(bassTick,3000);
+  function hihatTick(){
+    if(!musicOn||!audioCtx)return;
+    const bufSize=audioCtx.sampleRate*0.05;const buf=audioCtx.createBuffer(1,bufSize,audioCtx.sampleRate);const d=buf.getChannelData(0);for(let i=0;i<bufSize;i++)d[i]=Math.random()*2-1;
+    const src=audioCtx.createBufferSource();src.buffer=buf;const filter=audioCtx.createBiquadFilter();filter.type='highpass';filter.frequency.value=8000;const g=audioCtx.createGain();g.gain.setValueAtTime(0.04,audioCtx.currentTime);g.gain.exponentialRampToValueAtTime(0.001,audioCtx.currentTime+0.05);src.connect(filter);filter.connect(g);g.connect(dryGain);src.start();
+    setTimeout(hihatTick,[240,240,120,240][Math.floor(Math.random()*4)]);
+  }
+  setTimeout(hihatTick,1500);
+}
+function sfxClick(isCrit,combo){
+  if(!audioCtx||!sfxOn)return;const t=audioCtx.currentTime;
+  if(isCrit){[1,1.26,1.5,2].forEach((mul,i)=>{const osc=audioCtx.createOscillator();const g=audioCtx.createGain();osc.type='sine';osc.frequency.setValueAtTime(400*mul,t+i*0.04);osc.frequency.exponentialRampToValueAtTime(800*mul,t+i*0.04+0.15);g.gain.setValueAtTime(0.12,t+i*0.04);g.gain.exponentialRampToValueAtTime(0.001,t+i*0.04+0.3);osc.connect(g);g.connect(sfxGain);osc.start(t+i*0.04);osc.stop(t+i*0.04+0.4);});}
+  else if(combo>10){const osc=audioCtx.createOscillator();const g=audioCtx.createGain();osc.type='square';osc.frequency.setValueAtTime(200+combo*5,t);osc.frequency.exponentialRampToValueAtTime(300+combo*8,t+0.1);g.gain.setValueAtTime(0.07,t);g.gain.exponentialRampToValueAtTime(0.001,t+0.2);osc.connect(g);g.connect(sfxGain);osc.start(t);osc.stop(t+0.25);}
+  else{const freq=300+Math.random()*80;const osc=audioCtx.createOscillator();const g=audioCtx.createGain();osc.type='triangle';osc.frequency.setValueAtTime(freq,t);osc.frequency.exponentialRampToValueAtTime(freq*0.6,t+0.08);g.gain.setValueAtTime(0.09,t);g.gain.exponentialRampToValueAtTime(0.001,t+0.12);osc.connect(g);g.connect(sfxGain);osc.start(t);osc.stop(t+0.15);const osc2=audioCtx.createOscillator();const g2=audioCtx.createGain();osc2.type='sine';osc2.frequency.value=80;g2.gain.setValueAtTime(0.1,t);g2.gain.exponentialRampToValueAtTime(0.001,t+0.06);osc2.connect(g2);g2.connect(sfxGain);osc2.start(t);osc2.stop(t+0.08);}
+}
+function sfxBuy(){
+  if(!audioCtx||!sfxOn)return;const t=audioCtx.currentTime;
+  [0,0.08,0.16].forEach((delay,i)=>{const osc=audioCtx.createOscillator();const g=audioCtx.createGain();osc.type='sine';osc.frequency.value=[523,659,784][i];g.gain.setValueAtTime(0.1,t+delay);g.gain.exponentialRampToValueAtTime(0.001,t+delay+0.2);osc.connect(g);g.connect(sfxGain);osc.start(t+delay);osc.stop(t+delay+0.25);});
+}
+function sfxMilestone(){
+  if(!audioCtx||!sfxOn)return;const t=audioCtx.currentTime;
+  [523,659,784,1047,1319].forEach((freq,i)=>{const osc=audioCtx.createOscillator();const g=audioCtx.createGain();osc.type=i<3?'sine':'triangle';osc.frequency.value=freq;g.gain.setValueAtTime(0,t+i*0.1);g.gain.linearRampToValueAtTime(0.12,t+i*0.1+0.05);g.gain.exponentialRampToValueAtTime(0.001,t+i*0.1+0.4);osc.connect(g);g.connect(sfxGain);osc.start(t+i*0.1);osc.stop(t+i*0.1+0.5);});
+}
+
+// Audio controls
+(function(){
+  const ctrl=document.createElement('div');
+  ctrl.style.cssText='position:fixed;bottom:18px;right:18px;display:flex;gap:8px;z-index:1000;';
+  function makeBtn(id,label,color,onClick){
+    const b=document.createElement('button');b.id=id;b.textContent=label;
+    b.style.cssText=`background:rgba(0,0,0,0.6);border:1px solid ${color}66;color:${color};font-family:'Orbitron',monospace;font-size:10px;letter-spacing:2px;padding:6px 12px;border-radius:6px;cursor:pointer;`;
+    b.addEventListener('click',onClick);return b;
+  }
+  const mBtn=makeBtn('audio-music-btn',`♪ ${T('MÜZİK','MUSIC')}`,'#00FFFF',()=>{initAudio();musicOn=!musicOn;if(musicGain)musicGain.gain.setTargetAtTime(musicOn?0.4:0,audioCtx.currentTime,0.5);mBtn.style.opacity=musicOn?'1':'0.4';});
+  const sBtn=makeBtn('audio-sfx-btn',`◉ ${T('SES','SFX')}`,'#FFD700',()=>{initAudio();sfxOn=!sfxOn;sBtn.style.opacity=sfxOn?'1':'0.4';});
+  ctrl.appendChild(mBtn);ctrl.appendChild(sBtn);document.body.appendChild(ctrl);
+})();
+
+// Click handler with audio
+const _novaBtn=document.getElementById('nova-btn');
+_novaBtn.onclick=function(e){
+  initAudio();
+  sfxClick(Math.random()<G.critChance,G.combo);
+  handleClick(e);
+};
+
+// Milestone sound patch
+const _origShowMilestone=showMilestoneNotif;
+function showMilestoneNotif(text){_origShowMilestone(text);if(audioCtx)sfxMilestone();}
+
+document.addEventListener('keydown',e=>{
+  if(e.code==='Space'){
+    initAudio();
+    const btn=document.getElementById('nova-btn');const rect=btn.getBoundingClientRect();
+    sfxClick(Math.random()<G.critChance,G.combo);
+    handleClick({clientX:rect.left+rect.width/2,clientY:rect.top+rect.height/2});
+    e.preventDefault();
+  }
+});
+document.addEventListener('pointerdown',()=>initAudio(),{once:true});
+</script>
+<script>
+(function(){
+  var L=localStorage.getItem('huseyinistan_lang')||'tr';
+  document.querySelectorAll('[data-tr]').forEach(function(el){
+    el.textContent=L==='en'?el.dataset.en:el.dataset.tr;
+  });
+})();
+</script>
+</body>
+</html>

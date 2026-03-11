@@ -578,7 +578,10 @@
     pc.appendChild(p);
   }
   function openGame(file, title) {
-    window.open(file, '_blank');
+    document.getElementById('modalTitle').textContent = title;
+    document.getElementById('gameFrame').src = file;
+    document.getElementById('gameModal').classList.add('open');
+    document.body.style.overflow = 'hidden';
   }
   function closeGame() {
     document.getElementById('gameModal').classList.remove('open');
