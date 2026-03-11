@@ -242,7 +242,7 @@
 <div class="hero">
   <div class="corner-deco tl"></div><div class="corner-deco tr"></div>
   <div class="corner-deco bl"></div><div class="corner-deco br"></div>
-  <div class="hero-badge">⬡ 17 Oyun Koleksiyonu ⬡</div>
+  <div class="hero-badge">⬡ 18 Oyun Koleksiyonu ⬡</div>
   <h1>
     <span class="line1">HÜSEYİNİSTAN</span>
     <span class="line2">GAMES</span>
@@ -476,6 +476,20 @@
       </div>
     </div>
 
+    <div class="game-card" onclick="openGame('nova-clicker.html','Nova Clicker')">
+      <div class="game-thumbnail" style="background:linear-gradient(135deg,#050510,#0a0a2a);">
+        <div class="game-thumb-glow" style="background:#FFD700;top:35%;left:40%;"></div>
+        <div class="game-thumb-glow" style="background:#00FFFF;top:55%;left:60%;opacity:0.5;"></div>
+        ⭐
+      </div>
+      <div class="game-info">
+        <div class="game-tag" data-tr="⬡ Idle / Clicker" data-en="⬡ Idle / Clicker">⬡ Idle / Clicker</div>
+        <div class="game-name" data-tr="NOVA CLICKER" data-en="NOVA CLICKER">NOVA CLICKER</div>
+        <div class="game-desc" data-tr="Tıkla, güçlen, prestij kazan! Kozmik enerji topla, yükseltmeler al, evrenin efendisi ol." data-en="Click, power up, earn prestige! Collect cosmic energy, buy upgrades, become the universe master.">Tıkla, güçlen, prestij kazan! Kozmik enerji topla, yükseltmeler al, evrenin efendisi ol.</div>
+        <div class="game-footer"><button class="btn-play" data-tkey="play-btn">Oyna ▶</button></div>
+      </div>
+    </div>
+
     <div class="game-card" onclick="openGame('bilardo.html','Bilardo Pro')">
       <div class="game-thumbnail" style="background:linear-gradient(135deg,#0d0500,#1a0f00);">
         <div class="game-thumb-glow" style="background:#d4a843;top:40%;left:40%;"></div>
@@ -508,7 +522,7 @@
       <p>Aksiyon'dan strateji oyunlarına, tower defense'ten metin RPG'lerine kadar her türden deneyim burada seni bekliyor.</p>
     </div>
     <div class="about-stats">
-      <div class="about-stat-card"><div class="stat-value">17</div><div class="stat-label" data-tr="Oyun" data-en="Games">Oyun</div></div>
+      <div class="about-stat-card"><div class="stat-value">18</div><div class="stat-label" data-tr="Oyun" data-en="Games">Oyun</div></div>
       <div class="about-stat-card"><div class="stat-value">6</div><div class="stat-label" data-tr="Tür" data-en="Genre">Tür</div></div>
       <div class="about-stat-card"><div class="stat-value">AI</div><div class="stat-label" data-tr="Destekli" data-en="Powered">Destekli</div></div>
       <div class="about-stat-card"><div class="stat-value">100%</div><div class="stat-label" data-tr="Ücretsiz" data-en="Free">Ücretsiz</div></div>
@@ -564,10 +578,7 @@
     pc.appendChild(p);
   }
   function openGame(file, title) {
-    document.getElementById('modalTitle').textContent = title;
-    document.getElementById('gameFrame').src = file;
-    document.getElementById('gameModal').classList.add('open');
-    document.body.style.overflow = 'hidden';
+    window.open(file, '_blank');
   }
   function closeGame() {
     document.getElementById('gameModal').classList.remove('open');
@@ -597,7 +608,7 @@ const translations = {
   'nav-about':    {tr:'Hakkında',       en:'About'},
   'nav-contact':  {tr:'İletişim',       en:'Contact'},
   // Hero
-  'hero-badge':   {tr:'⬡ 17 Oyun Koleksiyonu ⬡', en:'⬡ 17 Game Collection ⬡'},
+  'hero-badge':   {tr:'⬡ 18 Oyun Koleksiyonu ⬡', en:'⬡ 18 Game Collection ⬡'},
   'hero-sub':     {tr:'Claude ile Yaratılan Oyunlar', en:'Games Created with Claude'},
   'hero-cta':     {tr:'Oyunları Keşfet', en:'Explore Games'},
   'scroll-txt':   {tr:'Aşağı Kaydır',   en:'Scroll Down'},
@@ -650,7 +661,7 @@ const translations = {
   'desc-galactic': {tr:'Uzayda düşman gemilere karşı savaş! Güçlü silahlar, boss savaşları ve epik uzay macerası.', en:'Battle enemy ships in space! Powerful weapons, boss fights and epic space adventure.'},
   'desc-survivor': {tr:"100 dalga boyunca hayatta kal! Güçlen, seviye atla, boss'ları yen. WASD ile hareket, otomatik ateş.", en:'Survive 100 waves! Level up, get stronger, defeat bosses. WASD to move, auto-fire.'},
   // Play buttons (all same)
-  'play-btn':      {tr:'Oyna ▶', en:'Play ▶'},
+  'play-btn':      {tr:'OYNA ▶', en:'PLAY ▶'},
   // About
   'about-p1':      {tr:'Claude yapay zekası ile birlikte üretilen oyunların sergilendiği kişisel oyun koleksiyonu. Her oyun, yaratıcılık ve teknolojinin buluştuğu noktada doğdu.', en:'A personal game collection showcasing games created with Claude AI. Each game was born at the intersection of creativity and technology.'},
   'about-p2':      {tr:"Aksiyon'dan strateji oyunlarına, tower defense'ten metin RPG'lerine kadar her türden deneyim burada seni bekliyor.", en:'From action to strategy games, tower defense to text RPGs — every kind of experience awaits you here.'},
