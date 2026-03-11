@@ -532,7 +532,7 @@ function updSc(){
 
 function showEnd(win){
   document.getElementById('ovEm').textContent=win?'🏆':'💥';
-  document.getElementById('ovTitle').textContent=win?'2048\(__LANG==='en'?' REACHED!':'E ULAŞTI!'):(__LANG==='en'?'GAME OVER':'OYUN BİTTİ');
+  document.getElementById('ovTitle').textContent=win?('2048'+(__LANG==='en'?' REACHED!':'E ULAŞTI!')):(__LANG==='en'?'GAME OVER':'OYUN BİTTİ');
   const top=Math.max(...board.flat());
   document.getElementById('ovInfo').innerHTML=`${__LANG==="en"?"Score":"Skor"}: <span>${sc}</span><br>${__LANG==="en"?"Best tile":"En yüksek karo"}: <span>${top}</span>`;
   document.getElementById('overlay').classList.add('show');

@@ -818,7 +818,7 @@ function endGame(reason){
     stopAmbient();
     if(allBots) sndWin();
     else if(humanIsWinner) sndWin(); else sndLose();
-    setResult(players[winner].icon,players[winner].name+' Kazandı!',(__LANG==='en'?'Checkmate! ':(__LANG==='en'?'Checkmate! ':'Şah mat! '))+players[turn].name+(__LANG==='en'?' cannot move.',' hamle yapamıyor.'));
+    setResult(players[winner].icon,players[winner].name+(__LANG==='en'?' Won!':' Kazandı!'),(__LANG==='en'?'Checkmate! ':'Şah mat! ')+players[turn].name+(__LANG==='en'?' cannot move.':' hamle yapamıyor.'));
   }else{
     gameResult='draw';
     stopAmbient();

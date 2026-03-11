@@ -537,7 +537,7 @@ const WU=[
   {n:(__LANG==='en'?'Speed Engine':'Hız Motoru'),     i:'🚀',rar:'STANDART', c:'#00f5ff',d:'Gemi hareket hızlanır.',            st:'+2 HIZ',      apply:()=>{ssSpd+=2;}},
   {n:(__LANG==='en'?'Shield x2':'Kalkan x2'),      i:'🔄',rar:'NADİR',    c:'#00ffcc',d:(__LANG==='en'?'Shield recharge 2x faster.':'Kalkan yenilenme 2x hızlı.'),        st:'KALKAN 2x',   apply:()=>{ssShR=+(ssShR*2).toFixed(3);}},
   {n:'Acil Tedavi',    i:'💊',rar:'STANDART', c:'#00ff88',d:'+50 HP ve kalkan tazelenir.',        st:'+50 HP',      apply:()=>{PL.hp=Math.min(PL.maxHp,PL.hp+50);PL.shield=PL.maxShield;updHUD();}},
-  {n:(__LANG==='en'?'Nano-Repair':'Nano-Onarıcı'), i:'💉',rar:'NADİR',    c:'#ff88aa',d:(__LANG==='en'?'Adds auto HP regeneration.':'Otomatik HP yenilenmesi eklenir.'',  st:'+HP/KARE',    apply:()=>{ssHpR+=0.06;}},
+  {n:(__LANG==='en'?'Nano-Repair':'Nano-Onarıcı'), i:'💉',rar:'NADİR',    c:'#ff88aa',d:(__LANG==='en'?'Adds auto HP regeneration.':'Otomatik HP yenilenmesi eklenir.'),  st:'+HP/KARE',    apply:()=>{ssHpR+=0.06;}},
   {n:(__LANG==='en'?'Plasma Reactor':'Plazma Reaktör'), i:'🟠',rar:'EPİK',     c:'#ff4400',d:(__LANG==='en'?'Plasma weapon gets infinite ammo!':'Plazma silahı sonsuz mermi alır!'), st:'SONSUZ PLAZMA',apply:()=>{ammo[1]=Infinity;updAmmo();}},
   {n:'Nükleer Çekirdek',i:'☢',rar:(__LANG==='en'?'LEGENDARY':'EFSANEVİ'),c:'#ff00ff',d:'Nükleer silah sonsuz mermi alır!', st:'SONSUZ NÜKLEER',apply:()=>{ammo[2]=Infinity;updAmmo();}},
 ];
