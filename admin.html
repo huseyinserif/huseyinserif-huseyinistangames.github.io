@@ -6,513 +6,111 @@
 <title>YÖNETİCİ PANELİ</title>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600&display=swap" rel="stylesheet">
 <style>
-:root {
-  --bg: #050510;
-  --surface: #0a0a1e;
-  --border: rgba(0,255,255,0.15);
-  --cyan: #00FFFF;
-  --gold: #FFD700;
-  --nova: #FF6B35;
-  --pink: #FF0066;
-  --green: #00FF88;
-  --red: #FF3355;
-  --text: #e0e0ff;
-  --muted: rgba(255,255,255,0.35);
-}
-* { margin:0; padding:0; box-sizing:border-box; }
-body {
-  background: var(--bg);
-  color: var(--text);
-  font-family: 'Rajdhani', sans-serif;
-  min-height: 100vh;
-  overflow-x: hidden;
-}
-body::before {
-  content:'';
-  position:fixed;
-  inset:0;
-  background: radial-gradient(ellipse 60% 40% at 10% 10%, #001133 0%, transparent 60%),
-              radial-gradient(ellipse 40% 60% at 90% 90%, #110022 0%, transparent 60%);
-  pointer-events:none;
-  z-index:0;
-}
-
-/* LOGIN */
-#login-screen {
-  position:fixed;
-  inset:0;
-  z-index:1000;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  background: var(--bg);
-}
-.login-box {
-  background: linear-gradient(135deg, rgba(0,255,255,0.04), rgba(0,255,255,0.01));
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  padding: 48px 40px;
-  width: 380px;
-  text-align: center;
-  position: relative;
-  overflow: hidden;
-}
-.login-box::before {
-  content:'';
-  position:absolute;
-  top:0;left:0;right:0;height:2px;
-  background: linear-gradient(90deg, transparent, var(--cyan), transparent);
-}
-.login-title {
-  font-family: 'Orbitron', monospace;
-  font-size: 11px;
-  letter-spacing: 6px;
-  color: var(--cyan);
-  text-shadow: 0 0 20px var(--cyan);
-  margin-bottom: 8px;
-}
-.login-sub {
-  font-size: 22px;
-  font-weight: 600;
-  letter-spacing: 2px;
-  color: #fff;
-  margin-bottom: 32px;
-}
-.login-input {
-  width: 100%;
-  background: rgba(0,255,255,0.04);
-  border: 1px solid rgba(0,255,255,0.2);
-  border-radius: 8px;
-  padding: 14px 18px;
-  color: var(--cyan);
-  font-family: 'Orbitron', monospace;
-  font-size: 16px;
-  letter-spacing: 4px;
-  outline: none;
-  text-align: center;
-  margin-bottom: 16px;
-  transition: border-color 0.2s;
-}
-.login-input:focus { border-color: var(--cyan); }
-.login-btn {
-  width: 100%;
-  background: linear-gradient(135deg, rgba(0,255,255,0.12), rgba(0,255,255,0.05));
-  border: 1px solid rgba(0,255,255,0.4);
-  border-radius: 8px;
-  padding: 14px;
-  color: var(--cyan);
-  font-family: 'Orbitron', monospace;
-  font-size: 11px;
-  letter-spacing: 4px;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-.login-btn:hover { background: rgba(0,255,255,0.18); box-shadow: 0 0 20px rgba(0,255,255,0.2); }
-.login-error {
-  color: var(--red);
-  font-size: 12px;
-  letter-spacing: 2px;
-  margin-top: 12px;
-  height: 16px;
-  font-family: 'Orbitron', monospace;
-}
-.login-shake { animation: shake 0.4s ease; }
-@keyframes shake {
-  0%,100%{transform:translateX(0)}
-  20%{transform:translateX(-8px)}
-  40%{transform:translateX(8px)}
-  60%{transform:translateX(-5px)}
-  80%{transform:translateX(5px)}
-}
-
-/* MAIN LAYOUT */
-#admin-panel { display:none; position:relative; z-index:1; }
-
-.topbar {
-  background: rgba(5,5,16,0.95);
-  border-bottom: 1px solid var(--border);
-  padding: 14px 28px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  backdrop-filter: blur(10px);
-}
-.topbar-title {
-  font-family: 'Orbitron', monospace;
-  font-size: 12px;
-  letter-spacing: 5px;
-  color: var(--cyan);
-  text-shadow: 0 0 15px rgba(0,255,255,0.5);
-}
-.topbar-right { display:flex; gap:10px; align-items:center; }
-.tab-btn {
-  background: transparent;
-  border: 1px solid rgba(0,255,255,0.15);
-  border-radius: 6px;
-  padding: 7px 16px;
-  color: var(--muted);
-  font-family: 'Orbitron', monospace;
-  font-size: 9px;
-  letter-spacing: 2px;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-.tab-btn:hover, .tab-btn.active {
-  border-color: var(--cyan);
-  color: var(--cyan);
-  background: rgba(0,255,255,0.06);
-}
-.logout-btn {
-  background: rgba(255,51,85,0.08);
-  border: 1px solid rgba(255,51,85,0.3);
-  border-radius: 6px;
-  padding: 7px 14px;
-  color: var(--red);
-  font-family: 'Orbitron', monospace;
-  font-size: 9px;
-  letter-spacing: 2px;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-.logout-btn:hover { background: rgba(255,51,85,0.15); }
-
-.content { padding: 28px; max-width: 1200px; margin: 0 auto; }
-
-/* TABS */
-.tab-panel { display:none; }
-.tab-panel.active { display:block; }
-
-/* STATS */
-.stats-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 16px;
-  margin-bottom: 28px;
-}
-.stat-card {
-  background: linear-gradient(135deg, rgba(0,255,255,0.04), rgba(0,255,255,0.01));
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 20px;
-  position: relative;
-  overflow: hidden;
-}
-.stat-card::before {
-  content:'';
-  position:absolute;
-  top:0;left:0;right:0;height:1px;
-  background: linear-gradient(90deg, transparent, var(--cyan), transparent);
-  opacity:0.5;
-}
-.stat-label { font-size:10px; letter-spacing:3px; color:var(--muted); text-transform:uppercase; }
-.stat-val { font-family:'Orbitron',monospace; font-size:28px; font-weight:700; color:var(--gold); text-shadow:0 0 15px rgba(255,215,0,0.4); margin:4px 0; }
-.stat-sub { font-size:11px; color:var(--muted); }
-
-/* SECTION TITLE */
-.sec-title {
-  font-family: 'Orbitron', monospace;
-  font-size: 10px;
-  letter-spacing: 4px;
-  color: var(--cyan);
-  margin-bottom: 16px;
-  padding-bottom: 8px;
-  border-bottom: 1px solid var(--border);
-}
-
-/* GAME LIST */
-.game-list { display:flex; flex-direction:column; gap:10px; }
-.game-row {
-  background: rgba(0,255,255,0.02);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 14px 18px;
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  transition: all 0.2s;
-}
-.game-row:hover { border-color: rgba(0,255,255,0.3); background: rgba(0,255,255,0.04); }
-.game-row.disabled { opacity:0.4; }
-.drag-handle { color:var(--muted); cursor:grab; font-size:16px; }
-.game-rank {
-  font-family:'Orbitron',monospace;
-  font-size:11px;
-  color:var(--muted);
-  width:24px;
-  text-align:center;
-}
-.game-icon { font-size:22px; }
-.game-info { flex:1; }
-.game-name-text { font-weight:600; font-size:15px; letter-spacing:1px; }
-.game-file { font-size:10px; color:var(--muted); letter-spacing:1px; }
-.game-plays {
-  font-family:'Orbitron',monospace;
-  font-size:13px;
-  color:var(--gold);
-  text-align:right;
-  min-width:60px;
-}
-.game-plays-label { font-size:9px; color:var(--muted); letter-spacing:2px; }
-.row-actions { display:flex; gap:8px; }
-.action-btn {
-  background:transparent;
-  border:1px solid rgba(255,255,255,0.1);
-  border-radius:6px;
-  padding:5px 10px;
-  color:var(--muted);
-  font-size:12px;
-  cursor:pointer;
-  transition:all 0.2s;
-}
-.action-btn:hover { border-color:var(--cyan); color:var(--cyan); }
-.action-btn.danger:hover { border-color:var(--red); color:var(--red); }
-.action-btn.success:hover { border-color:var(--green); color:var(--green); }
-.toggle-btn {
-  width:36px;height:20px;
-  border-radius:10px;
-  border:none;
-  cursor:pointer;
-  position:relative;
-  transition:background 0.2s;
-  flex-shrink:0;
-}
-.toggle-btn.on { background: rgba(0,255,136,0.3); border:1px solid var(--green); }
-.toggle-btn.off { background: rgba(255,51,85,0.2); border:1px solid rgba(255,51,85,0.4); }
-.toggle-dot {
-  width:14px;height:14px;
-  border-radius:50%;
-  position:absolute;
-  top:2px;
-  transition:all 0.2s;
-}
-.toggle-btn.on .toggle-dot { background:var(--green); left:19px; box-shadow:0 0 8px var(--green); }
-.toggle-btn.off .toggle-dot { background:var(--red); left:2px; }
-
-/* MODAL */
-.modal-overlay {
-  display:none;
-  position:fixed;
-  inset:0;
-  background:rgba(0,0,0,0.8);
-  z-index:500;
-  align-items:center;
-  justify-content:center;
-  backdrop-filter:blur(4px);
-}
-.modal-overlay.open { display:flex; }
-.modal-box {
-  background: linear-gradient(135deg, #0a0a1e, #050510);
-  border:1px solid var(--border);
-  border-radius:14px;
-  padding:32px;
-  width:460px;
-  position:relative;
-}
-.modal-box::before {
-  content:'';
-  position:absolute;
-  top:0;left:0;right:0;height:2px;
-  background:linear-gradient(90deg,transparent,var(--cyan),transparent);
-}
-.modal-title { font-family:'Orbitron',monospace; font-size:11px; letter-spacing:4px; color:var(--cyan); margin-bottom:24px; }
-.form-group { margin-bottom:16px; }
-.form-label { font-size:10px; letter-spacing:3px; color:var(--muted); text-transform:uppercase; margin-bottom:6px; display:block; }
-.form-input, .form-textarea, .form-select {
-  width:100%;
-  background:rgba(0,255,255,0.04);
-  border:1px solid rgba(0,255,255,0.15);
-  border-radius:7px;
-  padding:10px 14px;
-  color:#fff;
-  font-family:'Rajdhani',sans-serif;
-  font-size:14px;
-  outline:none;
-  transition:border-color 0.2s;
-}
-.form-input:focus,.form-textarea:focus,.form-select:focus { border-color:var(--cyan); }
-.form-textarea { resize:vertical; min-height:80px; }
-.form-select { cursor:pointer; }
-.form-select option { background:#0a0a1e; }
-.modal-actions { display:flex; gap:10px; margin-top:24px; }
-.btn-primary {
-  flex:1;
-  background:linear-gradient(135deg,rgba(0,255,255,0.12),rgba(0,255,255,0.05));
-  border:1px solid rgba(0,255,255,0.4);
-  border-radius:7px;
-  padding:11px;
-  color:var(--cyan);
-  font-family:'Orbitron',monospace;
-  font-size:9px;
-  letter-spacing:3px;
-  cursor:pointer;
-  transition:all 0.2s;
-}
-.btn-primary:hover { background:rgba(0,255,255,0.18); }
-.btn-cancel {
-  background:transparent;
-  border:1px solid rgba(255,255,255,0.1);
-  border-radius:7px;
-  padding:11px 20px;
-  color:var(--muted);
-  font-family:'Orbitron',monospace;
-  font-size:9px;
-  letter-spacing:2px;
-  cursor:pointer;
-  transition:all 0.2s;
-}
-.btn-cancel:hover { border-color:rgba(255,255,255,0.3); color:#fff; }
-
-/* ADD GAME BTN */
-.add-game-btn {
-  background:linear-gradient(135deg,rgba(0,255,136,0.08),rgba(0,255,136,0.03));
-  border:1px dashed rgba(0,255,136,0.3);
-  border-radius:10px;
-  padding:14px;
-  text-align:center;
-  cursor:pointer;
-  color:var(--green);
-  font-family:'Orbitron',monospace;
-  font-size:10px;
-  letter-spacing:3px;
-  transition:all 0.2s;
-  margin-top:10px;
-}
-.add-game-btn:hover { background:rgba(0,255,136,0.1); border-color:var(--green); }
-
-/* THEME */
-.theme-grid {
-  display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(160px,1fr));
-  gap:14px;
-  margin-bottom:24px;
-}
-.theme-card {
-  border:2px solid transparent;
-  border-radius:10px;
-  padding:16px;
-  cursor:pointer;
-  transition:all 0.2s;
-  text-align:center;
-}
-.theme-card:hover { transform:translateY(-2px); }
-.theme-card.selected { border-color:var(--cyan) !important; box-shadow:0 0 15px rgba(0,255,255,0.2); }
-.theme-preview {
-  height:60px;
-  border-radius:8px;
-  margin-bottom:10px;
-  position:relative;
-  overflow:hidden;
-}
-.theme-name { font-family:'Orbitron',monospace; font-size:9px; letter-spacing:2px; }
-
-/* COLOR PICKERS */
-.color-row { display:flex; gap:12px; flex-wrap:wrap; margin-bottom:20px; }
-.color-item { display:flex; flex-direction:column; align-items:center; gap:6px; }
-.color-label { font-size:9px; letter-spacing:2px; color:var(--muted); }
-.color-swatch {
-  width:44px;height:44px;
-  border-radius:8px;
-  border:2px solid rgba(255,255,255,0.1);
-  cursor:pointer;
-  transition:transform 0.2s;
-  overflow:hidden;
-  position:relative;
-}
-.color-swatch:hover { transform:scale(1.1); }
-.color-swatch input[type=color] {
-  position:absolute;inset:0;
-  opacity:0;cursor:pointer;
-  width:100%;height:100%;
-}
-
-/* TOAST */
-.toast {
-  position:fixed;
-  bottom:24px;right:24px;
-  background:rgba(0,255,136,0.12);
-  border:1px solid var(--green);
-  border-radius:8px;
-  padding:12px 20px;
-  font-family:'Orbitron',monospace;
-  font-size:10px;
-  letter-spacing:2px;
-  color:var(--green);
-  z-index:9999;
-  transform:translateY(100px);
-  opacity:0;
-  transition:all 0.3s cubic-bezier(0.34,1.56,0.64,1);
-}
-.toast.show { transform:translateY(0); opacity:1; }
-.toast.error { background:rgba(255,51,85,0.12); border-color:var(--red); color:var(--red); }
-
-/* CHART */
-.chart-container { position:relative; height:200px; margin-bottom:24px; }
-.bar-chart { display:flex; align-items:flex-end; gap:8px; height:180px; padding:0 4px; }
-.bar-wrap { flex:1; display:flex; flex-direction:column; align-items:center; gap:6px; }
-.bar {
-  width:100%;
-  background:linear-gradient(180deg,var(--cyan),rgba(0,255,255,0.3));
-  border-radius:4px 4px 0 0;
-  min-height:4px;
-  transition:height 0.5s ease;
-  position:relative;
-}
-.bar:hover::after {
-  content:attr(data-val);
-  position:absolute;
-  top:-22px;left:50%;transform:translateX(-50%);
-  font-family:'Orbitron',monospace;font-size:9px;
-  color:var(--gold);white-space:nowrap;
-}
-.bar-label { font-size:9px; color:var(--muted); letter-spacing:1px; text-align:center; max-width:60px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-
-/* SAVE NOTICE */
-.save-bar {
-  position:fixed;
-  bottom:0;left:0;right:0;
-  background:rgba(5,5,16,0.97);
-  border-top:1px solid var(--border);
-  padding:12px 28px;
-  display:none;
-  align-items:center;
-  justify-content:space-between;
-  z-index:200;
-  backdrop-filter:blur(10px);
-}
-.save-bar.show { display:flex; }
-.save-bar-text { font-size:12px; color:var(--muted); letter-spacing:1px; }
-.save-bar-btn {
-  background:linear-gradient(135deg,rgba(0,255,136,0.15),rgba(0,255,136,0.05));
-  border:1px solid rgba(0,255,136,0.4);
-  border-radius:7px;
-  padding:8px 20px;
-  color:var(--green);
-  font-family:'Orbitron',monospace;
-  font-size:9px;
-  letter-spacing:3px;
-  cursor:pointer;
-  transition:all 0.2s;
-}
-.save-bar-btn:hover { background:rgba(0,255,136,0.2); }
+:root{--bg:#050510;--surface:#0a0a1e;--border:rgba(0,255,255,0.15);--cyan:#00FFFF;--gold:#FFD700;--nova:#FF6B35;--green:#00FF88;--red:#FF3355;--text:#e0e0ff;--muted:rgba(255,255,255,0.35);}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'Rajdhani',sans-serif;min-height:100vh;overflow-x:hidden;}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 60% 40% at 10% 10%,#001133 0%,transparent 60%),radial-gradient(ellipse 40% 60% at 90% 90%,#110022 0%,transparent 60%);pointer-events:none;z-index:0;}
+#login-screen{position:fixed;inset:0;z-index:1000;display:flex;align-items:center;justify-content:center;background:var(--bg);}
+.login-box{background:linear-gradient(135deg,rgba(0,255,255,0.04),rgba(0,255,255,0.01));border:1px solid var(--border);border-radius:16px;padding:48px 40px;width:380px;text-align:center;position:relative;overflow:hidden;}
+.login-box::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--cyan),transparent);}
+.login-title{font-family:'Orbitron',monospace;font-size:11px;letter-spacing:6px;color:var(--cyan);text-shadow:0 0 20px var(--cyan);margin-bottom:8px;}
+.login-sub{font-size:22px;font-weight:600;letter-spacing:2px;color:#fff;margin-bottom:32px;}
+.login-input{width:100%;background:rgba(0,255,255,0.04);border:1px solid rgba(0,255,255,0.2);border-radius:8px;padding:14px 18px;color:var(--cyan);font-family:'Orbitron',monospace;font-size:16px;letter-spacing:4px;outline:none;text-align:center;margin-bottom:16px;transition:border-color 0.2s;}
+.login-input:focus{border-color:var(--cyan);}
+.login-btn{width:100%;background:linear-gradient(135deg,rgba(0,255,255,0.12),rgba(0,255,255,0.05));border:1px solid rgba(0,255,255,0.4);border-radius:8px;padding:14px;color:var(--cyan);font-family:'Orbitron',monospace;font-size:11px;letter-spacing:4px;cursor:pointer;transition:all 0.2s;}
+.login-btn:hover{background:rgba(0,255,255,0.18);}
+.login-error{color:var(--red);font-size:12px;letter-spacing:2px;margin-top:12px;height:16px;font-family:'Orbitron',monospace;}
+.login-shake{animation:shake 0.4s ease;}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-5px)}80%{transform:translateX(5px)}}
+#admin-panel{display:none;position:relative;z-index:1;}
+.topbar{background:rgba(5,5,16,0.95);border-bottom:1px solid var(--border);padding:14px 28px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;backdrop-filter:blur(10px);}
+.topbar-title{font-family:'Orbitron',monospace;font-size:12px;letter-spacing:5px;color:var(--cyan);text-shadow:0 0 15px rgba(0,255,255,0.5);}
+.topbar-right{display:flex;gap:10px;align-items:center;}
+.tab-btn{background:transparent;border:1px solid rgba(0,255,255,0.15);border-radius:6px;padding:7px 16px;color:var(--muted);font-family:'Orbitron',monospace;font-size:9px;letter-spacing:2px;cursor:pointer;transition:all 0.2s;}
+.tab-btn:hover,.tab-btn.active{border-color:var(--cyan);color:var(--cyan);background:rgba(0,255,255,0.06);}
+.logout-btn{background:rgba(255,51,85,0.08);border:1px solid rgba(255,51,85,0.3);border-radius:6px;padding:7px 14px;color:var(--red);font-family:'Orbitron',monospace;font-size:9px;letter-spacing:2px;cursor:pointer;}
+.content{padding:28px;max-width:1200px;margin:0 auto;}
+.tab-panel{display:none;}.tab-panel.active{display:block;}
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:28px;}
+.stat-card{background:linear-gradient(135deg,rgba(0,255,255,0.04),rgba(0,255,255,0.01));border:1px solid var(--border);border-radius:12px;padding:20px;position:relative;overflow:hidden;}
+.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--cyan),transparent);opacity:0.5;}
+.stat-label{font-size:10px;letter-spacing:3px;color:var(--muted);text-transform:uppercase;}
+.stat-val{font-family:'Orbitron',monospace;font-size:28px;font-weight:700;color:var(--gold);text-shadow:0 0 15px rgba(255,215,0,0.4);margin:4px 0;}
+.stat-sub{font-size:11px;color:var(--muted);}
+.sec-title{font-family:'Orbitron',monospace;font-size:10px;letter-spacing:4px;color:var(--cyan);margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid var(--border);}
+.game-list{display:flex;flex-direction:column;gap:10px;}
+.game-row{background:rgba(0,255,255,0.02);border:1px solid var(--border);border-radius:10px;padding:14px 18px;display:flex;align-items:center;gap:16px;transition:all 0.2s;}
+.game-row:hover{border-color:rgba(0,255,255,0.3);background:rgba(0,255,255,0.04);}
+.game-row.disabled{opacity:0.4;}
+.game-rank{font-family:'Orbitron',monospace;font-size:11px;color:var(--muted);width:24px;text-align:center;}
+.game-icon{font-size:22px;}
+.game-info{flex:1;}
+.game-name-text{font-weight:600;font-size:15px;letter-spacing:1px;}
+.game-file{font-size:10px;color:var(--muted);letter-spacing:1px;}
+.game-plays{font-family:'Orbitron',monospace;font-size:13px;color:var(--gold);text-align:right;min-width:60px;}
+.game-plays-label{font-size:9px;color:var(--muted);letter-spacing:2px;}
+.row-actions{display:flex;gap:8px;}
+.action-btn{background:transparent;border:1px solid rgba(255,255,255,0.1);border-radius:6px;padding:5px 10px;color:var(--muted);font-size:12px;cursor:pointer;transition:all 0.2s;}
+.action-btn:hover{border-color:var(--cyan);color:var(--cyan);}
+.action-btn.danger:hover{border-color:var(--red);color:var(--red);}
+.toggle-btn{width:36px;height:20px;border-radius:10px;border:none;cursor:pointer;position:relative;transition:background 0.2s;flex-shrink:0;}
+.toggle-btn.on{background:rgba(0,255,136,0.3);border:1px solid var(--green);}
+.toggle-btn.off{background:rgba(255,51,85,0.2);border:1px solid rgba(255,51,85,0.4);}
+.toggle-dot{width:14px;height:14px;border-radius:50%;position:absolute;top:2px;transition:all 0.2s;}
+.toggle-btn.on .toggle-dot{background:var(--green);left:19px;box-shadow:0 0 8px var(--green);}
+.toggle-btn.off .toggle-dot{background:var(--red);left:2px;}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:500;align-items:center;justify-content:center;backdrop-filter:blur(4px);}
+.modal-overlay.open{display:flex;}
+.modal-box{background:linear-gradient(135deg,#0a0a1e,#050510);border:1px solid var(--border);border-radius:14px;padding:32px;width:460px;position:relative;}
+.modal-box::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--cyan),transparent);}
+.modal-title{font-family:'Orbitron',monospace;font-size:11px;letter-spacing:4px;color:var(--cyan);margin-bottom:24px;}
+.form-group{margin-bottom:16px;}
+.form-label{font-size:10px;letter-spacing:3px;color:var(--muted);text-transform:uppercase;margin-bottom:6px;display:block;}
+.form-input,.form-textarea,.form-select{width:100%;background:rgba(0,255,255,0.04);border:1px solid rgba(0,255,255,0.15);border-radius:7px;padding:10px 14px;color:#fff;font-family:'Rajdhani',sans-serif;font-size:14px;outline:none;transition:border-color 0.2s;}
+.form-input:focus,.form-textarea:focus,.form-select:focus{border-color:var(--cyan);}
+.form-textarea{resize:vertical;min-height:80px;}
+.form-select option{background:#0a0a1e;}
+.modal-actions{display:flex;gap:10px;margin-top:24px;}
+.btn-primary{flex:1;background:linear-gradient(135deg,rgba(0,255,255,0.12),rgba(0,255,255,0.05));border:1px solid rgba(0,255,255,0.4);border-radius:7px;padding:11px;color:var(--cyan);font-family:'Orbitron',monospace;font-size:9px;letter-spacing:3px;cursor:pointer;transition:all 0.2s;}
+.btn-primary:hover{background:rgba(0,255,255,0.18);}
+.btn-cancel{background:transparent;border:1px solid rgba(255,255,255,0.1);border-radius:7px;padding:11px 20px;color:var(--muted);font-family:'Orbitron',monospace;font-size:9px;letter-spacing:2px;cursor:pointer;}
+.add-game-btn{background:linear-gradient(135deg,rgba(0,255,136,0.08),rgba(0,255,136,0.03));border:1px dashed rgba(0,255,136,0.3);border-radius:10px;padding:14px;text-align:center;cursor:pointer;color:var(--green);font-family:'Orbitron',monospace;font-size:10px;letter-spacing:3px;transition:all 0.2s;margin-top:10px;}
+.add-game-btn:hover{background:rgba(0,255,136,0.1);border-color:var(--green);}
+.theme-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:14px;margin-bottom:24px;}
+.theme-card{border:2px solid transparent;border-radius:10px;padding:16px;cursor:pointer;transition:all 0.2s;text-align:center;}
+.theme-card:hover{transform:translateY(-2px);}
+.theme-card.selected{border-color:var(--cyan)!important;box-shadow:0 0 15px rgba(0,255,255,0.2);}
+.theme-preview{height:60px;border-radius:8px;margin-bottom:10px;}
+.theme-name{font-family:'Orbitron',monospace;font-size:9px;letter-spacing:2px;}
+.color-row{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:20px;}
+.color-item{display:flex;flex-direction:column;align-items:center;gap:6px;}
+.color-label{font-size:9px;letter-spacing:2px;color:var(--muted);}
+.color-swatch{width:44px;height:44px;border-radius:8px;border:2px solid rgba(255,255,255,0.1);cursor:pointer;transition:transform 0.2s;overflow:hidden;position:relative;}
+.color-swatch:hover{transform:scale(1.1);}
+.color-swatch input[type=color]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
+.bar-chart{display:flex;align-items:flex-end;gap:8px;height:180px;padding:0 4px;margin-bottom:24px;}
+.bar-wrap{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;}
+.bar{width:100%;background:linear-gradient(180deg,var(--cyan),rgba(0,255,255,0.3));border-radius:4px 4px 0 0;min-height:4px;transition:height 0.5s ease;position:relative;}
+.bar:hover::after{content:attr(data-val);position:absolute;top:-22px;left:50%;transform:translateX(-50%);font-family:'Orbitron',monospace;font-size:9px;color:var(--gold);white-space:nowrap;}
+.bar-label{font-size:9px;color:var(--muted);letter-spacing:1px;text-align:center;max-width:60px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.toast{position:fixed;bottom:24px;right:24px;background:rgba(0,255,136,0.12);border:1px solid var(--green);border-radius:8px;padding:12px 20px;font-family:'Orbitron',monospace;font-size:10px;letter-spacing:2px;color:var(--green);z-index:9999;transform:translateY(100px);opacity:0;transition:all 0.3s cubic-bezier(0.34,1.56,0.64,1);}
+.toast.show{transform:translateY(0);opacity:1;}
+.toast.error{background:rgba(255,51,85,0.12);border-color:var(--red);color:var(--red);}
+.loading{text-align:center;padding:40px;font-family:'Orbitron',monospace;font-size:11px;letter-spacing:3px;color:var(--muted);}
 </style>
 </head>
 <body>
 
-<!-- LOGIN -->
 <div id="login-screen">
   <div class="login-box">
     <div class="login-title">⬡ HÜSEYİNİSTAN GAMES ⬡</div>
     <div class="login-sub">YÖNETİCİ PANELİ</div>
-    <input type="password" class="login-input" id="pwd-input" placeholder="••••••••••" onkeydown="if(event.key==='Enter')doLogin()">
+    <input type="password" class="login-input" id="pwd-input" placeholder="••••••••••">
     <button class="login-btn" onclick="doLogin()">GİRİŞ YAP</button>
     <div class="login-error" id="login-error"></div>
   </div>
 </div>
 
-<!-- ADMIN PANEL -->
 <div id="admin-panel">
   <div class="topbar">
     <div class="topbar-title">⬡ YÖNETİCİ PANELİ</div>
@@ -523,72 +121,42 @@ body::before {
       <button class="logout-btn" onclick="doLogout()">ÇIKIŞ</button>
     </div>
   </div>
-
   <div class="content">
-
-    <!-- STATS TAB -->
     <div class="tab-panel active" id="tab-stats">
-      <div class="stats-grid" id="stats-grid"></div>
+      <div class="stats-grid" id="stats-grid"><div class="loading">YÜKLENİYOR...</div></div>
       <div class="sec-title">⬡ OYUN BAŞINA OYNANMA</div>
       <div class="bar-chart" id="bar-chart"></div>
       <div style="display:flex;gap:8px;margin-top:20px;">
-        <button class="action-btn" onclick="resetStats()" style="border-color:rgba(255,51,85,0.3);color:var(--red);">🗑 İstatistikleri Sıfırla</button>
-        <button class="action-btn success" onclick="exportStats()">📥 Dışa Aktar</button>
+        <button class="action-btn danger" onclick="resetStats()">🗑 Sıfırla</button>
+        <button class="action-btn" onclick="exportStats()" style="border-color:rgba(0,255,136,0.3);color:var(--green)">📥 Dışa Aktar</button>
       </div>
     </div>
-
-    <!-- GAMES TAB -->
     <div class="tab-panel" id="tab-games">
       <div class="sec-title">⬡ OYUN LİSTESİ</div>
-      <div class="game-list" id="game-list"></div>
+      <div class="game-list" id="game-list"><div class="loading">YÜKLENİYOR...</div></div>
       <div class="add-game-btn" onclick="openAddModal()">+ YENİ OYUN EKLE</div>
     </div>
-
-    <!-- THEME TAB -->
     <div class="tab-panel" id="tab-theme">
       <div class="sec-title">⬡ HAZIR TEMALAR</div>
       <div class="theme-grid" id="theme-grid"></div>
       <div class="sec-title">⬡ ÖZEL RENKLER</div>
       <div class="color-row" id="color-pickers"></div>
-      <button class="btn-primary" style="max-width:200px" onclick="applyTheme()">TEMALI KAYDET</button>
+      <button class="btn-primary" style="max-width:220px" onclick="saveTheme()">💾 TEMALI KAYDET</button>
     </div>
-
   </div>
 </div>
 
-<!-- EDIT MODAL -->
 <div class="modal-overlay" id="edit-modal">
   <div class="modal-box">
     <div class="modal-title">⬡ OYUN DÜZENLE</div>
     <input type="hidden" id="edit-idx">
-    <div class="form-group">
-      <label class="form-label">Oyun Adı</label>
-      <input type="text" class="form-input" id="edit-name">
-    </div>
-    <div class="form-group">
-      <label class="form-label">Açıklama</label>
-      <textarea class="form-textarea" id="edit-desc"></textarea>
-    </div>
-    <div class="form-group">
-      <label class="form-label">Dosya Adı</label>
-      <input type="text" class="form-input" id="edit-file">
-    </div>
-    <div class="form-group">
-      <label class="form-label">İkon</label>
-      <input type="text" class="form-input" id="edit-icon" style="font-size:22px;text-align:center;">
-    </div>
-    <div class="form-group">
-      <label class="form-label">Kategori</label>
+    <div class="form-group"><label class="form-label">Oyun Adı</label><input type="text" class="form-input" id="edit-name"></div>
+    <div class="form-group"><label class="form-label">Açıklama</label><textarea class="form-textarea" id="edit-desc"></textarea></div>
+    <div class="form-group"><label class="form-label">Dosya Adı</label><input type="text" class="form-input" id="edit-file"></div>
+    <div class="form-group"><label class="form-label">İkon</label><input type="text" class="form-input" id="edit-icon" style="font-size:22px;text-align:center"></div>
+    <div class="form-group"><label class="form-label">Kategori</label>
       <select class="form-select" id="edit-cat">
-        <option>⚔ Aksiyon</option>
-        <option>🧩 Bulmaca</option>
-        <option>♟ Strateji</option>
-        <option>🏰 Savunma</option>
-        <option>🎵 Müzik</option>
-        <option>⬡ Idle / Clicker</option>
-        <option>🎯 Beceri</option>
-        <option>🃏 Kart</option>
-        <option>🌌 Uzay</option>
+        <option>⚔ Aksiyon</option><option>🧩 Bulmaca</option><option>♟ Strateji</option><option>🏰 Savunma</option><option>🎵 Müzik</option><option>⬡ Idle / Clicker</option><option>🎯 Beceri</option><option>🃏 Kart</option><option>🌌 Uzay</option>
       </select>
     </div>
     <div class="modal-actions">
@@ -598,38 +166,16 @@ body::before {
   </div>
 </div>
 
-<!-- ADD MODAL -->
 <div class="modal-overlay" id="add-modal">
   <div class="modal-box">
     <div class="modal-title">⬡ YENİ OYUN EKLE</div>
-    <div class="form-group">
-      <label class="form-label">Oyun Adı</label>
-      <input type="text" class="form-input" id="add-name" placeholder="Oyun Adı">
-    </div>
-    <div class="form-group">
-      <label class="form-label">Açıklama</label>
-      <textarea class="form-textarea" id="add-desc" placeholder="Oyun açıklaması..."></textarea>
-    </div>
-    <div class="form-group">
-      <label class="form-label">Dosya Adı (.html)</label>
-      <input type="text" class="form-input" id="add-file" placeholder="oyun-adi.html">
-    </div>
-    <div class="form-group">
-      <label class="form-label">İkon (emoji)</label>
-      <input type="text" class="form-input" id="add-icon" placeholder="🎮" style="font-size:22px;text-align:center;">
-    </div>
-    <div class="form-group">
-      <label class="form-label">Kategori</label>
+    <div class="form-group"><label class="form-label">Oyun Adı</label><input type="text" class="form-input" id="add-name" placeholder="Oyun Adı"></div>
+    <div class="form-group"><label class="form-label">Açıklama</label><textarea class="form-textarea" id="add-desc" placeholder="Açıklama..."></textarea></div>
+    <div class="form-group"><label class="form-label">Dosya Adı (.html)</label><input type="text" class="form-input" id="add-file" placeholder="oyun-adi.html"></div>
+    <div class="form-group"><label class="form-label">İkon (emoji)</label><input type="text" class="form-input" id="add-icon" placeholder="🎮" style="font-size:22px;text-align:center"></div>
+    <div class="form-group"><label class="form-label">Kategori</label>
       <select class="form-select" id="add-cat">
-        <option>⚔ Aksiyon</option>
-        <option>🧩 Bulmaca</option>
-        <option>♟ Strateji</option>
-        <option>🏰 Savunma</option>
-        <option>🎵 Müzik</option>
-        <option>⬡ Idle / Clicker</option>
-        <option>🎯 Beceri</option>
-        <option>🃏 Kart</option>
-        <option>🌌 Uzay</option>
+        <option>⚔ Aksiyon</option><option>🧩 Bulmaca</option><option>♟ Strateji</option><option>🏰 Savunma</option><option>🎵 Müzik</option><option>⬡ Idle / Clicker</option><option>🎯 Beceri</option><option>🃏 Kart</option><option>🌌 Uzay</option>
       </select>
     </div>
     <div class="modal-actions">
@@ -640,15 +186,13 @@ body::before {
 </div>
 
 <div class="toast" id="toast"></div>
-<div class="save-bar" id="save-bar">
-  <span class="save-bar-text">⚠ Kaydedilmemiş değişiklikler var</span>
-  <button class="save-bar-btn" onclick="saveAll()">💾 KAYDET</button>
-</div>
 
 <script>
 const PASSWORD = 'hsnsrf13579';
+let games = [], plays = {};
+let customColors = {bg:'#050510',surface:'#0a0a1e',accent:'#00FFFF',accent2:'#FFD700',accent3:'#FF6B35'};
+let selectedTheme = 0;
 
-// Default games data
 const DEFAULT_GAMES = [
   {name:'Mermi Dodge',file:'bullet-dodge-game.html',icon:'🎯',cat:'⚔ Aksiyon',desc:'Mermilerden kaç, para kazan, güçlen!',active:true},
   {name:'Şehir Savunması',file:'city-tower-defense.html',icon:'🏰',cat:'🏰 Savunma',desc:'Şehrini düşman dalgalarından koru!',active:true},
@@ -661,7 +205,7 @@ const DEFAULT_GAMES = [
   {name:'Nişancı Eğitimi',file:'aim-trainer.html',icon:'🎯',cat:'🎯 Beceri',desc:'Nişan becerini geliştir!',active:true},
   {name:'Bulmaca',file:'bulmaca.html',icon:'🧩',cat:'🧩 Bulmaca',desc:'Kelime bulmacası çöz!',active:true},
   {name:'Wordle TR',file:'wordle-tr.html',icon:'🔤',cat:'🧩 Bulmaca',desc:'Türkçe kelimeyi tahmin et!',active:true},
-  {name:'2048',file:'2048.html',icon:'🔢',cat:'🧩 Bulmaca',desc:'Karoları birleştir, 2048\'e ulaş!',active:true},
+  {name:'2048',file:'2048.html',icon:'🔢',cat:'🧩 Bulmaca',desc:"Karoları birleştir, 2048'e ulaş!",active:true},
   {name:'Mastermind',file:'mastermind.html',icon:'🔮',cat:'🧩 Bulmaca',desc:'Gizli kodu kır!',active:true},
   {name:'Nonogram',file:'nonogram.html',icon:'📐',cat:'🧩 Bulmaca',desc:'Piksel bulmacasını çöz!',active:true},
   {name:'Yılan',file:'snake.html',icon:'🐍',cat:'⚔ Aksiyon',desc:'Klasik yılan oyunu!',active:true},
@@ -670,317 +214,161 @@ const DEFAULT_GAMES = [
   {name:'Nova Clicker',file:'nova-clicker.html',icon:'⭐',cat:'⬡ Idle / Clicker',desc:'Tıkla, güçlen, prestij kazan!',active:true},
 ];
 
-let games = [];
-let themeVars = {};
-let dirty = false;
+const THEMES = [
+  {name:'NOVA',bg:'#050510',surface:'#0a0a1e',accent:'#00FFFF',accent2:'#FFD700',accent3:'#FF6B35'},
+  {name:'KIRMIZI',bg:'#100505',surface:'#1a0808',accent:'#FF3355',accent2:'#FF8800',accent3:'#FF0066'},
+  {name:'MATRİX',bg:'#020d02',surface:'#041004',accent:'#00FF88',accent2:'#00FFAA',accent3:'#88FF00'},
+  {name:'MOR',bg:'#07020f',surface:'#0e0418',accent:'#BF00FF',accent2:'#7700FF',accent3:'#FF00CC'},
+  {name:'ALTIN',bg:'#0d0a00',surface:'#1a1400',accent:'#FFD700',accent2:'#FF8C00',accent3:'#FFF200'},
+  {name:'BUZ',bg:'#020810',surface:'#040f1a',accent:'#00CFFF',accent2:'#0088FF',accent3:'#00FFEE'},
+];
 
-// ===== AUTH =====
 function doLogin() {
   const val = document.getElementById('pwd-input').value;
   if(val === PASSWORD) {
     document.getElementById('login-screen').style.display = 'none';
     document.getElementById('admin-panel').style.display = 'block';
-    loadData();
-    renderAll();
+    loadAll();
   } else {
     const box = document.querySelector('.login-box');
-    box.classList.remove('login-shake');
-    void box.offsetWidth;
-    box.classList.add('login-shake');
+    box.classList.remove('login-shake'); void box.offsetWidth; box.classList.add('login-shake');
     document.getElementById('login-error').textContent = 'YANLIŞ ŞİFRE';
     setTimeout(()=>document.getElementById('login-error').textContent='', 2000);
   }
 }
-
 function doLogout() {
-  document.getElementById('admin-panel').style.display = 'none';
-  document.getElementById('login-screen').style.display = 'flex';
-  document.getElementById('pwd-input').value = '';
+  document.getElementById('admin-panel').style.display='none';
+  document.getElementById('login-screen').style.display='flex';
+  document.getElementById('pwd-input').value='';
 }
 
-// ===== DATA =====
-function loadData() {
-  const saved = localStorage.getItem('admin_games');
-  games = saved ? JSON.parse(saved) : JSON.parse(JSON.stringify(DEFAULT_GAMES));
-  const savedTheme = localStorage.getItem('admin_theme');
-  themeVars = savedTheme ? JSON.parse(savedTheme) : {};
+async function api(path, method='GET', data=null) {
+  const opts = { method, headers: {'Content-Type':'application/json','X-Admin-Password':PASSWORD} };
+  if(data) opts.body = JSON.stringify(data);
+  const r = await fetch(path, opts);
+  return r.json();
 }
 
-function saveAll() {
-  localStorage.setItem('admin_games', JSON.stringify(games));
-  localStorage.setItem('admin_theme', JSON.stringify(themeVars));
-  dirty = false;
-  document.getElementById('save-bar').classList.remove('show');
-  showToast('✓ KAYDEDİLDİ');
+async function loadAll() {
+  try {
+    const [g, p] = await Promise.all([api('/api/games'), api('/api/plays')]);
+    games = (Array.isArray(g) && g.length > 0) ? g : JSON.parse(JSON.stringify(DEFAULT_GAMES));
+    plays = p || {};
+  } catch(e) {
+    games = JSON.parse(JSON.stringify(DEFAULT_GAMES));
+    plays = {};
+  }
+  renderStats(); renderGames(); renderTheme();
 }
 
-function markDirty() {
-  dirty = true;
-  document.getElementById('save-bar').classList.add('show');
-}
-
-// ===== STATS =====
-function getPlays(file) {
-  return parseInt(localStorage.getItem('plays_' + file) || '0');
-}
-function getTotalPlays() { return games.reduce((s,g)=>s+getPlays(g.file), 0); }
-function getActiveCount() { return games.filter(g=>g.active).length; }
+function getPlays(f){return plays[f]||0;}
+function getTotalPlays(){return Object.values(plays).reduce((s,v)=>s+v,0);}
+function getActiveCount(){return games.filter(g=>g.active).length;}
 
 function renderStats() {
-  const totalPlays = getTotalPlays();
-  const topGame = games.slice().sort((a,b)=>getPlays(b.file)-getPlays(a.file))[0];
-
+  const top = games.slice().sort((a,b)=>getPlays(b.file)-getPlays(a.file))[0];
   document.getElementById('stats-grid').innerHTML = `
-    <div class="stat-card">
-      <div class="stat-label">Toplam Oyun</div>
-      <div class="stat-val">${games.length}</div>
-      <div class="stat-sub">${getActiveCount()} aktif</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-label">Toplam Oynama</div>
-      <div class="stat-val">${totalPlays}</div>
-      <div class="stat-sub">tüm oyunlar</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-label">En Popüler</div>
-      <div class="stat-val" style="font-size:18px">${topGame ? topGame.icon+' '+topGame.name : '—'}</div>
-      <div class="stat-sub">${topGame ? getPlays(topGame.file)+' oynama' : ''}</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-label">Pasif Oyun</div>
-      <div class="stat-val" style="color:var(--red)">${games.length - getActiveCount()}</div>
-      <div class="stat-sub">devre dışı</div>
-    </div>
-  `;
-
-  // Bar chart
+    <div class="stat-card"><div class="stat-label">Toplam Oyun</div><div class="stat-val">${games.length}</div><div class="stat-sub">${getActiveCount()} aktif</div></div>
+    <div class="stat-card"><div class="stat-label">Toplam Oynama</div><div class="stat-val">${getTotalPlays()}</div><div class="stat-sub">tüm oyunlar</div></div>
+    <div class="stat-card"><div class="stat-label">En Popüler</div><div class="stat-val" style="font-size:18px">${top?top.icon+' '+top.name:'—'}</div><div class="stat-sub">${top?getPlays(top.file)+' oynama':''}</div></div>
+    <div class="stat-card"><div class="stat-label">Pasif Oyun</div><div class="stat-val" style="color:var(--red)">${games.length-getActiveCount()}</div><div class="stat-sub">devre dışı</div></div>`;
   const sorted = games.slice().sort((a,b)=>getPlays(b.file)-getPlays(a.file)).slice(0,10);
-  const maxPlays = Math.max(...sorted.map(g=>getPlays(g.file)), 1);
-  const chart = document.getElementById('bar-chart');
-  chart.innerHTML = sorted.map(g => {
-    const p = getPlays(g.file);
-    const h = Math.max((p/maxPlays)*160, 4);
-    return `<div class="bar-wrap">
-      <div class="bar" style="height:${h}px" data-val="${p}"></div>
-      <div class="bar-label">${g.icon} ${g.name}</div>
-    </div>`;
+  const max = Math.max(...sorted.map(g=>getPlays(g.file)),1);
+  document.getElementById('bar-chart').innerHTML = sorted.map(g=>{
+    const p=getPlays(g.file), h=Math.max((p/max)*160,4);
+    return `<div class="bar-wrap"><div class="bar" style="height:${h}px" data-val="${p}"></div><div class="bar-label">${g.icon} ${g.name}</div></div>`;
   }).join('');
 }
 
-function resetStats() {
-  if(!confirm('Tüm istatistikler sıfırlansın mı?')) return;
-  games.forEach(g => localStorage.removeItem('plays_' + g.file));
-  renderStats();
-  showToast('✓ İSTATİSTİKLER SIFIRLANDI');
+async function saveGames() {
+  try { await api('/api/games','POST',games); showToast('✓ KAYDEDİLDİ — Site güncellendi!'); }
+  catch(e) { showToast('Hata! Tekrar dene.',true); }
 }
 
-function exportStats() {
-  const data = games.map(g => ({name:g.name, file:g.file, plays:getPlays(g.file)}));
-  const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = 'huseyinistan-stats.json';
-  a.click();
-}
-
-// ===== GAMES =====
 function renderGames() {
-  const list = document.getElementById('game-list');
-  list.innerHTML = games.map((g, i) => `
-    <div class="game-row ${g.active?'':'disabled'}" id="row-${i}">
+  document.getElementById('game-list').innerHTML = games.map((g,i)=>`
+    <div class="game-row ${g.active?'':'disabled'}">
       <div class="game-rank">${i+1}</div>
       <div class="game-icon">${g.icon}</div>
-      <div class="game-info">
-        <div class="game-name-text">${g.name}</div>
-        <div class="game-file">${g.file} · ${g.cat}</div>
-      </div>
-      <div style="text-align:right">
-        <div class="game-plays">${getPlays(g.file)}</div>
-        <div class="game-plays-label">OYNAMA</div>
-      </div>
+      <div class="game-info"><div class="game-name-text">${g.name}</div><div class="game-file">${g.file} · ${g.cat}</div></div>
+      <div style="text-align:right"><div class="game-plays">${getPlays(g.file)}</div><div class="game-plays-label">OYNAMA</div></div>
       <div class="row-actions">
-        <button class="action-btn" onclick="openEditModal(${i})" title="Düzenle">✏️</button>
-        <button class="action-btn" onclick="moveGame(${i},-1)" title="Yukarı">↑</button>
-        <button class="action-btn" onclick="moveGame(${i},1)" title="Aşağı">↓</button>
-        <button class="action-btn danger" onclick="deleteGame(${i})" title="Sil">🗑</button>
+        <button class="action-btn" onclick="openEditModal(${i})">✏️</button>
+        <button class="action-btn" onclick="moveGame(${i},-1)">↑</button>
+        <button class="action-btn" onclick="moveGame(${i},1)">↓</button>
+        <button class="action-btn danger" onclick="deleteGame(${i})">🗑</button>
       </div>
-      <button class="toggle-btn ${g.active?'on':'off'}" onclick="toggleGame(${i})">
-        <div class="toggle-dot"></div>
-      </button>
-    </div>
-  `).join('');
+      <button class="toggle-btn ${g.active?'on':'off'}" onclick="toggleGame(${i})"><div class="toggle-dot"></div></button>
+    </div>`).join('');
 }
 
-function toggleGame(i) {
-  games[i].active = !games[i].active;
-  renderGames();
-  markDirty();
-}
+function toggleGame(i){games[i].active=!games[i].active;renderGames();saveGames();}
+function moveGame(i,d){const j=i+d;if(j<0||j>=games.length)return;[games[i],games[j]]=[games[j],games[i]];renderGames();saveGames();}
+function deleteGame(i){if(!confirm(`"${games[i].name}" silinsin mi?`))return;games.splice(i,1);renderGames();renderStats();saveGames();}
 
-function moveGame(i, dir) {
-  const j = i + dir;
-  if(j < 0 || j >= games.length) return;
-  [games[i], games[j]] = [games[j], games[i]];
-  renderGames();
-  markDirty();
-}
-
-function deleteGame(i) {
-  if(!confirm(`"${games[i].name}" silinsin mi?`)) return;
-  games.splice(i, 1);
-  renderGames();
-  renderStats();
-  markDirty();
-}
-
-function openEditModal(i) {
-  const g = games[i];
-  document.getElementById('edit-idx').value = i;
-  document.getElementById('edit-name').value = g.name;
-  document.getElementById('edit-desc').value = g.desc;
-  document.getElementById('edit-file').value = g.file;
-  document.getElementById('edit-icon').value = g.icon;
-  document.getElementById('edit-cat').value = g.cat;
+function openEditModal(i){
+  const g=games[i];
+  document.getElementById('edit-idx').value=i;
+  document.getElementById('edit-name').value=g.name;
+  document.getElementById('edit-desc').value=g.desc;
+  document.getElementById('edit-file').value=g.file;
+  document.getElementById('edit-icon').value=g.icon;
+  document.getElementById('edit-cat').value=g.cat;
   document.getElementById('edit-modal').classList.add('open');
 }
-
-function saveEdit() {
-  const i = parseInt(document.getElementById('edit-idx').value);
-  games[i].name = document.getElementById('edit-name').value;
-  games[i].desc = document.getElementById('edit-desc').value;
-  games[i].file = document.getElementById('edit-file').value;
-  games[i].icon = document.getElementById('edit-icon').value;
-  games[i].cat = document.getElementById('edit-cat').value;
-  closeModal('edit-modal');
-  renderGames();
-  markDirty();
-  showToast('✓ OYUN GÜNCELLENDİ');
+function saveEdit(){
+  const i=parseInt(document.getElementById('edit-idx').value);
+  games[i]={...games[i],name:document.getElementById('edit-name').value,desc:document.getElementById('edit-desc').value,file:document.getElementById('edit-file').value,icon:document.getElementById('edit-icon').value,cat:document.getElementById('edit-cat').value};
+  closeModal('edit-modal');renderGames();saveGames();
 }
-
-function openAddModal() {
-  document.getElementById('add-name').value = '';
-  document.getElementById('add-desc').value = '';
-  document.getElementById('add-file').value = '';
-  document.getElementById('add-icon').value = '🎮';
+function openAddModal(){
+  ['add-name','add-desc','add-file'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('add-icon').value='🎮';
   document.getElementById('add-modal').classList.add('open');
 }
-
-function saveAdd() {
-  const name = document.getElementById('add-name').value.trim();
-  const file = document.getElementById('add-file').value.trim();
-  if(!name || !file) { showToast('Ad ve dosya adı zorunlu!', true); return; }
-  games.push({
-    name,
-    file: file.endsWith('.html') ? file : file + '.html',
-    icon: document.getElementById('add-icon').value || '🎮',
-    cat: document.getElementById('add-cat').value,
-    desc: document.getElementById('add-desc').value,
-    active: true
-  });
-  closeModal('add-modal');
-  renderGames();
-  renderStats();
-  markDirty();
-  showToast('✓ OYUN EKLENDİ');
+function saveAdd(){
+  const name=document.getElementById('add-name').value.trim();
+  const file=document.getElementById('add-file').value.trim();
+  if(!name||!file){showToast('Ad ve dosya adı zorunlu!',true);return;}
+  games.push({name,file:file.endsWith('.html')?file:file+'.html',icon:document.getElementById('add-icon').value||'🎮',cat:document.getElementById('add-cat').value,desc:document.getElementById('add-desc').value,active:true});
+  closeModal('add-modal');renderGames();renderStats();saveGames();
 }
 
-// ===== THEME =====
-const THEMES = [
-  {name:'NOVA (Varsayılan)',bg:'#050510',surface:'#0a0a1e',accent:'#00FFFF',accent2:'#FFD700',accent3:'#FF6B35'},
-  {name:'KIRMIZI GEZEGEN',bg:'#100505',surface:'#1a0808',accent:'#FF3355',accent2:'#FF8800',accent3:'#FF0066'},
-  {name:'YEŞİL MATRİX',bg:'#020d02',surface:'#041004',accent:'#00FF88',accent2:'#00FFAA',accent3:'#88FF00'},
-  {name:'MOR KARADELIK',bg:'#07020f',surface:'#0e0418',accent:'#BF00FF',accent2:'#7700FF',accent3:'#FF00CC'},
-  {name:'ALTIN GÜNEŞ',bg:'#0d0a00',surface:'#1a1400',accent:'#FFD700',accent2:'#FF8C00',accent3:'#FFF200'},
-  {name:'BUZ MAVİSİ',bg:'#020810',surface:'#040f1a',accent:'#00CFFF',accent2:'#0088FF',accent3:'#00FFEE'},
-];
+async function resetStats(){
+  if(!confirm('Tüm istatistikler sıfırlansın mı?'))return;
+  plays={};renderStats();showToast('✓ SIFIRLANDI');
+}
+function exportStats(){
+  const d=games.map(g=>({name:g.name,file:g.file,plays:getPlays(g.file)}));
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(d,null,2)],{type:'application/json'}));a.download='stats.json';a.click();
+}
 
-let selectedTheme = 0;
-let customColors = {bg:'#050510',surface:'#0a0a1e',accent:'#00FFFF',accent2:'#FFD700',accent3:'#FF6B35'};
-
-function renderTheme() {
-  const grid = document.getElementById('theme-grid');
-  grid.innerHTML = THEMES.map((t,i) => `
-    <div class="theme-card ${i===selectedTheme?'selected':''}" onclick="selectTheme(${i})"
-      style="background:${t.bg};border-color:${i===selectedTheme?t.accent:'rgba(255,255,255,0.08)'}">
+function renderTheme(){
+  document.getElementById('theme-grid').innerHTML=THEMES.map((t,i)=>`
+    <div class="theme-card ${i===selectedTheme?'selected':''}" onclick="selectTheme(${i})" style="background:${t.bg};border-color:${i===selectedTheme?t.accent:'rgba(255,255,255,0.08)'}">
       <div class="theme-preview" style="background:linear-gradient(135deg,${t.bg},${t.surface})">
         <div style="height:8px;background:${t.accent};border-radius:4px;margin:8px;opacity:0.8"></div>
         <div style="height:6px;background:${t.accent2};border-radius:4px;margin:8px;width:60%;opacity:0.7"></div>
         <div style="height:20px;background:${t.accent3};border-radius:6px;margin:8px;opacity:0.3"></div>
       </div>
       <div class="theme-name" style="color:${t.accent}">${t.name}</div>
-    </div>
-  `).join('');
-
-  // Color pickers
-  const colors = [
-    {key:'bg',label:'ARKAPLAN'},
-    {key:'surface',label:'YÜZEY'},
-    {key:'accent',label:'ANA RENK'},
-    {key:'accent2',label:'İKİNCİL'},
-    {key:'accent3',label:'VURGU'},
-  ];
-  document.getElementById('color-pickers').innerHTML = colors.map(c => `
-    <div class="color-item">
-      <div class="color-swatch" style="background:${customColors[c.key]}">
-        <input type="color" value="${customColors[c.key]}" oninput="customColors['${c.key}']=this.value;this.parentElement.style.background=this.value;markDirty()">
-      </div>
-      <div class="color-label">${c.label}</div>
-    </div>
-  `).join('');
+    </div>`).join('');
+  document.getElementById('color-pickers').innerHTML=[
+    {key:'bg',label:'ARKAPLAN'},{key:'surface',label:'YÜZEY'},{key:'accent',label:'ANA RENK'},{key:'accent2',label:'İKİNCİL'},{key:'accent3',label:'VURGU'}
+  ].map(c=>`<div class="color-item"><div class="color-swatch" style="background:${customColors[c.key]}"><input type="color" value="${customColors[c.key]}" oninput="customColors['${c.key}']=this.value;this.parentElement.style.background=this.value"></div><div class="color-label">${c.label}</div></div>`).join('');
+}
+function selectTheme(i){selectedTheme=i;const t=THEMES[i];customColors={bg:t.bg,surface:t.surface,accent:t.accent,accent2:t.accent2,accent3:t.accent3};renderTheme();}
+async function saveTheme(){
+  try{await api('/api/theme','POST',customColors);showToast('✓ TEMA KAYDEDİLDİ!');}
+  catch(e){showToast('Hata!',true);}
 }
 
-function selectTheme(i) {
-  selectedTheme = i;
-  const t = THEMES[i];
-  customColors = {bg:t.bg, surface:t.surface, accent:t.accent, accent2:t.accent2, accent3:t.accent3};
-  renderTheme();
-  markDirty();
-}
-
-function applyTheme() {
-  themeVars = {...customColors};
-  localStorage.setItem('admin_theme', JSON.stringify(themeVars));
-  dirty = false;
-  document.getElementById('save-bar').classList.remove('show');
-  showToast('✓ TEMA KAYDEDİLDİ');
-}
-
-// ===== UI HELPERS =====
-function switchTab(tab, btn) {
-  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
-  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
-  document.getElementById('tab-'+tab).classList.add('active');
-  btn.classList.add('active');
-}
-
-function closeModal(id) {
-  document.getElementById(id).classList.remove('open');
-}
-
+function switchTab(tab,btn){document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));document.getElementById('tab-'+tab).classList.add('active');btn.classList.add('active');}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
 let toastTimer;
-function showToast(msg, isError=false) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.className = 'toast' + (isError?' error':'') + ' show';
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(()=>t.classList.remove('show'), 2500);
-}
-
-function renderAll() {
-  renderStats();
-  renderGames();
-  renderTheme();
-}
-
-// Close modals on overlay click
-document.querySelectorAll('.modal-overlay').forEach(m => {
-  m.addEventListener('click', e => { if(e.target===m) m.classList.remove('open'); });
-});
-
-// Enter key on password
-document.getElementById('pwd-input').addEventListener('keydown', e => {
-  if(e.key==='Enter') doLogin();
-});
+function showToast(msg,isError=false){const t=document.getElementById('toast');t.textContent=msg;t.className='toast'+(isError?' error':'')+' show';clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove('show'),3000);}
+document.querySelectorAll('.modal-overlay').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('open');}));
+document.getElementById('pwd-input').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
 </script>
 </body>
 </html>
