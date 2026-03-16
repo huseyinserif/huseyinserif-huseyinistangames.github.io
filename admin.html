@@ -2,191 +2,147 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <title>H.Ş.K - Tam Yetkili Editör V41</title>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;900&family=Rajdhani:wght@400;600&display=swap" rel="stylesheet">
+    <title>H.Ş.K - Gelişmiş Editör V44</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;900&display=swap" rel="stylesheet">
     <style>
-        :root { --cyan: #00f5ff; --purple: #bf00ff; --dark: #050510; --card: #0a0a1f; --border: #1a1a3e; }
-        body { background: var(--dark); color: white; font-family: 'Rajdhani', sans-serif; margin: 0; }
-        #auth-screen { position: fixed; inset: 0; background: var(--dark); z-index: 9999; display: flex; align-items: center; justify-content: center; }
-        .auth-box { background: var(--card); padding: 40px; border: 1px solid var(--cyan); border-radius: 15px; text-align: center; box-shadow: 0 0 30px rgba(0,245,255,0.2); }
-        .container { max-width: 1000px; margin: 0 auto; padding: 40px 20px; display: none; }
-        .header { border-bottom: 2px solid var(--cyan); padding-bottom: 15px; margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center; }
-        h1 { font-family: 'Orbitron'; color: var(--cyan); font-size: 1.2rem; margin: 0; }
-        .upload-area { border: 2px dashed var(--purple); padding: 40px; text-align: center; border-radius: 10px; cursor: pointer; background: rgba(191,0,255,0.03); margin-bottom: 30px; }
-        .section-box { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 25px; margin-bottom: 20px; }
-        .section-box h2 { font-family: 'Orbitron'; font-size: 0.8rem; color: var(--purple); margin-bottom: 20px; text-transform: uppercase; letter-spacing: 2px; }
-        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-        .input-group { margin-bottom: 15px; }
-        label { display: block; font-size: 0.7rem; color: var(--cyan); margin-bottom: 5px; font-family: 'Orbitron'; opacity: 0.8; }
-        input, textarea { width: 100%; background: #000; border: 1px solid var(--border); color: white; padding: 12px; border-radius: 6px; outline: none; font-family: 'Rajdhani'; font-size: 1rem; transition: 0.3s; }
-        input:focus { border-color: var(--cyan); box-shadow: 0 0 10px rgba(0,245,255,0.2); }
-        textarea { min-height: 80px; }
-        .btn { font-family: 'Orbitron'; padding: 12px 25px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; text-transform: uppercase; transition: 0.3s; }
-        .btn-cyan { background: var(--cyan); color: #000; }
-        .btn-save { position: fixed; bottom: 30px; right: 30px; box-shadow: 0 0 20px rgba(0,245,255,0.4); z-index: 100; }
-        #editor-ui { display: none; }
+        :root { --cyan: #00f5ff; --purple: #bf00ff; --dark: #050510; --panel: #0f1623; }
+        body { margin: 0; background: var(--dark); font-family: 'Segoe UI', sans-serif; overflow: hidden; }
+        
+        /* Giriş */
+        #login-screen { position: fixed; inset: 0; background: var(--dark); z-index: 10000; display: flex; align-items: center; justify-content: center; }
+        .auth-box { background: var(--panel); padding: 40px; border: 1px solid var(--cyan); border-radius: 15px; text-align: center; color: white; }
+        input[type="password"] { background: #000; border: 1px solid var(--cyan); color: white; padding: 12px; border-radius: 5px; outline: none; text-align: center; font-family: 'Orbitron'; margin-bottom: 20px; }
+
+        /* Üst Kontrol Paneli */
+        .admin-bar { 
+            height: 80px; background: var(--panel); border-bottom: 2px solid var(--cyan); 
+            display: flex; align-items: center; justify-content: space-between; padding: 0 25px;
+            color: white; position: relative; z-index: 100;
+        }
+
+        .btn-group { display: flex; gap: 10px; }
+        .btn { 
+            padding: 12px 18px; border-radius: 5px; border: none; cursor: pointer; 
+            font-weight: bold; font-family: 'Orbitron'; font-size: 10px; transition: 0.3s;
+            text-transform: uppercase;
+        }
+        .btn-blue { background: var(--cyan); color: #000; }
+        .btn-purple { background: var(--purple); color: #fff; }
+        .btn-save { background: #2ecc71; color: white; border: 2px solid #27ae60; }
+        .btn:hover { transform: translateY(-2px); filter: brightness(1.2); }
+
+        #editor-frame { width: 100%; height: calc(100vh - 80px); border: none; background: white; }
+        #info-toast { position: fixed; bottom: 20px; right: 20px; background: var(--cyan); color: #000; padding: 10px 20px; border-radius: 5px; font-weight: bold; display: none; z-index: 1000; }
     </style>
 </head>
 <body>
 
-    <div id="auth-screen">
+    <div id="login-screen">
         <div class="auth-box">
-            <h2 style="font-family:'Orbitron'; color:var(--cyan); margin-bottom:20px;">SYSTEM ACCESS</h2>
-            <input type="password" id="pass" placeholder="ŞİFRE">
+            <h2 style="font-family:'Orbitron'; margin-bottom:20px;">SYSTEM ACCESS</h2>
+            <input type="password" id="passInput" placeholder="ŞİFRE">
             <br>
-            <button class="btn btn-cyan" onclick="checkLogin()" style="width:226px">GİRİŞ YAP</button>
+            <button class="btn btn-blue" onclick="checkAuth()" style="width: 226px;">GİRİŞ</button>
         </div>
     </div>
 
-    <div class="container" id="panel">
-        <div class="header">
-            <h1>H.Ş.K // ANA SİTE EDİTÖRÜ V41</h1>
-            <button class="btn btn-purple" style="font-size:10px; background:#444;" onclick="location.reload()">DOSYAYI DEĞİŞTİR</button>
+    <div class="admin-bar">
+        <div style="font-family:'Orbitron'; color:var(--cyan); font-size:18px;">H.Ş.K // PRO PANEL V44</div>
+        
+        <div class="btn-group">
+            <button class="btn btn-blue" onclick="toggleEditMode()">✏️ YAZILARI DÜZENLE</button>
+            <button class="btn btn-purple" onclick="addNewGame()">➕ YENİ OYUN EKLE</button>
+            <button class="btn btn-save" onclick="saveFinal()">💾 KAYDET VE İNDİR</button>
         </div>
-
-        <div id="upload-step" class="upload-area" onclick="document.getElementById('fileIn').click()">
-            <h2 style="font-family:'Orbitron'">INDEX.HTML YÜKLE</h2>
-            <p style="opacity:0.5">Düzenleme yapmak için ana sayfa dosyanı seç.</p>
-            <input type="file" id="fileIn" hidden accept=".html">
-        </div>
-
-        <div id="editor-ui">
-            <div class="section-box">
-                <h2>KARŞILAMA METİNLERİ (HERO)</h2>
-                <div class="grid-2">
-                    <div class="input-group">
-                        <label>TÜRKÇE BAŞLIK</label>
-                        <input type="text" id="h-tr">
-                    </div>
-                    <div class="input-group">
-                        <label>ENGLISH TITLE</label>
-                        <input type="text" id="h-en">
-                    </div>
-                </div>
-            </div>
-
-            <div class="section-box">
-                <h2>HAKKIMDA BÖLÜMÜ</h2>
-                <div class="input-group">
-                    <label>TÜRKÇE AÇIKLAMA</label>
-                    <textarea id="a-tr"></textarea>
-                </div>
-                <div class="input-group">
-                    <label>ENGLISH DESCRIPTION</label>
-                    <textarea id="a-en"></textarea>
-                </div>
-            </div>
-
-            <div class="section-box">
-                <h2>İSTATİSTİK VERİLERİ (SADECE SAYILAR)</h2>
-                <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap:10px;">
-                    <div class="input-group">
-                        <label>OYUN</label>
-                        <input type="text" id="s1">
-                    </div>
-                    <div class="input-group">
-                        <label>TÜR</label>
-                        <input type="text" id="s2">
-                    </div>
-                    <div class="input-group">
-                        <label>AI</label>
-                        <input type="text" id="s3">
-                    </div>
-                    <div class="input-group">
-                        <label>BEDAVA</label>
-                        <input type="text" id="s4">
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <button class="btn btn-cyan btn-save" id="saveBtn" style="display:none;" onclick="saveChanges()">💾 SİTEYİ GÜNCELLE VE İNDİR</button>
     </div>
+
+    <div id="info-toast">DÜZENLEME MODU AKTİF</div>
+    <iframe id="editor-frame"></iframe>
 
     <script>
-        let fullContent = "";
-        
-        function checkLogin() {
-            if(document.getElementById('pass').value === 'btmal') {
-                document.getElementById('auth-screen').style.display='none';
-                document.getElementById('panel').style.display='block';
-            } else { alert('Hatalı!'); }
+        const frame = document.getElementById('editor-frame');
+        let editMode = false;
+
+        function checkAuth() {
+            if(document.getElementById('passInput').value === 'btmal') {
+                document.getElementById('login-screen').style.display = 'none';
+                frame.src = "index.html?v=" + Date.now();
+            } else { alert("Şifre Hatalı!"); }
         }
 
-        document.getElementById('fileIn').onchange = function(e) {
-            const reader = new FileReader();
-            reader.onload = function() {
-                fullContent = reader.result;
-                
-                // DİL DOSYASINI (t nesnesini) BULMA VE ÇEKME
-                try {
-                    const tMatch = fullContent.match(/const t = ({[\s\S]*?});/);
-                    if(tMatch) {
-                        const t = eval("(" + tMatch[1] + ")");
-                        
-                        // Formları doldur
-                        document.getElementById('h-tr').value = t['hero-l1']['tr'];
-                        document.getElementById('h-en').value = t['hero-l1']['en'];
-                        document.getElementById('a-tr').value = t['about-p1']['tr'];
-                        document.getElementById('a-en').value = t['about-p1']['en'];
-                        
-                        // İstatistik sayılarını direkt HTML'den çek
-                        const parser = new DOMParser();
-                        const doc = parser.parseFromString(fullContent, 'text/html');
-                        const stats = doc.querySelectorAll('.stat-value');
-                        if(stats[0]) document.getElementById('s1').value = stats[0].innerText;
-                        if(stats[1]) document.getElementById('s2').value = stats[1].innerText;
-                        if(stats[2]) document.getElementById('s3').value = stats[2].innerText;
-                        if(stats[3]) document.getElementById('s4').value = stats[3].innerText;
+        // 1. Yazı Düzenleme Modu
+        function toggleEditMode() {
+            const doc = frame.contentDocument;
+            editMode = !editMode;
+            
+            const elements = doc.querySelectorAll('h1, h2, h3, p, .game-name, .game-desc, .stat-value, .stat-label, span');
+            
+            elements.forEach(el => {
+                el.contentEditable = editMode;
+                el.style.outline = editMode ? "1px dashed var(--cyan)" : "none";
+            });
 
-                        document.getElementById('upload-step').style.display='none';
-                        document.getElementById('editor-ui').style.display='block';
-                        document.getElementById('saveBtn').style.display='block';
-                    } else {
-                        alert("HATA: index.html içinde dil yapısı bulunamadı!");
-                    }
-                } catch(err) {
-                    alert("Dosya okuma hatası: " + err);
-                }
-            }
-            reader.readAsText(e.target.files[0]);
-        };
-
-        function saveChanges() {
-            let newContent = fullContent;
-
-            // 1. Dil Nesnesini (Script içindeki) Güncelle
-            const tMatch = newContent.match(/const t = ({[\s\S]*?});/);
-            if(tMatch) {
-                let t = eval("(" + tMatch[1] + ")");
-                
-                t['hero-l1']['tr'] = document.getElementById('h-tr').value;
-                t['hero-l1']['en'] = document.getElementById('h-en').value;
-                t['about-p1']['tr'] = document.getElementById('a-tr').value;
-                t['about-p1']['en'] = document.getElementById('a-en').value;
-
-                const newTStr = "const t = " + JSON.stringify(t, null, 2) + ";";
-                newContent = newContent.replace(/const t = {[\s\S]*?};/, newTStr);
-            }
-
-            // 2. İstatistik Sayılarını (HTML içindeki) Güncelle
-            const parser = new DOMParser();
-            const doc = parser.parseFromString(newContent, 'text/html');
-            const stats = doc.querySelectorAll('.stat-value');
-            if(stats[0]) stats[0].innerText = document.getElementById('s1').value;
-            if(stats[1]) stats[1].innerText = document.getElementById('s2').value;
-            if(stats[2]) stats[2].innerText = document.getElementById('s3').value;
-            if(stats[3]) stats[3].innerText = document.getElementById('s4').value;
-
-            // 3. Dosyayı İndir
-            const finalOut = "<!DOCTYPE html>\n" + doc.documentElement.outerHTML;
-            const blob = new Blob([finalOut], {type:'text/html'});
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(blob);
-            link.download = 'index.html';
-            link.click();
-            alert("SİSTE GÜNCELLENDİ! Yeni dosyayı GitHub'a atabilirsin.");
+            document.getElementById('info-toast').style.display = editMode ? "block" : "none";
+            document.getElementById('info-toast').innerText = editMode ? "DÜZENLEME MODU: AÇIK" : "DÜZENLEME MODU: KAPALI";
         }
+
+        // 2. Yeni Oyun Ekleme
+        function addNewGame() {
+            const doc = frame.contentDocument;
+            const grid = doc.querySelector('.games-grid');
+            
+            if(!grid) { alert("Oyun alanı bulunamadı!"); return; }
+
+            const gameName = prompt("Oyun Adı:", "Yeni Oyun");
+            const gameEmoji = prompt("Emoji:", "🎮");
+            const fileName = prompt("Dosya Adı (uzantılı):", "oyun.html");
+
+            if(!gameName || !gameEmoji) return;
+
+            const newCard = doc.createElement('div');
+            newCard.className = 'game-card';
+            newCard.setAttribute('onclick', `openGame('${fileName}','${gameName}')`);
+            
+            newCard.innerHTML = `
+                <div class="game-thumbnail">
+                    <div class="game-thumb-glow"></div>
+                    ${gameEmoji}
+                </div>
+                <div class="game-info">
+                    <div class="game-tag">⬡ SİSTEM AKTİF</div>
+                    <div class="game-name">${gameName}</div>
+                    <div class="game-desc">Yeni eklenen harika bir oyun.</div>
+                    <div class="game-footer"><button class="btn-play">Oyna ▶</button></div>
+                </div>
+            `;
+
+            grid.insertBefore(newCard, grid.firstChild); // En başa ekle
+            newCard.scrollIntoView({behavior: "smooth"});
+            alert("Oyun Eklendi! Şimdi üzerindeki yazılara tıklayarak açıklamayı düzeltebilirsin.");
+        }
+
+        // 3. Kaydetme
+        function saveFinal() {
+            const doc = frame.contentDocument;
+            
+            // Temizlik
+            doc.querySelectorAll('*').forEach(el => {
+                el.removeAttribute('contenteditable');
+                el.style.outline = "none";
+            });
+
+            const html = "<!DOCTYPE html>\n" + doc.documentElement.outerHTML;
+            const blob = new Blob([html], {type: 'text/html'});
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = 'index.html';
+            a.click();
+            
+            alert("index.html başarıyla güncellendi. GitHub'a yüklemeyi unutma!");
+            location.reload();
+        }
+
+        document.getElementById('passInput').addEventListener('keypress', (e) => { if(e.key === 'Enter') checkAuth(); });
     </script>
 </body>
 </html>
